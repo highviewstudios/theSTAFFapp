@@ -1,22 +1,19 @@
-import React, {usestate, useEffect, useState} from 'react';
-import { Redirect, useHistory } from 'react-router-dom';
+import React from 'react';
+import { useHistory } from 'react-router-dom';
 
 function SignIn() {
 
   const history = useHistory();
 
-  
-  
   return (
     <div >
       <h1>Sign In Page</h1>
 
-      <button onClick={Run}>Hello</button>
+      <button onClick={Run}>Admin</button>
     </div>
   );
 
   function Run() {
-    alert("HELLO");
     history.push("/administration");
   }
 }
