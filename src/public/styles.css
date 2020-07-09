@@ -1,19 +1,36 @@
 .App {
   text-align: center;
+  background-color: #184d47;
 }
 
 nav{
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  min-height: 10vh;
-  background: lightblue;
+  /* display: flex; */
+  /* justify-content: space-around; */
+  /* align-items: center; */
+  /* min-height: 10vh; */
+  background: #96bb7c;
+  color: red;
+  text-align: center;
+}
+
+.body {
+  padding-top: 5px;
 }
 
 .nav-links{
-  width: 40%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  list-style: none;
+  /* width: 40%;
+  display: flex; */
+  /* justify-content: space-around; */
+  /* align-items: center; */
+  /* list-style: none; */
+}
+
+.back-color {
+  background-color: #d6efc7;
+}
+
+.user-nav {
+  text-align: right;
+  padding-right: 20px;
+  font-size: 1.5rem;
 }

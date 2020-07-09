@@ -1,18 +1,22 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Row, Col } from 'react-bootstrap';
+import UserNav from './userNav';
 
 function Nav() {
   return (
     <nav>
-        <h3>Logo</h3>
-        <ul className="nav-links">
-            <Link to="/signin">
-                <li>Sign In</li>
-            </Link>
-            <Link to="/administration">
-                <li>Administration</li>
-            </Link>
-        </ul>
+    <Row>
+    <Col></Col>
+    <Col>
+        <h1><strong>My STAFF</strong></h1>
+        <h2><strong>Space, Times, Flexible, Facilities</strong></h2>
+    </Col>
+    <Col>
+        <div className="user-nav">
+          <UserNav />
+        </div>
+      </Col>
+      </Row>
     </nav>
   );
 }
