@@ -31,9 +31,7 @@ function SignIn() {
                     ):(
                     <div>
                     <br />
-                        <MDBBtn color="black" social="git" href={hostPath + 'http://localhost:8080/auth/github/'}>
-                            <MDBIcon fab icon="github" className="pr-1" /> Github
-                        </MDBBtn>
+                    <Button variant="dark" href={hostPath + "/auth/github"}><i class="fab fa-github"></i>  Log in with Github</Button><br /><br />
                     </div> 
                     
                     )}

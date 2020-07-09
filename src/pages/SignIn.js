@@ -34,9 +34,7 @@ function SignIn() {
         
         <Button variant="warning" onClick={logIn}>Log in</Button>
         <Button variant="warning" onClick={register}>Register</Button><br /><br />
-        <MDBBtn color="red" social="gplus" href="http://localhost:8080/auth/google">
-              <MDBIcon fab icon="google" className="pr-1" /> Log in with Google
-        </MDBBtn>
+        <Button variant="danger" href={hostPath + "/auth/google"}><i class="fab fa-google"></i> Log in with Google</Button><br /><br />
       </Jumbotron>
     </Container>
     </div>
