@@ -1,53 +1,54 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { UserContext } from '../context/userContext';
-import { AdminContext } from '../context/adminContext';
-import ServerPath, { hostPath } from "../ServerPath";
+import ServerPath, { hostPath } from "../../ServerPath";
 import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import {useSelector, useDispatch} from 'react-redux';
+import {userUpdateAuth, userUpdateName, userUpdateRole} from "../../store/actions"
+
 
 import Button from "react-bootstrap/Button";
-
-
 
 function User() {
 
     const history = useHistory();
-
-    const { user, updateUser } = useContext(UserContext);
-    const { admin } = useContext(AdminContext);
+    const user = useSelector(state => state.user);
+    const dispatch = useDispatch();
     
     const [details, setDetails] = useState({
         name: '',
         show: false
     });
-    const [page, setPage] = useState();
+    
+    useEffect(() => {
+        ServerPath();
+    },[])
 
     useEffect(() => {
         getUser();
-    }, [user, admin]);
-
-    useEffect(() => {
-        history.push(page);
-        //setPage('');
-    },[logOut])
+    }, [user]);
 
     function getUser() {
-        console.log("IN");
-        console.log(admin);
-        if(user.name !== '') {
-            setDetails({
-                name: user.name,
-                show: true
-            });
-        } else {
-            if(admin.access === 'granted') {
-                setDetails({
-                    name: "High-View-Studios",
-                    show: true
-                })
-            }
-        }
+
         console.log(user);
+        if(user.auth) {
+
+            if(user.role == "superAdmin") {
+                setDetails({
+                    name: "High-View Studios",
+                    show: true
+                });
+            } else {
+                setDetails({
+                    name: user.name,
+                    show: true
+                });
+            }
+        } else {
+            setDetails({
+                name: '',
+                show: false
+            })
+        }
     }
 
     function logOut() {
@@ -55,11 +56,11 @@ function User() {
         .then(res => {
             console.log(res.data.message);
             if(res.data.message === "User logged out") {
-                setDetails({name: '', show: false});
-                setPage('/');
-                console.log("Redirect")
+                dispatch(userUpdateAuth(false));
+                dispatch(userUpdateName(''));
+                dispatch(userUpdateRole(''));
+                history.push('/signin');
             }
-
         })
         .catch(err => {
             console.log(err);

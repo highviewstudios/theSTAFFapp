@@ -33,15 +33,26 @@ connection.connect(err => {
 router.get("/auth", async function(req, res) {
     if(req.isAuthenticated()) {
         
-        const userDetails = await GetUserByID(req.user);
-        
-        const json = {
-            through: "YES",
-            auth: true,
-            user: userDetails 
+        if(req.user == process.env.ADMIN_ID) {
+            const json = {
+                through: "YES",
+                auth: true,
+                role: "superAdmin",
+            }
+            res.send(json);
+        } else {
+
+            const userDetails = await GetUserByID(req.user);
+            const json = {
+                through: "YES",
+                auth: true,
+                role: "user",
+                user: userDetails 
+            }
+            res.send(json);
         }
         
-        res.send(json);
+        
 } else {
     const json = {
         through: "yes",
@@ -93,7 +104,7 @@ router.get("/login", function(req, res, next) {
                         message: "oops, something happed",
                     });
                 }
-                return res.json({...user, message: "Logged in successful"});
+                return res.json({...user, role: "user", message: "Logged in successful"}); //NEEDS CHANGING WHEN ADDING ROLE TO DATABASE
             });
         }
     }

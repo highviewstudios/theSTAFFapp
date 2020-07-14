@@ -2,7 +2,8 @@ import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import ServerPath, { hostPath } from "../ServerPath";
-import { MDBIcon, MDBBtn } from 'mdbreact';
+import {useDispatch, useSelector} from 'react-redux';
+import {userUpdateAuth, userUpdateName, userUpdateRole} from '../store/actions';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -11,13 +12,22 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 
 function SignIn() {
 
+  const user = useSelector(state => state.user);
   const history = useHistory();
+  const dispatch = useDispatch();
   const [message, setmessage] = useState('');
 
   useEffect(() => {
     document.title = "STAFF - Sign In";
     ServerPath();
+    onOpen();
   },[])
+
+  function onOpen() {
+    if(user.auth) {
+      history.push('/');
+    }
+  }
 
   return (
     <div className="body">
@@ -34,7 +44,7 @@ function SignIn() {
         
         <Button variant="warning" onClick={logIn}>Log in</Button>
         <Button variant="warning" onClick={register}>Register</Button><br /><br />
-        <Button variant="danger" href={hostPath + "/auth/google"}><i class="fab fa-google"></i> Log in with Google</Button><br /><br />
+        <Button variant="danger" href={hostPath + "/auth/google"}><i className="fab fa-google"></i> Log in with Google</Button>
       </Jumbotron>
     </Container>
     </div>
@@ -49,6 +59,9 @@ function SignIn() {
     .then(res => {
         const message = res.data.message;
         if(message === "Logged in successful") {
+            dispatch(userUpdateAuth(true));
+            dispatch(userUpdateName(res.data.displayName));
+            dispatch(userUpdateRole(res.data.role));
             history.push('/');
         } else {
             setmessage(res.data.info);

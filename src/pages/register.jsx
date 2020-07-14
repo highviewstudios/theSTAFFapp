@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
 import { useHistory } from 'react-router-dom';
+import {useSelector} from 'react-redux';
 
 //Styles
 import Button  from "react-bootstrap/Button";
@@ -10,14 +11,22 @@ import Form from "react-bootstrap/Form";
 
 function Register() {
 
-    useEffect(() => {
-        document.title = "STAFF - Register";
-    },[])
-
     const history = useHistory();
+    const user = useSelector(state => state.user);
 
     const [message, setMessage] = useState('');
-    const [registed, setRegister] = useState(false)
+    const [registed, setRegister] = useState(false);
+
+    useEffect(() => {
+        document.title = "STAFF - Register";
+        onOpen();
+    },[]);
+
+    function onOpen() {
+        if(user.auth) {
+            history.push('/');
+        }
+    }
 
     function handleClick(event) {
         event.preventDefault();

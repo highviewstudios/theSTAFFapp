@@ -1,18 +1,30 @@
 import React, { useEffect, useContext } from 'react';
-import { UserContext } from '../context/userContext';
+import {useSelector} from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 //Styles
 import Button from "react-bootstrap/Button"
 import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
 
+
 function Home() {
 
-  const { updateUser } = useContext(UserContext)
+  const user = useSelector(state => state.user);
+  const history = useHistory();
 
   useEffect(() => {
     document.title = "STAFF";
-  },[])
+    onOpen();
+  },[]);
+
+  function onOpen() {
+    if(user.auth == false) {
+      history.push("/signin");
+    } else if(user.role == "superAdmin") {
+      history.push("/administrator");
+    }
+  }
 
   return (
     <div className="body">

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect } from 'react';
-import { AdminContext } from '../../context/adminContext';
+import React, { useState, useEffect } from 'react';
 import ServerPath, { hostPath } from "../../ServerPath";
-import { MDBIcon, MDBBtn } from 'mdbreact';
+import {useSelector} from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 //Styles
 import Button  from "react-bootstrap/Button";
@@ -11,22 +11,33 @@ import Form from "react-bootstrap/Form";
 
 function SignIn() {
 
-    const { admin } = useContext(AdminContext);
+    const [granted, setGranted] = useState(true);
+    const user = useSelector(state => state.user);
+    const history = useHistory();
 
     useEffect(() => {
-        document.title = "STAFF - Administrator Sign In";
         ServerPath();
+        onOpen();
     },[])
+
+    function onOpen() {
+        if(user.auth) {
+            if(user.role == "superAdmin") {
+                history.push('/');
+            } else {
+                setGranted(false);
+            }
+        }
+    }
 
     return (
         <div className="body">
             <Container className="p-3">
                 <Jumbotron className="back-color">
                     <h1>Administrator Sign In</h1>
-                    {admin.granted == "denied" ? (
+                    {!granted ? (
                     <div>
                     <h1>Access Denied</h1>
-                    <Button variant="warning" href= {hostPath + "/administrator/logout"}>Log Out</Button>
                     </div>
                     ):(
                     <div>

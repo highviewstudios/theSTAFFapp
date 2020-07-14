@@ -37,6 +37,9 @@ app.get('/administrator', (req, res) => {
 const userLogin = require('./routes/userLogin');
 app.use(userLogin);
 
+const redirectRoutes = require('./routes/redirectedRoutes');
+app.use(redirectRoutes);
+
 
 
 app.listen(process.env.PORT || 8080, () => {
