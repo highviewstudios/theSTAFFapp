@@ -17,7 +17,7 @@ function Home() {
     const user = useSelector(state => state.user);
 
     if(!user.auth || user.role != "superAdmin") {
-            history.push('/administrator/signin');
+            history.push('/administrator/signIn');
     }
 
   useEffect(() => {
@@ -28,8 +28,7 @@ function Home() {
     <div className="body">
       <Container fluid className="p-3">
             <Jumbotron className="back-color">
-            <h1>Administrator Home</h1>
-              {/* <OrganisationList /> */}
+              <OrganisationList />
             </Jumbotron>
         </Container>
     </div>

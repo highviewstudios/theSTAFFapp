@@ -8,36 +8,24 @@ import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
 
 
-function Home() {
+function OrganisationAdmin() {
 
   const user = useSelector(state => state.user);
   const history = useHistory();
 
   useEffect(() => {
     document.title = "STAFF";
-    onOpen();
   },[]);
-
-  function onOpen() {
-    console.log(user);
-    if(user.auth == true) {
-      if(user.role == "superAdmin") {
-        history.push("/administrator");
-      } else {
-        history.push('/org/' + user.orgID);
-      }
-    }
-  }
 
   return (
     <div className="body">
         <Container fluid className="p-3">
             <Jumbotron className="back-color">
-              <h1>Home</h1>
+              <h1>Organisation Admin</h1>
             </Jumbotron>
         </Container>
     </div>
   );
 }
 
-export default Home;
+export default OrganisationAdmin;

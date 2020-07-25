@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        
+        .center{display: block; margin-left: auto; margin-right: auto; width: 95px; height: 95px}
+
+        .body-heading {
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: red;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="body-heading">
+        <img src="http://app.high-view-studios.co.uk/HighViewStudios/templates/logo.jpg" class="center">
+        <h1><strong>My STAFF</strong></h1>
+        <h2><strong>Space, Times, Flexible, Facilities</strong></h2>
+    </div>
+
+    <p>Dear {{ name }} ({{ email }}),</p>
+    <p>Thank you for registering {{ orgName }} on the My STAFF platform</p>
+    <p>You are the Senior Admin which enables you to:</p>
+    <ul>
+        <li>Add / remove admins and users</li>
+        <li>Add / remove / edit rooms</li>
+        <li>Edit user profiles</li>
+    </ul>
+    <p>You will also be the point of contact between High-View Studios and your organisation</p>
+
+    <p>Your login information is as follows: </p>
+
+    <p>You have selected the following login options for your organisation</p>
+    <ul>
+    {{#eqlsTo authLocal 'true'}}
+        <li>Local Login:</li>
+        <ul>
+            <li>Username: please use the email you see above</li>
+            <li>Password: {{ localPassword }}</li><br />
+        </ul>
+    {{/eqlsTo}}
+
+    {{#eqlsTo authGoogle 'true'}}
+        <li>Google Login - please use the email you see above</li>
+    {{/eqlsTo}}
+    </ul>
+
+    <p>If you have chosen more than one login option, the option that the user choose to log in for the first time, will be their login option for therefore after. The website will correct you if you try to log in through the wrong option.</p>
+
+    <p>Your organisation's unquie URL is https://staff-development.high-view-studios.co.uk/{{ orgID }}</p>
+
+    <p>Enjoy booking your rooms' sessions through My STAFF</p>
+
+    <p>Regards,</p>
+
+    <p><strong>High-View Studios</strong></p>
+
+</body>
+</html>

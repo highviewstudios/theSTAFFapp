@@ -26,3 +26,24 @@ export const userUpdateRole = (val) => {
     };
 }
 
+export const userUpdateNew = (val) => {
+    return {
+        type: "USER_UPDATE_NEW",
+        value: val
+    }
+}
+
+export const userUpdateRequestedPassword = (val) => {
+    return {
+        type: "USER_UPDATE_REQUESTEDPASSWORD",
+        value: val
+    }
+}
+
+export const userUpdateOrgID = (val) => {
+    return {
+        type: "USER_UPDATE_ORGID",
+        value: val
+    }
+}
+

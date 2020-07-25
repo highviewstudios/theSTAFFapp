@@ -3,7 +3,9 @@ import ServerPath, { hostPath } from "../../ServerPath";
 import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole} from "../../store/actions"
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID} from "../../store/actions/user";
+
+import Dropdown from "react-bootstrap/Dropdown";
 
 
 import Button from "react-bootstrap/Button";
@@ -29,7 +31,7 @@ function User() {
 
     function getUser() {
 
-        console.log(user);
+        //console.log(user);
         if(user.auth) {
 
             if(user.role == "superAdmin") {
@@ -56,10 +58,15 @@ function User() {
         .then(res => {
             console.log(res.data.message);
             if(res.data.message === "User logged out") {
+                console.log(user);
                 dispatch(userUpdateAuth(false));
                 dispatch(userUpdateName(''));
                 dispatch(userUpdateRole(''));
-                history.push('/signin');
+                dispatch(userUpdateNew(''));
+                dispatch(userUpdateRequestedPassword(false));
+                const orgID = user.orgID;
+                dispatch(userUpdateOrgID(''));
+                history.push('/org/' + orgID + '/signIn');
             }
         })
         .catch(err => {
@@ -73,7 +80,23 @@ function User() {
         {details.show ? (
             <div>
             <strong>User: {details.name}</strong><br />
-            <Button variant="warning" onClick={logOut}>Log Out</Button>
+            {user.role == "seniorAdmin" ? (
+                <div>
+                <Dropdown>
+            <Dropdown.Toggle variant="warning" id="dropdown-basic">
+                Page
+            </Dropdown.Toggle><Button variant="warning" onClick={logOut}>Log Out</Button>
+
+            <Dropdown.Menu>
+                <Dropdown.Item onClick={() => history.push('/')}>Organisation Home</Dropdown.Item>
+                <Dropdown.Item onClick={() => history.push('/org/'+ user.orgID +'/organisationAdmin')}>Organisation Admin</Dropdown.Item>
+            </Dropdown.Menu>
+            </Dropdown>
+                </div>) : (
+                    <div>
+                    <Button variant="warning" onClick={logOut}>Log Out</Button>
+                </div>)}
+            
             </div>
         ) : (
             <div>

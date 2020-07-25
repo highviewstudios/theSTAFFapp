@@ -4,20 +4,8 @@ const LocalStrategy = require('passport-local').Strategy
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const GithubStrategy = require('passport-github2').Strategy
 const bcrypt = require('bcrypt');
-const mysql = require("mysql");
+const mySQLConnection = require('../connection');
 
-const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME
-});
-
-connection.connect(err => {
-    if(err) {
-        return err;
-    }
-});
 let user;
 
 function initialize(passport) {
@@ -52,7 +40,7 @@ function initialize(passport) {
         const data = {id: id}
         const SELECT_QUERY = "SELECT * FROM users WHERE ?";
 
-        connection.query(SELECT_QUERY, data, (err, results) => {
+        mySQLConnection.query(SELECT_QUERY, data, (err, results) => {
             if(err) {
                 return done(err, null)
             } else {
@@ -70,7 +58,6 @@ function initialize(passport) {
         },
         function(accessToken, refreshToken, profile, cb) {
         user = {... profile }
-        processGoogleUser(user.displayName, user.id);
         return cb(null, profile);
         }
     ));
@@ -98,7 +85,7 @@ function initialize(passport) {
         const data = {email: email}
         const SELECT_QUERY = "SELECT * FROM users WHERE ?";
 
-        connection.query(SELECT_QUERY, data, (err, results) => {
+        mySQLConnection.query(SELECT_QUERY, data, (err, results) => {
             if(err) {
                 reject();
             } else {
@@ -107,33 +94,6 @@ function initialize(passport) {
             }
         });
     });
-    }
-
-    //Google Strategy
-    function processGoogleUser(name, id) {
-
-        const data1 = {id: id}
-        const FIND_QUERY = "SELECT * FROM users WHERE ?";
-
-        connection.query(FIND_QUERY, data1, (err, results) => {
-            if(err) {
-                console.error(err);
-            } else {
-                if(results[0] == null) {
-
-                    const data2 = {id: id, strategy: "google", displayName: name}
-                    const INSERT_QUERY = "INSERT INTO users SET ?";
-        
-                    connection.query(INSERT_QUERY, data2, (err, results) => {
-                        if(err) {
-                            console.error(err);
-                        } else {
-                            console.info("Successfully added user");
-                        }
-                    });
-                }
-            }
-        });
     }
 }
 

@@ -3,16 +3,19 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import ServerPath, { hostPath } from "../ServerPath";
 import {useDispatch, useSelector} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole} from '../store/actions';
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID} from '../store/actions/user';
 
 //Styles
 import Button from "react-bootstrap/Button"
 import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
 
-function SignIn() {
+function SignIn(props) {
+
+  const organisationID = props.match.params.id;
 
   const user = useSelector(state => state.user);
+  const organisation = useSelector(state => state.organisation);
   const history = useHistory();
   const dispatch = useDispatch();
   const [message, setmessage] = useState('');
@@ -20,7 +23,7 @@ function SignIn() {
   useEffect(() => {
     document.title = "STAFF - Sign In";
     ServerPath();
-    onOpen();
+    //onOpen();
   },[])
 
   function onOpen() {
@@ -33,18 +36,26 @@ function SignIn() {
     <div className="body">
     <Container className="p-3">
       <Jumbotron className="back-color">
+      <h1>{organisation.name}</h1> <br />
         <h3>Please Sign In!</h3>
-        <form>
+        {organisation.signInLocal == 'true' ? (
+          <div>
+          <form>
           <label id="lblEmail">Email:</label><br />
           <input id="txtEmail"type="email"></input><br /><br />
           <label id="lblPassword">Password:</label><br />
-          <input id="txtPassword" type="password"></input>
+          <input id="txtPassword" type="password"></input><br /> <br />
           <p>{message}</p>
         </form><br />
         
         <Button variant="warning" onClick={logIn}>Log in</Button>
-        <Button variant="warning" onClick={register}>Register</Button><br /><br />
-        <Button variant="danger" href={hostPath + "/auth/google"}><i className="fab fa-google"></i> Log in with Google</Button>
+        <Button variant="warning" onClick={() => history.push('/org/'+ organisationID +'/forgotPassword')}>Forgot Password</Button><br /><br />
+          </div>) : (<div></div>)}
+
+        {organisation.signInGoogle == 'true' ? (
+          <Button variant="danger" href={hostPath + "/auth/google"}><i className="fab fa-google"></i> Log in with Google</Button>
+        ) : (<div></div>)}
+        
       </Jumbotron>
     </Container>
     </div>
@@ -57,12 +68,21 @@ function SignIn() {
 
     axios.get("/login?email=" + email + "&password=" + password)
     .then(res => {
+      console.log(res.data);
         const message = res.data.message;
         if(message === "Logged in successful") {
             dispatch(userUpdateAuth(true));
             dispatch(userUpdateName(res.data.displayName));
             dispatch(userUpdateRole(res.data.role));
-            history.push('/');
+            dispatch(userUpdateNew(res.data.new));
+            dispatch(userUpdateRequestedPassword(res.data.requestedPassword));
+            dispatch(userUpdateOrgID(res.data.orgID));
+
+            if(res.data.new == "true") {
+              history.push('createPassword');
+            } else {
+            history.push('/org/' + organisationID);
+            }
         } else {
             setmessage(res.data.info);
         }

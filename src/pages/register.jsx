@@ -54,7 +54,7 @@ function Register() {
 
     function handleLogin() {
         setRegister(false);
-        history.push('/signin')
+        history.push('/signIn')
     }
 
     

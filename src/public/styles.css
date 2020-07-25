@@ -17,13 +17,13 @@ nav{
   padding-top: 5px;
 }
 
-.nav-links{
+/* .nav-links{
   /* width: 40%;
   display: flex; */
   /* justify-content: space-around; */
   /* align-items: center; */
-  /* list-style: none; */
-}
+  /* list-style: none; 
+ } */
 
 .back-color {
   background-color: #d6efc7;
@@ -37,4 +37,23 @@ nav{
 
 .AH-AddOrganisationBtn {
   text-align: right;
+}
+
+.A-AddOrganisationText {
+  font-size: 1.5rem;
+}
+
+.A-AddOrganisationTextColor {
+  color: red;
+  font-weight: bold;
+}
+
+.Organisations-ListBox {
+  background-color: #FFBB33;
+  color: white;
+}
+
+.Organisations-ListTitles {
+  background-color: orange;
+  color: white;
 }
