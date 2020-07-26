@@ -283,11 +283,11 @@ router.get("/register/:name/:email/:password/:confirmPassword", async (req, res)
 });
 
 //TO CREATE PASSWORD
-router.get('/createPassword/:oldPassword/:newPassword/:confirmPassword', async (req, res) => {
+router.post('/createPassword', async (req, res) => {
     
-    const oldPassword = req.params.oldPassword;
-    const newPassword = req.params.newPassword;
-    const confirmPassword = req.params.confirmPassword;
+    const oldPassword = req.body.oldPassword;
+    const newPassword = req.body.newPassword;
+    const confirmPassword = req.body.confirmPassword;
 
     const user = await GetUserByID(req.user);
 
@@ -331,9 +331,9 @@ router.get('/createPassword/:oldPassword/:newPassword/:confirmPassword', async (
 });
 
 //REQUEST NEW PASSWORD
-router.get('/requestPassword/:email', async(req, res) => {
+router.post('/requestPassword', async(req, res) => {
 
-    const uEmail = req.params.email;
+    const uEmail = req.body.email;
 
     const user = await GetUserByEmail(uEmail);
 
@@ -390,11 +390,11 @@ router.get('/requestPassword/:email', async(req, res) => {
 });
 
 //TO CHANGE PASSWORD
-router.get('/changePassword/:oldPassword/:newPassword/:confirmPassword', async (req, res) => {
+router.post('/changePassword', async (req, res) => {
     
-    const oldPassword = req.params.oldPassword;
-    const newPassword = req.params.newPassword;
-    const confirmPassword = req.params.confirmPassword;
+    const oldPassword = req.body.oldPassword;
+    const newPassword = req.body.newPassword;
+    const confirmPassword = req.body.confirmPassword;
 
     const user = await GetUserByID(req.user);
 

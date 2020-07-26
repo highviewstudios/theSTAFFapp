@@ -30,9 +30,9 @@ function CreatePassword(props) {
 
     if(oldPassword != '' && newPassword != '' && confirmPassword != '')
     {
-      const url = '/createPassword/' + oldPassword + '/' + newPassword + '/' + confirmPassword;
+      const data = { oldPassword: oldPassword, newPassword: newPassword, confirmPassword: confirmPassword};
 
-      axios.get(url)
+      axios.post('/createPassword', data)
       .then(res => {
         if(res.data.userError == 'Yes') {
           setmessage(res.data.message);

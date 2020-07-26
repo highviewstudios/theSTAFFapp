@@ -25,15 +25,15 @@ function OrganisationRegister() {
     event.preventDefault();
 
     const orgName = document.getElementById("txtOrgName").value;
-    const AllocatRooms = document.getElementById("txtAlRooms").value;
+    const allocatRooms = document.getElementById("txtAlRooms").value;
     const authLocal = document.getElementById("ckbLocal").checked;
-    const authGoggle = document.getElementById("ckbGoggle").checked;
+    const authGoogle = document.getElementById("ckbGoggle").checked;
     const pName = document.getElementById("txtName").value;
     const pEmail = document.getElementById("txtEmail").value;
 
-    const url = "/administrator/addOrganisation/"+orgName+"/"+AllocatRooms+"/"+authLocal+"/"+authGoggle+"/"+pName+"/"+pEmail;
 
-    Axios.get(url)
+    const data = {orgName: orgName, orgRooms: allocatRooms, authLocal: authLocal.toString(), authGoogle: authGoogle.toString(), pName: pName, pEmail: pEmail};
+    Axios.post('/administrator/addOrganisation', data)
     .then(res => {
       const data = res.data;
 

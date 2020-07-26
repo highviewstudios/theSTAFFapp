@@ -8,14 +8,14 @@ const { uuid } = require('uuidv4');
 
 const router = express.Router();
 
-router.get('/administrator/addOrganisation/:orgName/:orgRooms/:authLocal/:authGoogle/:pName/:pEmail', async (req, res) => {
+router.post('/administrator/addOrganisation', async (req, res) => {
     
-    const orgName = req.params.orgName;
-    const orgRooms = req.params.orgRooms;
-    const authLocal = req.params.authLocal;
-    const authGoogle = req.params.authGoogle;
-    const pName = req.params.pName;
-    const pEmail = req.params.pEmail;
+    const orgName = req.body.orgName;
+    const orgRooms = req.body.orgRooms;
+    const authLocal = req.body.authLocal;
+    const authGoogle = req.body.authGoogle;
+    const pName = req.body.pName;
+    const pEmail = req.body.pEmail;
 
     if(!ValidateNumber(orgRooms)) {
         const json = {

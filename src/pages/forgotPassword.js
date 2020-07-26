@@ -30,9 +30,8 @@ function ForgotPassword(props) {
 
     if(email != '')
     {
-      const url = '/requestPassword/' + email 
-
-      axios.get(url)
+      const data = {email : email};
+      axios.post('/requestPassword/', data)
       .then(res => {
         if(res.data.userError == "Yes") {
           setmessage(res.data.message);

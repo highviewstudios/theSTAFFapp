@@ -13,7 +13,8 @@ initialisePassport(passport);
 const app = express();
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.urlencoded({ extended: false }));
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(cookieSession({
   name: 'session',
   secret: process.env.SESSION_SECRET,
