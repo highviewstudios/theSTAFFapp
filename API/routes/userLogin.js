@@ -67,7 +67,7 @@ router.get("/login", async function(req, res, next) {
             }
             res.send(json);
         } else {
-            if(user.strategy != 'local') {
+            if(user.new == 'false' && user.strategy != 'local') {
                 const json = {
                     error: 'null',
                     userError: 'Yes',
