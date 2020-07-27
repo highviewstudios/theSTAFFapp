@@ -6,8 +6,6 @@ let mailer;
 
 function BuildMailer() {
 
-    if(process.env.MAILER == "local") {
-
         module.exports.mail = mailer = nodemailer.createTransport({
             host: "webmail.high-view-studios.co.uk",
             port: 25,
@@ -37,29 +35,6 @@ function BuildMailer() {
         }));
 
         //console.log(mailer);
-    } else {
-
-        module.exports.mail = mailer = nodemailer.createTransport({
-            host: "webmail.high-view-studios.co.uk",
-            port: 25,
-            secure: false, // true for 465, false for other ports
-            auth: {
-            user: process.env.EMAIL_ADDRESS, // generated ethereal user
-            pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-            }
-        });
-
-        mailer.use('compile', hbs({
-            viewEngine: {
-                extname: 'hbs',
-                layoutsDir: 'API/email/mainLayout/',
-                defaultLayout: 'main'
-            },
-            viewPath: './API/email/templates/',
-            extName: '.hbs'
-        }));
-
-    }
 }
 
 module.exports = BuildMailer;
