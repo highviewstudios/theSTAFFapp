@@ -59,14 +59,20 @@ function User() {
             console.log(res.data.message);
             if(res.data.message === "User logged out") {
                 console.log(user);
+                let page;
+                if(user.role == 'superAdmin') {
+                    page = "/";
+                } else {
+                    const orgID = user.orgID;
+                    page = '/org/' + orgID + '/signIn';
+                }
                 dispatch(userUpdateAuth(false));
                 dispatch(userUpdateName(''));
                 dispatch(userUpdateRole(''));
                 dispatch(userUpdateNew(''));
                 dispatch(userUpdateRequestedPassword(false));
-                const orgID = user.orgID;
                 dispatch(userUpdateOrgID(''));
-                history.push('/org/' + orgID + '/signIn');
+                history.push(page);
             }
         })
         .catch(err => {
