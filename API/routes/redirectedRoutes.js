@@ -2,8 +2,35 @@ const express = require('express');
 const path = require('path')
 const router = express.Router();
 
-router.get("/signin", (req, res) => {
-    res.redirect('/');
+router.get("/org/:id/signin", (req, res) => {
+    const id = req.params.id;
+    res.redirect('/org/'+ id);
+});
+
+router.get("/org/:id/createPassword", (req, res) => {
+    const id = req.params.id;
+    res.redirect('/org/'+ id);
+});
+
+router.get("/org/:id/changePassword", (req, res) => {
+    const id = req.params.id;
+    res.redirect('/org/'+ id);
+});
+
+router.get("/org/:id/forgotPassword", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
+router.get("/org/:id/wrongOrganisation", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
+router.get("/org/:id/wrongLogin", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
+router.get("/org/:id/organisationAdmin", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });
 
 router.get("/home", (req, res) => {
@@ -16,7 +43,7 @@ router.get("/administrator/signin", (req, res) => {
 });
 
 router.get("/administrator/organisationRegister", (req, res) => {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });
 
 router.get("/administrator/home", (req, res) => {

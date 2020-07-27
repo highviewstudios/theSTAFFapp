@@ -19,7 +19,12 @@ function CreatePassword(props) {
 
   useEffect(() => {
     document.title = "STAFF";
+    onOpen();
   },[]);
+
+  function onOpen() {
+    
+  }
 
   function setPassword(event) {
     event.preventDefault();

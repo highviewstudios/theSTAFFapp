@@ -38,6 +38,7 @@ function SignIn() {
                     {!granted ? (
                     <div>
                     <h1>Access Denied</h1>
+                    <Button variant="warning" href='/'>Back to Home </Button><br /><br />
                     </div>
                     ):(
                     <div>
