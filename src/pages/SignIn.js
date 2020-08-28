@@ -38,7 +38,8 @@ function SignIn(props) {
       <Jumbotron className="back-color">
       <h1>{organisation.name}</h1> <br />
         <h3>Please Sign In!</h3>
-        {organisation.signInLocal == 'true' ? (
+        <p>{organisation.message}</p>
+        {organisation.signInLocal ? (
           <div>
           <form>
           <label id="lblEmail">Email:</label><br />
@@ -52,7 +53,7 @@ function SignIn(props) {
         <Button variant="warning" onClick={() => history.push('/org/'+ organisationID +'/forgotPassword')}>Forgot Password</Button><br /><br />
           </div>) : (<div></div>)}
 
-        {organisation.signInGoogle == 'true' ? (
+        {organisation.signInGoogle ? (
           <Button variant="danger" href={hostPath + "/auth/google"}><i className="fab fa-google"></i> Log in with Google</Button>
         ) : (<div></div>)}
         

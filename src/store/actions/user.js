@@ -47,3 +47,10 @@ export const userUpdateOrgID = (val) => {
     }
 }
 
+export const userUpdateUserDepartments = (val) => {
+    return {
+        type: "USER_UPDATE_USERDEPARTMENTS",
+        value: val
+    }
+}
+

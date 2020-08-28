@@ -62,6 +62,9 @@ app.use(redirectRoutes);
 const organisationRoutes = require('./API/routes/organisationRoute');
 app.use(organisationRoutes);
 
+const booking = require('./API/routes/bookingRoute');
+app.use('/booking',booking);
+
 app.listen(process.env.PORT || 8080, () => {
   console.log("Listening on port 8080")
 });

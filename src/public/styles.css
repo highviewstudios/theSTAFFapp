@@ -1,16 +1,38 @@
+html, body, #App, #App>div {
+  height: 100%
+}
+
 .App {
   text-align: center;
   background-color: #184d47;
 }
 
+body {
+  background-color: #184d47;
+  font-size: 1rem;
+}
+
+.rooms {
+  /* text-align: left; */
+  float: left;
+}
+
+.roomLbl {
+  padding: 15px;
+  float: left;
+}
+
 nav{
-  /* display: flex; */
   /* justify-content: space-around; */
   /* align-items: center; */
   /* min-height: 10vh; */
   background: #96bb7c;
   color: red;
   text-align: center;
+}
+
+.height{
+  height: 100vh;
 }
 
 .body {
@@ -27,6 +49,7 @@ nav{
 
 .back-color {
   background-color: #d6efc7;
+  height: 100%;
 }
 
 .user-nav {

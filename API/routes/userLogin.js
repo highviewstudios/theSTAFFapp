@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const generatePass = require('generate-password');
 const mySQLConnection = require('../connection');
 const email = require('../email');
+const moment = require('moment');
 
 const router = express.Router();
 
@@ -163,7 +164,7 @@ router.get("/auth/github/development",
             console.log('access granted');
 
             //Log action into database
-            const date = new Date().toLocaleString('en-GB', {timeZone: 'UTC'});
+            const date = moment().format('DD/MM/YYYY');
             //logAdminAction(date, 'Logged into the admin area');
             //res.send(json);
             res.redirect(process.env.REDIRECT_URL +"administrator");
@@ -175,7 +176,7 @@ router.get("/auth/github/development",
             console.log('access denied');
 
             //Log action into database
-            const date = new Date().toLocaleString('en-GB', {timeZone: 'UTC'});
+            const date = moment().format('DD/MM/YYYY');
             //logAdminAction(date, 'Unauthorised login attempted into the admin area');
             //res.send(json);
             res.redirect("/administrator");

@@ -1,0 +1,113 @@
+table, th, td {
+    text-align: left;
+}
+
+.heading-text {
+    font: 1.5rem sans-serif;
+    padding-top: 10px;
+}
+
+.normal-text {
+    font: 1rem;
+    padding-left: 10%;
+}
+
+.submit-button-hidden {
+    float: left;
+    visibility: hidden;
+}
+
+.submit-button-show {
+    float: left;
+}
+
+.add-button {
+    float: right;
+}
+
+.remove-button-hidden {
+    float: right;
+    visibility: hidden;
+}
+
+.remove-button-show {
+    float: right;
+}
+
+.plus-image {
+    width: 50px;
+    height: 50px;
+}
+
+.scrollable-250 {
+    height: 250px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.scrollable-300 {
+    height: 300px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.side-by-side {
+    float: left;
+}
+
+.side-by-side-R{
+    float: right;
+}
+
+.check-side-by-side {
+    float: left;
+    margin-left: 10px;
+}
+
+.check-side-by-side-b {
+    float: left;
+    margin-left: 15px;
+}
+
+.layout-settings {
+    padding-top: 15px;
+}
+
+.height{
+    height: 100vh;
+}
+
+.centred {
+    padding: 15px;
+    float: left;
+}
+
+.slot-id {
+    padding: 10px;
+}
+
+.break-id {
+    padding-top: 20px;
+    padding-left: 10px;
+}
+
+.slot-headings {
+    text-align: center;
+}
+
+.block {
+    padding-top: 20px;
+}
+
+.break-padding {
+    padding-top: 10px;
+}
+
+.color-modal-90w {
+    width: 270px;
+}
+
+.dropdown-items {
+    max-height: 150px;
+    overflow-y: auto;
+  }
