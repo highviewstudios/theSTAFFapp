@@ -3,8 +3,8 @@ import ReactTooltip from 'react-tooltip';
 import plus from '../../public/images/plus.png';
 import minus from '../../public/images/minus.png';
 import {Image, Collapse, Row, Col, Dropdown, Form, Button, Modal} from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
-import {layoutsUpdateDiaryDays, layoutsUpdateStartTime, layoutsUpdateFinishTime, layoutsUpdateTimeInterval, layoutsUpdateTimetableDays, layoutsUpdateSessionTotal, layoutsUpdateBreakTotal, layoutsUpdateSessionOrder, layoutsUpdateSessions} from '../../store/actions/layouts';
+import { useDispatch } from 'react-redux';
+//import {layoutsUpdateDiaryDays, layoutsUpdateStartTime, layoutsUpdateFinishTime, layoutsUpdateTimeInterval, layoutsUpdateTimetableDays, layoutsUpdateSessionTotal, layoutsUpdateBreakTotal, layoutsUpdateSessionOrder, layoutsUpdateSessions} from '../../store/actions/layouts';
 import { SessionsContext } from '../../context/adminTemplatesSessions';
 
 import SessionSlot from './sessionSlot';
@@ -15,8 +15,7 @@ import moment from 'moment';
 function Layouts(props) {
 
      const orgID = props.orgID;
-     const layouts = useSelector(state => state.layouts);
-     const dispatch = useDispatch();
+     //const dispatch = useDispatch();
      
      const { sessions, order, breakBtns, addSession, minusSession, resetSessions, addBreak, orderMoveUp, orderMoveDown, removeBreak, SetSessions, SetOrder } = useContext(SessionsContext);
 
@@ -28,7 +27,10 @@ function Layouts(props) {
 
     const [settings, setSettings] = useState({
         open: false,
-        layout: 'layout',
+        layoutText: 'layout',
+        yourLayoutText: 'Layouts',
+        yourLayouts: [],
+        currentLayout: {},
         sessions: 1,
         breaks: 0,
         days: [false, false, false, false, false, false, false],
@@ -39,13 +41,19 @@ function Layouts(props) {
         timeInterval: 0,
         times: [],
         showTimetableSave: false,
-        showDiarySave: false
+        showDiarySave: false,
     });
 
     const [modal, setModal] = useState({
         open: false,
         heading: '',
         message: ''
+    });
+
+    const [addModal, setAddModal] = useState({
+        open: false,
+        heading: '',
+        newName: ''
     });
 
     function handleModalClose() {
@@ -56,34 +64,26 @@ function Layouts(props) {
     });
     }
 
+    function handleAddModalClose() {
+        setAddModal(prevState => {
+            return{...prevState, open: false}
+        });
+    }
+
     function openTab() {
 
         if(!settings.open) {
-            console.log(sessions)
-            if(layouts.timetableDays.length > 0) {
-                
-                SetSessions(layouts.sessions);
-                SetOrder(layouts.sessionOrder);
 
+            const data = {orgID: orgID}
+            Axios.post('/organisation/getLayouts', data)
+            .then(res => {
                 setSettings(prevState => {
-                    return {...prevState, open: true, sessions: layouts.sessionTotal, breaks: layouts.breakTotal}
+                    return {...prevState, open: true, yourLayouts: res.data.layouts}
                 });
-
-            } else {
-                setSettings(prevState => {
-                    return {...prevState, open: true, sessions: 1}
-                });
-
-                addSession(settings.sessions);
-            }
-
-            if(layouts.diaryDays.length > 0) {
-
-                setSettings(prevState => {
-                    return {...prevState, startTime: layouts.startTime, finishTime: layouts.finishTime, timeInterval: layouts.timeInterval}
-                });
-                findIntervalText(layouts.timeInterval);
-            }
+            })
+            .catch(err => {
+                console.log(err);
+            })
 
         } else {
             setSettings(prevState => {
@@ -91,6 +91,122 @@ function Layouts(props) {
             });
             resetSessions();
 
+        }
+    }
+
+    function handlePickLayout(uuid) {
+
+        let currentLayout;
+        resetSessions();
+        
+        setSettings(prevState => {
+            return {...prevState, sessions: 0, breaks: 0}
+        });
+    
+        for(const [index, layout] of settings.yourLayouts.entries()){
+            if(layout.uuid == uuid) {
+                currentLayout = layout
+                break;
+            }
+        }
+        let layout = 'layout';
+        if(currentLayout.layout != '') {
+            layout = currentLayout.layout
+        }
+
+        setSettings(prevState => {
+            return {...prevState, yourLayoutText: currentLayout.name, layoutText: layout, currentLayout: currentLayout}
+        });
+
+        loadSettings(currentLayout);
+    }
+
+    function handleChangeLayout(event) {
+
+        const { innerText } = event.target;
+
+        let days = [false, false, false, false, false, false, false];
+
+        let showTimetableSave = false;
+        let showDiarySave = false;
+
+        if(settings.currentLayout.layout == innerText) {
+            loadSettings(settings.currentLayout);
+        } else {
+            if(innerText == 'Timetable') {
+                setSettings(prevState => {
+                    return {...prevState, sessions: 1}
+                });
+                addSession(1);
+
+            } else if(innerText == 'Diary') {
+
+            }
+        }
+
+        let show = false;
+        for(const day of days) {
+            if(day == true) {
+                show = true;
+            }
+        }
+
+        setSettings(preState => {
+            return {...preState, layoutText: innerText, days: days, showDiarySave: showDiarySave, showTimetableSave: showTimetableSave, showPreview: show};
+        });
+
+    }
+
+    function loadSettings(currentLayout) {
+
+        if(currentLayout.layout == 'Timetable') {
+
+            if(currentLayout.days != '') {
+
+                let days = currentLayout.days.split(',');
+                days.forEach((day, index) => {
+                    days[index] = (day == 'true');
+                });
+
+                const data = {orgID: orgID, layoutUUID: currentLayout.uuid};
+                Axios.post('/organisation/getTimetableSessions', data)
+                .then(res => {
+                    const sessions = res.data.sessions;
+                    let newSessions = {};
+                    for(const session of sessions) {
+                        newSessions[session.id] = session;
+                      }
+
+                    SetSessions(newSessions);
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+                
+                const order = currentLayout.sessionOrder.split(',');
+                SetOrder(order);
+
+                setSettings(prevState => {
+                return {...prevState, open: true, sessions: currentLayout.sessions, breaks: currentLayout.breakTotal, days: days, showTimetableSave: true, showPreview: true}
+                });
+
+            }
+        } else if(currentLayout.layout == "Diary") {
+
+            let days = currentLayout.days.split(',');
+            days.forEach((day, index) => {
+                days[index] = (day == 'true');
+            });
+
+            if(currentLayout.days != '') {
+
+                setSettings(prevState => {
+                    return {...prevState, startTime: currentLayout.startTime, finishTime: currentLayout.finishTime, timeInterval: currentLayout.timeInterval, days: days,
+                            showDiarySave: true, showPreview: true}
+                });
+                findIntervalText(currentLayout.timeInterval);
+                BuildTimes(currentLayout.startTime, currentLayout.finishTime, currentLayout.timeInterval)
+            }
         }
     }
 
@@ -107,41 +223,7 @@ function Layouts(props) {
         })
     }
 
-    function handleChangeLayout(event) {
-
-        const { innerText } = event.target;
-
-        let days = [false, false, false, false, false, false, false];
-
-        let showTimetableSave = false;
-        let showDiarySave = false;
-
-        if(innerText == "Timetable") {
-             if(layouts.timetableDays.length > 0){
-                days = layouts.timetableDays;
-                showTimetableSave = true;
-             }
-        } else if(innerText == 'Diary') {
-            if(layouts.diaryDays.length > 0){
-                days = layouts.diaryDays;
-                showDiarySave = true;
-                BuildTimes(layouts.startTime, layouts.finishTime, layouts.timeInterval);
-            }
-        }
-
-        let show = false;
-        for(const day of days) {
-            if(day == true) {
-                show = true;
-            }
-        }
-
-        setSettings(preState => {
-            return {...preState, layout: innerText, days: days, showDiarySave: showDiarySave, showTimetableSave: showTimetableSave, showPreview: show};
-        });
-
-    }
-
+    //DIARY DROPDOWNS
     function handleChangeStartTime(event) {
 
         const { innerText } = event.target;
@@ -174,6 +256,7 @@ function Layouts(props) {
 
         BuildTimes(settings.startTime, settings.finishTime, parseInt(name));
     }
+    //DIARY DROPDOWNS^^^
 
     function BuildTimes(sTime, fTime, interval) {
 
@@ -207,6 +290,7 @@ function Layouts(props) {
         
     }
 
+    //SESSIONS BUTTONS
     function handlePlusSessions() {
 
         setSettings(prevState => {
@@ -228,7 +312,9 @@ function Layouts(props) {
 
         
     }
+    //SESSIONS BUTTONS^^^
 
+    //BREAK BUTTONS
     function handleAddBreak() {
 
         setSettings(prevState => {
@@ -253,7 +339,9 @@ function Layouts(props) {
         }); 
         removeBreak();
     }
+    //BREAK BUTTONS^^^
 
+    //DAYS CHECKBOXES
     function handleChecked(event) {
 
         const {name, checked} = event.target;
@@ -274,7 +362,7 @@ function Layouts(props) {
             return {...prevState, days: temp, showPreview: show, showTimetableSave: show}
         });
 
-        if(settings.layout == 'Diary' && settings.startTime !== 'Start Time' && settings.finishTime !== 'Finish Time' && settings.timeInterval !== 0) {
+        if(settings.layoutText == 'Diary' && settings.startTime !== 'Start Time' && settings.finishTime !== 'Finish Time' && settings.timeInterval !== 0) {
             setSettings(prevState => {
                 return {...prevState, days: temp, showPreview: show, showDiarySave: show}
             });
@@ -282,23 +370,22 @@ function Layouts(props) {
         
     }
 
+    //SAVE METHODS
     function handleTimetableSave() {
 
-        const data = {orgID: orgID, layout: settings.layout, sessionTotal: settings.sessions, breakTotal: settings.breaks, sessionOrder: order, days: settings.days.toString(),
+        const data = {orgID: orgID, uuid: settings.currentLayout.uuid, layout: settings.layoutText, sessionTotal: settings.sessions, breakTotal: settings.breaks, sessionOrder: order, days: settings.days.toString(),
                      sessions: sessions};
 
-        Axios.post('/organisation/addLayout', data)
+        Axios.post('/organisation/saveLayout', data)
         .then(res => {
             if(res.data.message == 'Success') {
 
-                dispatch(layoutsUpdateTimetableDays(settings.days));
-                dispatch(layoutsUpdateSessionTotal(settings.sessions));
-                dispatch(layoutsUpdateBreakTotal(settings.breaks));
-                dispatch(layoutsUpdateSessionOrder(order));
-                dispatch(layoutsUpdateSessions(sessions));
+                setSettings(prevState => {
+                    return {...prevState, yourLayouts: res.data.layouts}
+                });
 
                 setModal(prevState => {
-                    return {...prevState, heading: 'Layout: Timetable', message: 'Layout has been saved!', open: true};
+                    return {...prevState, heading: 'Layout: ' + settings.yourLayoutText, message: 'Layout has been saved!', open: true};
                 })
             }
         })
@@ -309,28 +396,67 @@ function Layouts(props) {
 
     function handleDiarySave() {
 
-        const data = {orgID: orgID, layout: settings.layout, days: settings.days.toString(), startTime: settings.startTime,
+        const data = {orgID: orgID, uuid: settings.currentLayout.uuid, layout: settings.layoutText, days: settings.days.toString(), startTime: settings.startTime,
                     finishTime: settings.finishTime, timeInterval: settings.timeInterval};
 
-        Axios.post('/organisation/addLayout', data)
+        Axios.post('/organisation/saveLayout', data)
         .then(res => {
             if(res.data.message == 'Success') {
 
-                dispatch(layoutsUpdateDiaryDays(settings.days));
-                dispatch(layoutsUpdateStartTime(settings.startTime));
-                dispatch(layoutsUpdateFinishTime(settings.finishTime));
-                dispatch(layoutsUpdateTimeInterval(settings.timeInterval));
+                setSettings(prevState => {
+                    return {...prevState, yourLayouts: res.data.layouts}
+                });
 
                 setModal(prevState => {
-                    return {...prevState, heading: 'Layout: Diary', message: 'Layout has been saved!', open: true};
+                    return {...prevState, heading: 'Layout: ' + settings.yourLayoutText, message: 'Layout has been saved!', open: true};
                 })
             }
         })
         .catch(err => {
             console.log(err);
         });
-        
     }
+    //SAVE METHODS^^^
+
+    //ADD LAYOUT METHODS
+    function handleAddLayout() {
+        setAddModal(prevState => {
+            return {...prevState, open: true}
+        });
+    }
+
+    function handleAddModalTextChange(event) {
+
+        const { value } = event.target;
+
+        setAddModal(prevState => {
+            return {...prevState, newName: value}
+        });
+    }
+
+    function handleAddModalSubmit() {
+
+        const data = {orgID: orgID, name: addModal.newName};
+
+        Axios.post('/organisation/addLayout', data)
+        .then(res => {
+            if(res.data.message == 'Successfully Added') {
+
+                setSettings(prevState => {
+                    return {...prevState, yourLayouts: res.data.layouts}
+                });
+
+                setAddModal(prevState => {
+                    return {...prevState, newName: '', open: false}
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
+    }
+    //ADD LAYOUT METHODS^^^
 
     function handleReloadTooltip() {
         ReactTooltip.rebuild();
@@ -344,6 +470,10 @@ function Layouts(props) {
                         <th>
                             <div className="heading-text"> <Image className="plus-image" src={settings.open ? minus : plus} onClick={openTab} /> Layouts</div><br />
                                 <Collapse in={settings.open}>
+                                <div>
+                                <div className='margin-text-hide'>
+                                    -
+                                    </div>
                                 <div className='normal-text'>
                                     <Row>
                                         <Col>
@@ -351,21 +481,40 @@ function Layouts(props) {
                                                 <Col>
                                                 <Row>
                                                     <div className='centred'>
-                                                    Layouts:
-                                                    </div> 
-                                                        <Dropdown className='side-by-side'>
-                                                            <Dropdown.Toggle variant='primary' id="dropdown-layouts">
-                                                                {settings.layout}
-                                                            </Dropdown.Toggle>
-                                                            <Dropdown.Menu>
-                                                                <Dropdown.Item onClick={handleChangeLayout}>Timetable</Dropdown.Item>
-                                                                <Dropdown.Item onClick={handleChangeLayout}>Diary</Dropdown.Item>
-                                                            </Dropdown.Menu>
-                                                        </Dropdown>
+                                                        Your Layouts:
+                                                    </div>
+                                                    <Dropdown className='side-by-side'>
+                                                        <Dropdown.Toggle variant='primary'>
+                                                            {settings.yourLayoutText}
+                                                        </Dropdown.Toggle>
+                                                        <Dropdown.Menu>
+                                                            {settings.yourLayouts.map((layout, index) => {
+                                                                return <Dropdown.Item key={index} onClick={() => {handlePickLayout(layout.uuid)}}>{layout.name}</Dropdown.Item>
+                                                            })}
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
+                                                    <Button variant='primary' onClick={handleAddLayout}>Add</Button>
+                                                </Row>
+                                                <Row>
+                                                    {settings.yourLayoutText != 'Layouts' ? (
+                                                        <div>
+                                                            <div className='centred'>
+                                                                Layouts:
+                                                            </div> 
+                                                            <Dropdown className='side-by-side'>
+                                                                <Dropdown.Toggle variant='primary' id="dropdown-layouts">
+                                                                    {settings.layoutText}
+                                                                </Dropdown.Toggle>
+                                                                <Dropdown.Menu>
+                                                                    <Dropdown.Item onClick={handleChangeLayout}>Timetable</Dropdown.Item>
+                                                                    <Dropdown.Item onClick={handleChangeLayout}>Diary</Dropdown.Item>
+                                                                </Dropdown.Menu>
+                                                            </Dropdown>
+                                                        </div>) : null}
                                                 </Row>
                                                 <Row>
                                                     <div className='layout-settings'>
-                                                    {settings.layout == 'Timetable' || settings.layout == 'Diary' ? (<div>
+                                                    {settings.layoutText == 'Timetable' || settings.layoutText == 'Diary' ? (<div>
                                                         <Form>
                                                         <Form.Group>
                                                             <Form.Check className="check-side-by-side" name='0' onChange={handleChecked} type='checkbox' checked={settings.days[0]} label='Sun'/>
@@ -383,7 +532,7 @@ function Layouts(props) {
                                                 <Row>
                                                     <div className='layout-settings'>
                                                         
-                                                        {settings.layout == 'Timetable' ? (<div>
+                                                        {settings.layoutText == 'Timetable' ? (<div>
                                                             <div className='centred'>
                                                         Sessions: {settings.sessions}
                                                         </div>
@@ -394,7 +543,7 @@ function Layouts(props) {
                                                         </div>) : null }
                                                     </div>
                                                 </Row>
-                                                {settings.layout == 'Timetable' ? (<div>
+                                                {settings.layoutText == 'Timetable' ? (<div>
                                                     <Row>
                                                     <div className='layout-settings'>
                                                         <Button variant='primary' onClick={handleAddBreak}>Add Break</Button>
@@ -402,13 +551,13 @@ function Layouts(props) {
                                                     </div>
                                                 </Row>
                                                 <Row>
-                                                    {breakBtns.view ? (<div className='layout-settings'>
+                                                    <div className={breakBtns.view ? 'layout-settings-move-btn-show' : 'layout-settings-move-btn-hide'}>
                                                         <Button variant='primary' onClick={handleMoveBreakUp}>Move Up</Button>
                                                         <Button variant='primary' onClick={handleMoveBreakDown}>Move Down</Button>
-                                                        </div>) : null }
+                                                    </div>
                                                 </Row>
                                                 </div>) : null }
-                                                {settings.layout == 'Diary' ? (<div>
+                                                {settings.layoutText == 'Diary' ? (<div>
                                                     <Row>
                                                         <Col>
                                                         <div className='centred'>
@@ -476,7 +625,7 @@ function Layouts(props) {
                                                 </div>) : null}
                                                 </Col>
                                                 <Col>
-                                                    {settings.layout == 'Timetable' ? (<div>
+                                                    {settings.layoutText == 'Timetable' ? (<div>
                                                         Sessions:
                                                     <Row>
                                                         <Col sm={1}>
@@ -489,13 +638,16 @@ function Layouts(props) {
                                                         </Col>
                                                     </Row>
                                                     <div className='scrollable-250'>
-                                                    {order.map(session => {
+                                                    {Object.keys(sessions).length > 0 ? (<div>
+                                                        {order.map(session => {
                                                         if(session.toString().includes('b')) {
                                                             return <BreakSlot key={session} id={sessions[session].id} breakText={sessions[session].breakText} bgColor={sessions[session].bgColor} textColor={sessions[session].textColor} />
                                                         } else {
                                                             return <SessionSlot key={session} id={sessions[session].id} customText={sessions[session].customText} hoverText={sessions[session].hoverText} />
                                                         }
                                                     })}
+                                                    </div>) : null}
+                                                    
                                                     </div>
                                                     <div className='add-button'>
                                                         {settings.showTimetableSave ? (<Button variant='primary' onClick={handleTimetableSave}>Save</Button>) : null}
@@ -505,7 +657,7 @@ function Layouts(props) {
                                             </Row>
                                         </Col>
                                         <Col>
-                                        {settings.layout == 'Timetable' || settings.layout == 'Diary' ? (<div>Preview:</div>) : null }
+                                        {settings.layoutText == 'Timetable' || settings.layoutText == 'Diary' ? (<div>Preview:</div>) : null }
                                             <div className='scrollable-300'>
                                             {settings.showPreview ? (<table width="100%" border='1px'>
                                                     <thead>
@@ -520,15 +672,15 @@ function Layouts(props) {
                                                             })}
                                                         </tr>
                                                     </thead>
-                                                    {settings.layout == 'Timetable' ? (
+                                                    {settings.layoutText == 'Timetable' && Object.keys(sessions).length > 0 ? (
                                                         <tbody>{order.map((session, index) => {
                                                         if(session.toString().includes('b')) {
                                                             return (<tr key={index} style={{backgroundColor:sessions[session].bgColor}}>
                                                                 <td style={{color:sessions[session].textColor}}>
                                                                 {sessions[session].breakText != '' ? sessions[session].breakText : sessions[session].id}</td>
-                                                                {settings.days.map(day => {
+                                                                {settings.days.map((day, index) => {
                                                                     if(day) {
-                                                                        return <td></td>
+                                                                        return <td key={index}></td>
                                                                     }
                                                                 })}
                                                                 </tr>)
@@ -548,7 +700,7 @@ function Layouts(props) {
                                                     {handleReloadTooltip()}
                                                     </tbody>
                                                     ) : null}
-                                                    {settings.layout == 'Diary' ? (
+                                                    {settings.layoutText == 'Diary' ? (
                                                         <tbody>
                                                         {settings.times.map((time, index) => {
                                                             return(<tr key={index}>
@@ -568,6 +720,7 @@ function Layouts(props) {
                                         </Col>
                                     </Row>
                                 </div>
+                                </div>
                                 </Collapse>
                         </th>
                     </tr>
@@ -583,6 +736,19 @@ function Layouts(props) {
                 <Button variant="primary" onClick={handleModalClose}>
                     Close
                 </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={addModal.open} onHide={handleAddModalClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Layout</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Control value={addModal.newName} onChange={handleAddModalTextChange}/>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='primary' onClick={handleAddModalSubmit}>
+                        Add
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </div>

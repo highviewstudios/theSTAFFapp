@@ -25,20 +25,16 @@
         <h2><strong>Space, Times, Flexible, Facilities</strong></h2>
     </div>
 
-    <p>Dear {{ name }} ({{ email }}),</p>
-    <p>You have requested a new password through the My STAFF platform</p>
-
-    <p>Your new password is below</p>
+    <p>Dear High-View Studios,</p>
+    <p>There has been a transfer of Senior Admins at {{ orgName }}.</p>
+    <p>The new point of contact details are as follows:</p>
+    
     <ul>
-            <li>Username: please use the email you see above</li>
-            <li>Password: {{ password }}</li><br />
+        <li>Name: {{POC_Name}}</li>
+        <li>Email: {{POC_Email}}</li>
     </ul>
 
-    <p>If you have NOT requested a new password, please contact High-View Studios immediately on shaun.evans@high-view-studios.co.uk</p>
-
-    <p>If you have requested this password, please go to http://localhost:3000/org/{{ orgID }} to sign in with the new password</p>
-
-    <p>The website will ask you to change it straight away!</p>
+    <p>These changes have been made on the system.</p>
 
     <p>Regards,</p>
 

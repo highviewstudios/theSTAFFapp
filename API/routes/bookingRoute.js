@@ -20,6 +20,9 @@ router.post('/createBooking', async (req, res) => {
     const dateCreated = moment().format('DD/MM/YYYY');
     const createdBy = req.body.createdBy;
     const dayList = req.body.dayList;
+    const weekSystem = req.body.weekSystem;
+    const weekSysWeeks = req.body.weekSysWeeks;
+
     //deletedSessions
 
     let weeks = [];
@@ -30,8 +33,8 @@ router.post('/createBooking', async (req, res) => {
     const validateID = CheckOrgID(orgID);
 
     if(validateID) {
-
-        const result = await CheckBooking(orgID, roomID, bookingType, repeatType, startDate, repeatUntil, sessions, dayList);
+        
+        const result = await CheckBooking(orgID, roomID, bookingType, repeatType, startDate, repeatUntil, sessions, dayList, weekSystem, weekSysWeeks);
 
         if(result.length > 0) {
             const json = {
@@ -64,15 +67,28 @@ router.post('/createBooking', async (req, res) => {
 
                     while(sDate.isSameOrBefore(fDate)) {
 
-                        if(dayList[sDate.day()]) {
+                        let con = false;
+                        if(weekSystem) {
 
-                            weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                            const week = formatString(sDate.week()) + '-' + sDate.format('YY');
+                            if(weekSysWeeks.includes(week)) {
+                                con = true;
+                            }
+                        } else {
+                            con = true;
+                        }
 
-                            const sess = sessions.split(',');
-                            const dayIndex = sDate.day();
+                        if(con) {
+                            if(dayList[sDate.day()]) {
 
-                            for(const s of sess) {
-                                days.push(formatString(dayIndex) + '-' + formatString(s)); //format sessions
+                                weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+    
+                                const sess = sessions.split(',');
+                                const dayIndex = sDate.day();
+    
+                                for(const s of sess) {
+                                    days.push(formatString(dayIndex) + '-' + formatString(s)); 
+                                }
                             }
                         }
 
@@ -82,15 +98,29 @@ router.post('/createBooking', async (req, res) => {
 
                     while(sDate.isSameOrBefore(fDate)) {
 
-                        weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                        let con = false;
+                        if(weekSystem) {
 
-                        const sess = sessions.split(',');
-                        const dayIndex = sDate.day();
-
-                        for(const s of sess) {
-                            days.push(formatString(dayIndex) + '-' + formatString(s)); // format sessions
+                            const week = formatString(sDate.week()) + '-' + sDate.format('YY');
+                            if(weekSysWeeks.includes(week)) {
+                                con = true;
+                            }
+                        } else {
+                            con = true;
                         }
 
+                        if(con){
+                            weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+
+                            const sess = sessions.split(',');
+                            const dayIndex = sDate.day();
+
+                            for(const s of sess) {
+                                days.push(formatString(dayIndex) + '-' + formatString(s)); 
+                            }
+
+                        }
+                    
                         sDate.add(1, 'w');
                     }
                 }
@@ -130,7 +160,7 @@ router.post('/createBooking', async (req, res) => {
             if(dayStrings.length == 1) {
 
                 const result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), dayStrings[0], dateCreated, createdBy, 'No', '');
-        
+
                 if(result.result == 'Success') {
                     const json = {
                         error: 'null',
@@ -178,20 +208,22 @@ router.post('/createBooking', async (req, res) => {
 
 router.get('/test', async (req, res) => {
     
-    const m = moment();
+    // const m = moment();
+    // const d1 = moment(m);
+    // d1.add(1, 'd');
+    // const d3 = moment(m);
+    // d3.add(3, 'd')
+    // //m.subtract(1, 'd');
+    // //m.startOf('week')
+    // const week = m.week();
+    // const day = m.day();
+    // const month = m.month();
 
-    m.add(1, 'w');
-    //m.subtract(1, 'd');
-    //m.startOf('week')
-    const week = m.week();
-    const day = m.day();
-    const month = m.month();
+    const name = await findUsersName('1');
 
     const json = {
-        date: m,
-        week: week,
-        day: day,
-        month: month
+        test: 'active',
+        name: name
     }
 
     res.send(json);
@@ -202,16 +234,20 @@ let query;
 
 router.get('/check', async (req, res) => {
 
-    const bookingType = 'single';
+    const bookingType = 'repeat';
     const repeatType = 'weekly';
-    const startDate = moment('25/08/2020', 'DD/MM/YYYY');
-    const endDate = moment('02/02/2020', 'DD/MM/YYYY');
-    const sessions = 'b1';
+    const startDate = moment('07/09/2020', 'DD/MM/YYYY');
+    const endDate = moment('21/09/2020', 'DD/MM/YYYY');
+    const sessions = '1';
     const days = [false, true, true, true, true, true, false]
+    const weekSystem = false;
+    const sysWeeks = '38-20,40-20,42-20,45-20,47-20,49-20';
 
-    const bookingDetails = {bookingType, repeatType, startDate: startDate.format('DD/MM/YYYY'), endDate: endDate.format('DD/MM/YYYY'), sessions, days}
+    //send down the week number
 
-    const result = await CheckBooking(bookingType, repeatType, startDate, endDate, sessions, days);
+    const bookingDetails = {bookingType, repeatType, startDate: startDate.format('DD/MM/YYYY'), endDate: endDate.format('DD/MM/YYYY'), sessions, sysWeeks, weekSystem, days}
+
+    const result = await CheckBooking('0249217480', '2', bookingType, repeatType, startDate, endDate, sessions, days, weekSystem, sysWeeks);
 
     let check = false;
     if(result.length == 0) {
@@ -238,36 +274,61 @@ router.post('/getBookings', async (req, res) => {
     const room = req.body.room; 
     const week = req.body.week;
     const days = req.body.days;
+    const weekBG = moment(req.body.weekBG, 'DD/MM/YYYY');
 
     const validateID = CheckOrgID(orgID);
 
     if(validateID) {
 
-        let query = 'SELECT user, departmentID, bookingType, weeks, sessions FROM ' + orgID + '_bookings WHERE';//...
+        let query = 'SELECT user, departmentID, bookingType, startDate, repeatUntil, weeks, sessions FROM ' + orgID + '_bookings WHERE';//...
         let data = ''
         for(const day of days) {
 
             if(data == '') {
-                data = " `roomID`='"+ room +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+day+"%'";
+                data = " `roomID`='"+ room +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+day+"%' AND collide=''";
             } else {
-                data += " OR `roomID`='" + room +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+day+"%'";
+                data += " OR `roomID`='" + room +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+day+"%' AND collide=''";
             }
         }
 
         query += data;
         
-        const results = await GetBookings(query);
-        const finalData = {};
+        let results = await GetBookings(query);
+        
+        for(result of results) {
+            result.user = await findUsersName(result.user);
+        }
+
+        let finalData = {};
         const emptySlot = {user: '', department: '', type: ''};
 
         for(const day of days) {
             const id = week + '-' + day;
             finalData[id] = emptySlot;
-
-            results.forEach(result => {
+            
+            results.forEach((result) => {
                 if(result.weeks.includes(week) && result.sessions.includes(day)) {
+                    let slot = {};
 
-                    const slot = {user: result.user, department: result.departmentID, type: result.bookingType}; 
+                    if(result.bookingType == 'repeat') {
+                        
+                        const sDate = moment(result.startDate,'DD/MM/YYYY');
+                        const fDate = moment(result.repeatUntil, 'DD/MM/YYYY');
+                        
+                        const dayBreak = day.split('-');
+
+                        const date = moment(weekBG);
+                        date.add(dayBreak[0], 'd');
+
+                        if(date.isBetween(sDate, fDate, undefined, '[]')) {
+                            slot = {user: result.user, department: result.departmentID, type: result.bookingType}; 
+                        } else {
+                            slot = emptySlot;
+                        }
+                    } else {
+                        slot = {user: result.user, department: result.departmentID, type: result.bookingType}; 
+                    }
+                    
                     finalData[id] = slot;
                 }
             });
@@ -306,11 +367,12 @@ function GetBookings(query) {
     });
 }
 
-function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishDate, sessions, dayTitles) {
+function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishDate, sessions, dayTitles, weekSystem, sysWeeks) {
 
     return new Promise ((resolve, reject) => {
 
     query = "Select * FROM " + orgID + "_bookings WHERE";//...
+    //query = "Select * FROM sample WHERE";//...
     let data = ''
     if(bookingType == 'single') {
 
@@ -342,10 +404,24 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
             let weeks = [];
             while(sDate.isSameOrBefore(fDate)) {
 
-                if(dayTitles[sDate.day()]) {
-                    dayIndexes.push(sDate.day());
-                    weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                if(weekSystem) {
+
+                    const week = formatString(sDate.week()) + '-' + sDate.format('YY');
+                    if(sysWeeks.includes(week)) {
+
+                        if(dayTitles[sDate.day()]) {
+                            dayIndexes.push(sDate.day());
+                            weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                        }
+                    }
+
+                } else {
+                    if(dayTitles[sDate.day()]) {
+                        dayIndexes.push(sDate.day());
+                        weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                    }
                 }
+
                 sDate.add(1, 'd');
             }
 
@@ -358,9 +434,9 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
                     const sessionIndex = formatString(day) + '-' + formatString(s);
 
                     if(data == '') {
-                        data = " weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
+                        data = " `roomID`='"+ roomID +"' AND weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
                     } else {
-                        data += " OR weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
+                        data += " OR `roomID`='"+ roomID +"' AND weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
                     }
                 }
             }
@@ -374,8 +450,18 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
             const fDate = moment(finishDate, 'DD/MM/YYYY');
             let weeks = [];
             while(sDate.isSameOrBefore(fDate)) {
-                
-                weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+
+                if(weekSystem) {
+
+                    const week = formatString(sDate.week()) + '-' + sDate.format('YY');
+                    if(sysWeeks.includes(week)) {
+                        weeks.push(week);
+                    }
+
+                } else {
+                    weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                }
+
                 sDate.add(1, 'w');
             }
 
@@ -385,9 +471,9 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
 
                 for(const s of ses) {
                     if(data == '') {
-                        data = " weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
+                        data = " `roomID`='"+ roomID +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
                     } else {
-                        data += " OR weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
+                        data += " OR `roomID`='"+ roomID +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
                     }
                 }
             }
@@ -427,23 +513,6 @@ function formatString(time) {
     }
 }
 
-function getBooking(week) { //TEST METHOD!!!
-
-    return new Promise ((resolve, reject) => {
-       
-        const data = ['%'+week+'%']
-        const query = "SELECT * FROM sample WHERE weeks LIKE ?";
-        mySQLConnection.query(query, data, (err, result) => {
-            if(err) {
-                console.log(err);
-                reject('failed');
-            } else {
-                resolve(result);
-            }
-        });
-    });  
-}
-
 function CheckOrgID(orgID) {
 
     let check = true
@@ -471,7 +540,7 @@ function ValidateNumber(number)
 function InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, weeks, sessions, dateCreated, createdBy, linked, linkID) {
 
     return new Promise ((resolve, reject) => {
-
+        try {
         const data = {roomID: roomID, user: user, departmentID: departmentID, sessionDes: sessionDes, sessionTotal: sessionTotal, comments: comments, bookingType: bookingType, repeatType: repeatType, startDate: startDate, repeatUntil: repeatUntil, weeks: weeks, sessions: sessions, dateCreated: dateCreated, createdBy: createdBy, linked: linked, linkID, linkID};
         const query = "INSERT INTO " + orgID + "_bookings SET ?";
         mySQLConnection.query(query, data, (err, result) => {
@@ -489,8 +558,28 @@ function InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTot
                 resolve(json);
             }
         });
+        } catch(err) {
+            console.log(err);
+        }
     });
     
+}
+
+function findUsersName(uuid) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {uuid: uuid}
+        const FIND_QUERY = "SELECT displayName FROM users WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0].displayName)
+            }
+        });
+        })
 }
 
 module.exports = router;

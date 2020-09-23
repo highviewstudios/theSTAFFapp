@@ -9,7 +9,26 @@ table, th, td {
 
 .normal-text {
     font: 1rem;
-    padding-left: 10%;
+    padding-left: 1%;
+    float: left;
+    width: 90%;
+}
+
+.margin-text {
+    font: 1rem;
+    padding-left: 2px;
+    width: 9%;
+    float: left;
+    text-align: center;
+}
+
+.margin-text-hide {
+    font: 1rem;
+    padding-left: 2px;
+    width: 9%;
+    float: left;
+    text-align: center;
+    visibility: hidden;
 }
 
 .submit-button-hidden {
@@ -25,18 +44,34 @@ table, th, td {
     float: right;
 }
 
-.remove-button-hidden {
+.remove-button-hidden, .save-button-hidden {
     float: right;
     visibility: hidden;
 }
 
-.remove-button-show {
+.remove-button-show, .save-button-show {
     float: right;
+}
+
+.roles-hidden, .edit-hidden, .departments-hidden {
+    visibility: hidden;
 }
 
 .plus-image {
     width: 50px;
     height: 50px;
+}
+
+.scrollable-200 {
+    height: 200px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+.scrollable-150 {
+    height: 150px;
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .scrollable-250 {
@@ -71,6 +106,15 @@ table, th, td {
 
 .layout-settings {
     padding-top: 15px;
+}
+
+.layout-settings-move-btn-show{
+    padding-top: 15px;
+}
+
+.layout-settings-move-btn-hide{
+    padding-top: 15px;
+    visibility: hidden;
 }
 
 .height{
@@ -110,4 +154,82 @@ table, th, td {
 .dropdown-items {
     max-height: 150px;
     overflow-y: auto;
-  }
+}
+
+.holidays-datePadding{
+    padding-top: 10px;
+}
+
+.holidays-addNew, .holidays-titles, .rooms-add, .user-edit {
+    width: 100%;
+}
+
+.bordered{
+    border: solid 1px;
+    border-color: black;
+}
+
+.holidays-helpText{
+    width: 100%;
+    padding-top: 10px;
+}
+
+.rooms-hide, .weeks-holidays-hide {
+    visibility: hidden;
+}
+
+.rooms-layoutText {
+    width: 100%;
+    text-align: center;
+}
+
+.weekSystem-centred {
+    padding: 5px;
+    width: 100%;
+}
+
+/* HELP COLORS */
+
+.help-holidayTitles {
+    color: red;
+}
+
+.help-weeks {
+    color: blue;
+}
+
+.help-weekNums {
+    color: orange;
+}
+
+.help-holidaytiles-bordered{
+    border: solid 2px;
+    border-color: red;
+}
+
+.help-weeks-bordered{
+    border: solid 2px;
+    border-color: blue;
+}
+
+.help-weekNums-bordered{
+    border: solid 2px;
+    border-color: orange;
+}
+
+.weeks-row-padding{
+    padding-top: 10px;
+}
+
+.weekSystem-weeks {
+    width: 100%;
+}
+
+.collides_bookingSlot {
+    background-color: orange;
+}
+
+.collides_collideSlot {
+    background-color: darkgreen;
+    color: white;
+}

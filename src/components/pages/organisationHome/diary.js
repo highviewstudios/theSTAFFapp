@@ -4,16 +4,14 @@ import { Row, Col, Modal, Button} from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import Axios from 'axios';
-import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomTotalSessions, UpdateRoomDayList, UpdateRoomLayout } from '../../../store/actions/globalVars';
+import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomDayList, UpdateRoomLayout, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData, UpdateDiaryStartTime, UpdateDiaryFinishTime, UpdateDiaryTimeInterval } from '../../../store/actions/globalVars';
 
 function Dairy(props) {
 
     const orgID = props.orgID;
-    const orgLayouts = useSelector(state => state.layouts);
     const organisation = useSelector(state => state.organisation);
     const globalVars = useSelector(state => state.globalVars);
 
-    const days = orgLayouts.timetableDays; 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dispatch = useDispatch();
 
@@ -32,7 +30,10 @@ function Dairy(props) {
         dates: ['', '', '', '', '', '', ''],
         dayIndex: 0,
         weekSlot: '',
-        data: {}
+        data: {},
+        holiday: '',
+        days: [],
+        weekSystemUUID: ''
     });
 
     useEffect(() => {
@@ -56,6 +57,17 @@ function Dairy(props) {
 
     function setup() {
 
+        const layoutDays = props.layoutData.days.split(',');
+        const days = [];
+
+        const startTime = props.layoutData.startTime;
+        const finishTime = props.layoutData.finishTime;
+        const timeInterval = props.layoutData.timeInterval;
+
+        for(const day of layoutDays) {
+            days.push(day == 'true');
+        }
+
         let totalDays = 0;
         for(const day of days) {
             if(day) {
@@ -64,22 +76,38 @@ function Dairy(props) {
         }
 
         setSettings(prevState => {
-            return {...prevState, slotClass: 'session' + totalDays + '-slot timetable-layout', dayClass: 'session' + totalDays + '-days timetable-layout', startTime: orgLayouts.startTime, 
-                    finishTime: orgLayouts.finishTime, interval: orgLayouts.timeInterval}
+            return {...prevState, slotClass: 'session' + totalDays + '-slot timetable-layout', dayClass: 'session' + totalDays + '-days timetable-layout', startTime: startTime, 
+                    finishTime: finishTime, interval: timeInterval, days: days}
         });
 
-        const times = BuildTimes(orgLayouts.startTime, orgLayouts.finishTime, orgLayouts.timeInterval);
+        const times = BuildTimes(startTime, finishTime, timeInterval);
 
         if(globalVars.weekBeginDate == '') {
-            const weekBG = FindWeekBegin();
+            const weekBG = FindWeekBegin(days);
             BuildDataSlots(weekBG, times);
+            CheckHoliday(weekBG);
         } else {
+            FindDayIndex(days);
             const firstDate = moment(globalVars.weekBeginDate, 'DD/MM/YYYY');
             RebuildDates(firstDate, times);
         }
     }
 
-    function FindWeekBegin() {
+    function FindDayIndex(days) {
+        let dayIndex;
+        for(const [index, day] of days.entries()) {
+            if(day) {
+                dayIndex = index;
+                break;
+            }
+        }
+
+        setSettings(prevState => {
+            return {...prevState, dayIndex: dayIndex}
+        });
+    }
+
+    function FindWeekBegin(days) {
 
         let today = moment();
         today.startOf('week');
@@ -109,6 +137,35 @@ function Dairy(props) {
         return dates[0];
     }
 
+    function CheckHoliday(weekBG) {
+        
+        const date = moment(weekBG, 'DD/MM/YYYY');
+        const week = formatString(date.week()) + '-' + date.format('YY');
+        let holidayTitle = '';
+
+        for(const holiday of organisation.holidays) {
+
+            if(holiday.weeks.includes(week)) {
+
+                if(holiday.titleUUID.includes('w')) {
+                    if(props.weekSystem) {
+                        holidayTitle = holiday.name;
+                        setSettings(prevState => {
+                            return {...prevState, weekSystemUUID: holiday.titleUUID}
+                        })
+                    }
+                } else if(holiday.titleUUID.includes('h')){
+                    holidayTitle = 'Holiday: ' + holiday.name
+                }
+                break;
+            }
+        }
+
+        setSettings(prevState => {
+            return {...prevState, holiday: holidayTitle}
+        });
+    }
+
     function BuildDataSlots(weekBg, times) {
 
         const data = {};
@@ -130,7 +187,7 @@ function Dairy(props) {
             weekBG.add(1, 'd');
         }
 
-        const mySQLData = {orgID: orgID, room: props.roomID,week: weekSlot, days: days};
+        const mySQLData = {orgID: orgID, room: props.roomID,week: weekSlot, days: days, weekBG: weekBg};
         Axios.post('/booking/getBookings', mySQLData)
         .then(res => {
             const recievedData = res.data;
@@ -172,6 +229,7 @@ function Dairy(props) {
             const start = moment(sTime, "HH:mm");
             const finish = moment(fTime, "HH:mm");
 
+            while(start.isBefore(finish)) {
                 ti.push(start.format("HH:mm"));
                 start.add(interval, 'm');
             }
@@ -197,6 +255,7 @@ function Dairy(props) {
         });
 
         BuildDataSlots(dates[0], times);
+        CheckHoliday(dates[0]);
     }
 
     function handleAdvancedWeek() {
@@ -230,13 +289,17 @@ function Dairy(props) {
         const IDs = id.toString().split('-');
         dispatch(UpdateRoomName(props.roomName));
         dispatch(UpdateRoomID(props.roomID));
+        dispatch(UpdateRoomLayoutData(props.layoutData));
         dispatch(UpdateRoomSessionID(id));
-        dispatch(UpdateRoomLayout('diary'));
         dispatch(UpdateRoomSessionLabel(IDs[1]))
         dispatch(UpdateRoomWeekBegin(settings.dates[0]));
         dispatch(UpdateRoomDate(settings.dates[IDs[0]]));
-        //dispatch(UpdateRoomTotalSessions(sessionTotal));
-        dispatch(UpdateRoomDayList(days));
+        dispatch(UpdateRoomDayList(settings.days));
+        dispatch(UpdateRoomWeekSystem(props.weekSystem));
+        dispatch(UpdateRoomWeekUUID(settings.weekSystemUUID));
+        dispatch(UpdateDiaryStartTime(settings.startTime));
+        dispatch(UpdateDiaryFinishTime(settings.finishTime));
+        dispatch(UpdateDiaryTimeInterval(settings.interval));
 
         history.push('/org/' + orgID + '/book');
     }
@@ -244,7 +307,7 @@ function Dairy(props) {
     function GetDepartment(id) {
 
         for(const department of organisation.departments) {
-            if(department.id == id) {
+            if(department.uuid == id) {
                 return department.name;
             }
         }
@@ -255,7 +318,12 @@ function Dairy(props) {
         <div>
         <Row>
             <Col><strong>
-                <div className='centred'>Week Beginning: {settings.dates[0]}</div>
+                <div className='centred'>Week Beginning: {settings.dates[settings.dayIndex]}</div>
+                </strong>
+            </Col>
+            <Col>
+                <strong>
+                    <div className='centred-100'>{settings.holiday}</div>
                 </strong>
             </Col>
             <Col>
@@ -272,7 +340,7 @@ function Dairy(props) {
                     <td className={settings.slotClass}>
                         Session
                     </td>
-                    {days.map((day, index) => {
+                    {settings.days.map((day, index) => {
                         if(day) {
                             return <td className={settings.dayClass} key={index} >{dayNames[index]} <br /> {settings.dates[index]}</td>
                         }
@@ -283,7 +351,7 @@ function Dairy(props) {
                 {settings.times.map((time, index) => {
                     return(<tr key={index}>
                             <td className={settings.slotClass}>{time}</td>
-                            {days.map((day, index) => {
+                            {settings.days.map((day, index) => {
                                 if(day) {
                                     if(Object.keys(settings.data).length > 0) {
                                         const name = settings.weekSlot + '-' + formatString(index) + '-' + time.replace(':', '');
@@ -296,10 +364,10 @@ function Dairy(props) {
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {
-                                            return <td className=' timetable-layout emptySlot' key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td> 
+                                            return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td> 
                                         }
                                     } else {
-                                        return <td className='timetable-layout emptySlot' key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td>
+                                        return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td>
                                     }
                                 }
                             })

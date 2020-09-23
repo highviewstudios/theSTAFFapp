@@ -12,6 +12,10 @@ body {
   font-size: 1rem;
 }
 
+.changeOfSenior {
+  font-size: 1.3rem;
+}
+
 .rooms {
   /* text-align: left; */
   float: left;
@@ -20,6 +24,31 @@ body {
 .roomLbl {
   padding: 15px;
   float: left;
+}
+
+.betaBanner {
+  background-color: #96bb7c;
+  color: red;
+}
+
+.clickable{
+  color: red;
+}
+
+.websiteTitle:link {
+  color: red;
+}
+
+.websiteTitle:active {
+  color: red;
+}
+
+.websiteTitle:hover{
+  color: red;
+}
+
+.websiteTitle:visited {
+  color: red;
 }
 
 nav{

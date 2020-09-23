@@ -5,6 +5,13 @@ export const userUpdateAuth = (val) => {
     };
 }
 
+export const userUpdateUUID = (val) => {
+    return {
+        type: "USER_UPDATE_UUID",
+        value: val
+    };
+}
+
 export const userUpdateName = (val) => {
     return {
         type: "USER_UPDATE_NAME",
@@ -50,6 +57,13 @@ export const userUpdateOrgID = (val) => {
 export const userUpdateUserDepartments = (val) => {
     return {
         type: "USER_UPDATE_USERDEPARTMENTS",
+        value: val
+    }
+}
+
+export const userUpdateSARequest = (val) => {
+    return {
+        type: "USER_UPDATE_SAREQUEST",
         value: val
     }
 }

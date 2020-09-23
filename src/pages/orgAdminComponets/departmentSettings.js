@@ -111,7 +111,7 @@ function DepartmentSettings(props) {
         });
 
         } else {
-            const data = {orgID: orgID, departmentName: departments.aname, noOfDepartments: organisation.noOfDepartments};
+            const data = {orgID: orgID, departmentName: departments.aname};
 
             Axios.post('/organisation/addDepartment', data)
             .then(res => {
@@ -177,11 +177,6 @@ function DepartmentSettings(props) {
         console.log(uuid);
     }
 
-    function updateUseDepartments() {
-
-        
-    }
-
     return (
         <div>
             <table width='100%' border='1px'>
@@ -191,6 +186,9 @@ function DepartmentSettings(props) {
                         <div className="heading-text"> <Image className="plus-image" src={departments.open ? minus : plus} onClick={openDepartments} /> Departments</div><br />
                             <Collapse in={departments.open}>
                                 <div>
+                                    <div className='margin-text-hide'>
+                                    -
+                                    </div>
                                 <div className="normal-text">
                                     <Row>
                                         <Col>

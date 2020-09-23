@@ -82,6 +82,10 @@
     color: transparent;
 }
 
+.emptySlotDisabled{
+    color: transparent;
+}
+
 .singleSlot {
     background-color: orange;
 }
@@ -104,4 +108,9 @@
 
 hr {
     background-color: black;
+}
+
+.centered-100 {
+    width: 100%;
+    text-align: center;
 }

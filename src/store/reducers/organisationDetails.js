@@ -1,4 +1,5 @@
-const organisationDetails = (state = {name: '', signInLocal: false, signInGoogle: false, message: '', useDepartments: false, noOfDepartments: '', departments: [], allocatedRooms: 0, redeemedRooms: 0, rooms:[]}, action) => {
+const organisationDetails = (state = {name: '', signInLocal: false, signInGoogle: false, message: '', useDepartments: false, noOfDepartments: '', departments: [], allocatedRooms: 0, 
+                                    redeemedRooms: 0, rooms:[], layouts: [], holidays: [], locked: false}, action) => {
     switch(action.type){
         case 'ORG_UPDATE_NAME':
             return {...state, name: action.value};
@@ -20,6 +21,12 @@ const organisationDetails = (state = {name: '', signInLocal: false, signInGoogle
             return {...state, redeemedRooms: action.value};
         case 'ORG_UPDATE_ROOMS':
             return {...state, rooms: action.value};
+        case 'ORG_UPDATE_LAYOUTS':
+            return {...state, layouts: action.value};
+        case 'ORG_UPDATE_HOLIDAYS':
+            return {...state, holidays: action.value};
+        case 'ORG_UPDATE_LOCKED':
+            return {...state, locked: action.value};
         default:
             return state
     }

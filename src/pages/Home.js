@@ -33,7 +33,8 @@ function Home() {
     <div className="body">
         <Container fluid className="p-3">
             <Jumbotron className="back-color">
-              <h1>Home</h1>
+              <h1>My STAFF homepage is coming soon...</h1><br />
+              <h2>If your organisation is already using My STAFF, please use the direct link from your registration email.</h2>             
             </Jumbotron>
         </Container>
     </div>

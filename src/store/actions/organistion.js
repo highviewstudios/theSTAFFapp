@@ -67,3 +67,24 @@ export const orgUpdateRooms = (val) => {
         value: val
     };
 }
+
+export const orgUpdateLayouts = (val) => {
+    return {
+        type: "ORG_UPDATE_LAYOUTS",
+        value: val
+    };
+}
+
+export const orgUpdateHolidays = (val) => {
+    return {
+        type: "ORG_UPDATE_HOLIDAYS",
+        value: val
+    };
+}
+
+export const orgUpdateLocked = (val) => {
+    return {
+        type: "ORG_UPDATE_LOCKED",
+        value: val
+    };
+}

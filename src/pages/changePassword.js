@@ -1,8 +1,9 @@
 import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { userUpdateRequestedPassword } from '../store/actions/user';
+import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -11,11 +12,9 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 
 function ChangePassword(props) {
 
-  const organisationID = props.match.params.id;
-
-  const history = useHistory();
   const [message, setmessage] = useState('');
   const dispatch = useDispatch();
+  const globalVars = useSelector(state => state.globalVars);
 
   useEffect(() => {
     document.title = "STAFF";
@@ -31,6 +30,7 @@ function ChangePassword(props) {
     if(oldPassword != '' && newPassword != '' && confirmPassword != '')
     {
       const data = { oldPassword: oldPassword, newPassword: newPassword, confirmPassword: confirmPassword};
+      
       axios.post('/changePassword', data)
       .then(res => {
         if(res.data.userError == 'Yes') {
@@ -38,7 +38,13 @@ function ChangePassword(props) {
         } else {
           if(res.data.message == 'Updated user password') {
             dispatch(userUpdateRequestedPassword(res.data.user.requestedPassword));
-            history.push("/org/" + organisationID);
+            if(globalVars.forceSignIn) {
+              dispatch(UpdateFromSignIn(true));
+              dispatch(UpdateForceSignIn(false));
+            } else {
+              dispatch(UpdateFromSignIn(true));
+              dispatch(UpdateForceSignIn(true));
+            }
           }
         }
       })

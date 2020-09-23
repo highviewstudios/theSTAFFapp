@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Axios from 'axios';
 import {useDispatch} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateUserDepartments} from './store/actions/user'
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateUserDepartments, userUpdateSARequest, userUpdateUUID} from './store/actions/user'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
 import 'mdbreact/dist/css/mdb.css';
@@ -9,19 +9,14 @@ import "./public/styles.css";
 import "./public/organisationAdmin.css";
 import './public/organisationHome.css';
 
+import BetaBanner from "./components/NavBar/betaBanner";
 import Nav from "./components/NavBar/Nav";
 
 import Home from "./pages/home";
-import SignIn from "./pages/signIn";
-import CreatePassword from "./pages/createPassword";
-import ForgotPassword from "./pages/forgotPassword";
-import ChangePassword from './pages/changePassword';
-import WrongOrganisation from './pages/wrongOrganisation';
 
 import NotConnected from "./pages/notConnected";
 import WrongLogin from "./pages/wrongLogin";
-import OrganisationAdmin from "./pages/organisationAdmin";
-import OrganisationHome from "./pages/organisationHome";
+import OrganisationRouter from './pages/organisationRouter';
 import Book from './pages/book';
 
 import AdminHome from "./pages/administrator/home";
@@ -43,7 +38,7 @@ function App() {
   function onOpen() {
     Axios.get("/auth", {withCredentials: true })
   .then(res => {
-      //console.log(res.data);
+      console.log(res.data);
       const isAuth = res.data.auth;
       dispatch(userUpdateAuth(isAuth));
       if(isAuth) {
@@ -51,12 +46,14 @@ function App() {
           dispatch(userUpdateName("High-ViewStudios"));
           dispatch(userUpdateRole("superAdmin"));
         } else {
+          dispatch(userUpdateUUID(res.data.user.uuid));
           dispatch(userUpdateName(res.data.user.displayName));
           dispatch(userUpdateRole(res.data.user.role));
           dispatch(userUpdateNew(res.data.user.new));
           dispatch(userUpdateRequestedPassword(res.data.user.requestedPassword));
           dispatch(userUpdateOrgID(res.data.user.orgID));
           dispatch(userUpdateUserDepartments(res.data.user.departments));
+          dispatch(userUpdateSARequest(res.data.user.SARequest));
         }
       }
       setLoaded(true);
@@ -71,19 +68,27 @@ function App() {
     {isLoaded ? (   
     <Router>
       <div className="App" >
+      <BetaBanner />
         <Nav />
         <Switch>
         {/* USER */}
         <Route path="/" exact component={Home} /> {/* DO NOT TOUCH */}
-        <Route path="/org/:id" exact component={OrganisationHome} />
-        <Route path="/org/:id/organisationAdmin" component={OrganisationAdmin} />
+
+        {/* ORGANISATION */}
+        <Route path="/org/:id" exact component={OrganisationRouter} />
+        <Route path="/org/:id/collisionBookings" component={OrganisationRouter} />
+        <Route path="/org/:id/organisationAdmin" component={OrganisationRouter} />
+        <Route path="/org/:id/signIn" component={OrganisationRouter} />    
+        <Route path="/org/:id/forgotPassword" component={OrganisationRouter} />
+        <Route path="/org/:id/changePassword" component={OrganisationRouter} />
+        <Route path="/org/:id/changeOfSeniorRequest" component={OrganisationRouter} /> 
+        <Route path="/org/:id/createPassword" component={OrganisationRouter} />
+        <Route path='/org/:id/wrongOrganisation' component={OrganisationRouter} />
+
+        {/* not moving this until later versions */}
         <Route path='/org/:id/book' component={Book} />
 
-        <Route path="/org/:id/signIn" component={SignIn} /> {/* DO NOT TOUCH */}
-        <Route path="/org/:id/forgotPassword" component={ForgotPassword} />
-        <Route path="/org/:id/changePassword" component={ChangePassword} />
-        <Route path="/org/:id/createPassword" component={CreatePassword} />
-        <Route path='/org/:id/wrongOrganisation' component={WrongOrganisation} />
+        {/* coming direct from passport */}
         <Route path="/org/:id/wrongLogin/" component={WrongLogin} />
 
         <Route path="/notConnected" component={NotConnected} />        

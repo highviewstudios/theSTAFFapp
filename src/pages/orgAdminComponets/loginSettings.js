@@ -140,7 +140,9 @@ function LoginSettings(props) {
                       <div className="heading-text"> <Image className="plus-image" src={loginSettings.open ? minus : plus} onClick={openLogin} /> Login Settings</div><br />
                       <Collapse in={loginSettings.open}> 
                       <div>
-                      <Button variant='primary' onClick={handleTourStart}>Tour</Button>
+                        <div className='margin-text-hide'>
+                          <Button variant='primary' onClick={handleTourStart}>Tour</Button>
+                        </div>
                         <div className="normal-text">
                         <Row>
                         <Col>

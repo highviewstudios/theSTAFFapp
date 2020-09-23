@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import ServerPath, { hostPath } from "../ServerPath";
 import {useDispatch, useSelector} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID} from '../store/actions/user';
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateSARequest, userUpdateUUID} from '../store/actions/user';
+import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -16,6 +17,7 @@ function SignIn(props) {
 
   const user = useSelector(state => state.user);
   const organisation = useSelector(state => state.organisation);
+  const globalVars = useSelector(state => state.globalVars);
   const history = useHistory();
   const dispatch = useDispatch();
   const [message, setmessage] = useState('');
@@ -71,18 +73,23 @@ function SignIn(props) {
     .then(res => {
       console.log(res.data);
         const message = res.data.message;
+
         if(message === "Logged in successful") {
             dispatch(userUpdateAuth(true));
+            dispatch(userUpdateUUID(res.data.uuid));
             dispatch(userUpdateName(res.data.displayName));
             dispatch(userUpdateRole(res.data.role));
             dispatch(userUpdateNew(res.data.new));
             dispatch(userUpdateRequestedPassword(res.data.requestedPassword));
             dispatch(userUpdateOrgID(res.data.orgID));
+            dispatch(userUpdateSARequest(res.data.SARequest))
 
-            if(res.data.new == "true") {
-              history.push('createPassword');
+            if(globalVars.forceSignIn) {
+              dispatch(UpdateFromSignIn(true));
+              dispatch(UpdateForceSignIn(false));
             } else {
-            history.push('/org/' + organisationID);
+              dispatch(UpdateFromSignIn(true));
+              dispatch(UpdateForceSignIn(true));
             }
         } else {
             setmessage(res.data.info);

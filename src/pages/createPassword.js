@@ -1,8 +1,9 @@
 import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { userUpdateNew } from '../store/actions/user';
+import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -11,20 +12,13 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 
 function CreatePassword(props) {
 
-  const organisationID = props.match.params.id;
-
-  const history = useHistory();
   const [message, setmessage] = useState('');
   const dispatch = useDispatch();
+  const globalVars = useSelector(state => state.globalVars);
 
   useEffect(() => {
     document.title = "STAFF";
-    onOpen();
   },[]);
-
-  function onOpen() {
-    
-  }
 
   function setPassword(event) {
     event.preventDefault();
@@ -44,7 +38,13 @@ function CreatePassword(props) {
         } else {
           if(res.data.message == 'Updated user first password') {
             dispatch(userUpdateNew(res.data.user.new));
-            history.push("/org/" + organisationID);
+            if(globalVars.forceSignIn) {
+              dispatch(UpdateFromSignIn(true));
+              dispatch(UpdateForceSignIn(false));
+            } else {
+              dispatch(UpdateFromSignIn(true));
+              dispatch(UpdateForceSignIn(true));
+            }
           }
         }
       })

@@ -34,8 +34,20 @@ function Users(props) {
         message: ''
     });
 
+    const [modalChangeSA, setModalChangeSA] = useState({
+        open: false
+    });
+
     function handleModalClose() {
         setModal(prevState => {
+            return {...prevState,
+            open: false
+        }
+    });
+    }
+
+    function handleModalYNClose() {
+        setModalChangeSA(prevState => {
             return {...prevState,
             open: false
         }
@@ -148,7 +160,7 @@ function Users(props) {
         for(const department of organisation.departments) {
 
             if(settings.userDepartments.includes(department.name)) {
-                departmentIndex.push(department.id);
+                departmentIndex.push(department.uuid);
             }
         }
         console.log(departmentIndex)
@@ -162,7 +174,7 @@ function Users(props) {
 
         for(const department of organisation.departments) {
 
-            if(IDs.includes(department.id)) {
+            if(IDs.includes(department.uuid)) {
                 departmentArray.push(department.name);
             }
         }
@@ -254,7 +266,7 @@ function Users(props) {
     function handleBackToAdd() {
 
         setSettings(prevState => {
-            return {...prevState, edit: false, name: '', email: '', role_Admin: false, role_User: false, userDepartments: ''}
+            return {...prevState, edit: false, name: '', email: '', roles: true, role_Admin: false, role_User: false, userDepartments: ''}
         })    
     }
 
@@ -290,27 +302,53 @@ function Users(props) {
 
     function handleRemove() {
 
-        const data = {uuid: settings.editID, orgID: orgID};
+        if(settings.role_SeniorAdmin) {
+            setModal({heading: 'Remove User', message: 'You cannot delete a Senior Admin', open: true});
+        } else {
+            const data = {uuid: settings.editID, orgID: orgID};
 
-        Axios.post('/organisation/removeUser', data)
+            Axios.post('/organisation/removeUser', data)
+            .then(res => {
+                const data = res.data;
+
+                if(data.message == 'User removed successfully') {
+                    setModal(prevState => {
+                        return {...prevState, heading: 'Remove User', message: 'User has been removed and deleted', open: true};
+                    });
+
+                    setSettings(prevState => {
+                        return {...prevState, 
+                            users: data.users,
+                            name: '',
+                            email: '',
+                            role_Admin: false,
+                            role_User: false,
+                            userDepartments: []
+                            };
+                    });
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        }
+    }
+
+    function handleSeniorAdminRequest() {
+
+        setModalChangeSA({open: true})
+    }
+
+    function handleAcceptOfSARequest() {
+
+        const data = {orgID: orgID, newUUID: settings.editID};
+        Axios.post('/organisation/changeSeniorAdmin', data)
         .then(res => {
-            const data = res.data;
+            
+            if(res.data.message == 'Request sent successfully') {
 
-            if(data.message == 'User removed successfully') {
-                setModal(prevState => {
-                    return {...prevState, heading: 'Remove User', message: 'User has been removed and deleted', open: true};
-                });
-
-                setSettings(prevState => {
-                    return {...prevState, 
-                        users: data.users,
-                        name: '',
-                        email: '',
-                        role_Admin: false,
-                        role_User: false,
-                        userDepartments: []
-                        };
-                });
+                setModalChangeSA({open: false});
+                setModal({heading: 'Change of Senior Admin Request', message: 'A request has been sent to ' + settings.name, open: true});
             }
         })
         .catch(err => {
@@ -326,12 +364,17 @@ function Users(props) {
                         <th>
                             <div className="heading-text"> <Image className="plus-image" src={settings.open ? minus : plus} onClick={openTab} /> Users</div><br />
                             <Collapse in={settings.open}>
+                            <div>
+                                <div className='margin-text-hide'>
+                                    -
+                                </div>
                                 <div className="normal-text">
                                     {/* <p>Name</p><p>Email</p><p>Role</p><p>Deparments</p> */}
                                     <Row>
                                         <Col>
                                             <Row>
-                                            <Col>
+                                            <Col className='bordered'>
+                                                <strong>User Details:</strong>
                                                 <Form>
                                                     <Form.Row>
                                                     <Form.Group as={Col}>
@@ -347,32 +390,48 @@ function Users(props) {
                                                     </Form.Row>
                                                     <Form.Row>
                                                     <Form.Group as={Col}>
-                                                    {settings.roles ? (<div>
+                                                    <div className={settings.roles ? null : 'roles-hidden'}>
                                                         <Form.Label id="lblRole">Role:</Form.Label>
                                                         <Form.Check id="radRoleUser" type="radio" name='role_User' checked={settings.role_User} onChange={handleRadioChange} label="User" /> 
                                                         <Form.Check id="radRoleAdmin" type="radio" name='role_Admin' checked={settings.role_Admin} onChange={handleRadioChange} label="Admin" />
-                                                    </div>) : null}
+                                                    </div>
                                                         
                                                     </Form.Group>
                                                     </Form.Row>
                                                     <Form.Row>
                                                     <Form.Group as={Col}>
                                                         <Form.Label id="lblDepartmentsTitle">Departments:</Form.Label> <br />
-                                                        <Form.Label id="lblDepartments">{settings.userDepartments.toString()}</Form.Label>
+                                                        {settings.userDepartments.length == 0 ? (
+                                                            <div className='departments-hidden'>
+                                                                <Form.Label>---</Form.Label>
+                                                            </div>): (
+                                                            <div>
+                                                                <Form.Label id="lblDepartments">{settings.userDepartments.toString()}</Form.Label>
+                                                            </div>)}
                                                     </Form.Group>
                                                     </Form.Row>
-                                                    <div className="remove-button-show">
-                                                        {!settings.edit ? 
-                                                        <Button variant="primary" onClick={handleSingleAdd}>Add</Button> :
-                                                        (<div><Button variant="primary" onClick={handleRemove}>Remove</Button> <Button variant="primary" onClick={handleUpdate}>Update</Button></div>)}
-                                                    </div>
+                                                    <Form.Row>
                                                     <div className="submit-button-show">
-                                                        {!settings.edit ? <Button variant="primary" onClick={handleMultipleAdd}>Add Multiple</Button> :
-                                                        <Button variant="primary" onClick={handleBackToAdd}>Add</Button>}
+                                                        {!settings.edit ? (<div>
+                                                            <Button variant="primary" onClick={handleMultipleAdd}>Add Multiple</Button>
+                                                            <Button variant="primary" onClick={handleSingleAdd}>Add</Button>
+                                                        </div>) : (
+                                                            <div>
+                                                        <Button variant="primary" onClick={handleBackToAdd}>Add New User</Button>
+                                                        <Button variant="primary" onClick={handleSeniorAdminRequest}>S/A Request</Button> </div>)}
                                                     </div>
+                                                    </Form.Row>
+                                                    
+                                                    <Form.Row className={settings.edit ? 'user-edit' : 'user-edit edit-hidden'}>
+                                                        <div> 
+                                                            <Button variant="primary" onClick={handleRemove}>Remove</Button> 
+                                                            <Button variant="primary" onClick={handleUpdate}>Update</Button> 
+                                                        </div>
+                                                    </Form.Row>
                                                 </Form>
                                             </Col>
-                                            <Col>Deparments:
+                                            <Col className='bordered'>
+                                            <strong>Deparments:</strong>
                                             <div className='scrollable-250'>
                                             <ListGroup>
                                                 {settings.departments.map((department, index) => {
@@ -407,6 +466,7 @@ function Users(props) {
                                         </Col>
                                     </Row>
                                 </div>
+                            </div>
                             </Collapse>
                         </th>
                     </tr>
@@ -424,6 +484,26 @@ function Users(props) {
                 </Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={modalChangeSA.open} onHide={handleModalYNClose}>
+            <Modal.Header closeButton>
+            <Modal.Title>Change of Senior Admin Request</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>You are requesting {settings.name} to change roles to the Senior Admin of this organisation. You can only have ONE Senior Admin per organisation, so this means you will not have access to the administrator panel for this organisation. Your role will change to Admin</p>
+                <p>This user will also be to new ‘point of contact’ for High-View Studios.</p>
+                <p>This user will be sent an email and they have to accept the request. In the meantime you will still have access.</p>
+                <p>You and High-View Studios will be notified when this request has been accepted.</p>
+                <p>Do you want to continue?</p>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="primary" onClick={handleAcceptOfSARequest}>
+                    Yes
+                </Button>
+                <Button variant="primary" onClick={handleModalYNClose}>
+                    No
+                </Button>
+            </Modal.Footer>
+        </Modal>
         </div>
     )
 }

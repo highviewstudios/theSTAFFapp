@@ -8,8 +8,12 @@ function Nav() {
     <Row>
     <Col></Col>
     <Col>
+      <a className='websiteTitle' href='/'>
+        <div className='clickable'>
         <h1><strong>My STAFF</strong></h1>
         <h2><strong>Space, Times, Flexible, Facilities</strong></h2>
+        </div>
+      </a>
     </Col>
     <Col>
         <div className="user-nav">

@@ -16,12 +16,12 @@ function Book(props) {
     const user = useSelector(state => state.user);
     const organisation = useSelector(state => state.organisation);
     const globalVars = useSelector(state => state.globalVars);
-    const orgLayouts = useSelector(state => state.layouts);
 
     const [settings, setSettings] = useState({
         userList: [],
         departmentList: [],
         user: 'Users',
+        userID: '',
         department: 'Departments',
         departmentID: '',
         sessionLength: 'Length',
@@ -64,16 +64,16 @@ function Book(props) {
 
     function onOpen() {
 
-        if(user.role != 'seniorAdmin') {
+        if(user.role != 'user') {
             FetchUsersAndDepartments();
         } else {
             FetchUserDepartments();
 
             setSettings(prevState => {
-                return {...prevState, showUserDropdown: false, user: user.name}
+                return {...prevState, showUserDropdown: false, user: user.name, userID: user.uuid}
             });
         }
-        if(globalVars.roomLayout == 'timetable') {
+        if(globalVars.layoutData.layout == 'Timetable') {
             if(globalVars.sessionID.includes('b')) {
                 
                 setSettings(prevState => {
@@ -98,11 +98,11 @@ function Book(props) {
                 return {...prevState, sessDesTitle: 'Class', sessionLengthTitle: 'Session Length'};
             });
 
-        } else if(globalVars.roomLayout == 'diary') {
+        } else if(globalVars.layoutData.layout == 'Diary') {
 
             const sTime = moment(globalVars.sessionLabel, 'HH:mm');
 
-            BuildTimes(sTime, orgLayouts.finishTime, orgLayouts.timeInterval);
+            BuildTimes(sTime, globalVars.finishTime, globalVars.timeInterval);
 
             //Change Titles
             setSettings(prevState => {
@@ -148,7 +148,7 @@ function Book(props) {
         for(const depIndex of userDepartments) {
             
             for(const department of organisation.departments) {
-                if(department.id == depIndex) {
+                if(department.uuid == depIndex) {
                     departments.push(department);
                 }
             }
@@ -160,12 +160,10 @@ function Book(props) {
     }
 
     //Dropdowns select functions
-    function handleUsersDropdownItem(event) {
-
-        const { innerText} = event.target;
+    function handleUsersDropdownItem(name, uuid) {
 
         setSettings(prevState => {
-            return {...prevState, user: innerText};
+            return {...prevState, user: name, userID: uuid};
         });
     }
 
@@ -308,7 +306,7 @@ function Book(props) {
                     if(uDate.isAfter(cDate)) {
                         setModal({heading: 'Booking', message:'You cannot repeat a booking for more than two years.', open: true});
                     } else {
-                        //BookSession();
+                        BookSession();
                     }
 
                     
@@ -328,7 +326,7 @@ function Book(props) {
 
         const IDs = globalVars.sessionID.split('-');
 
-        if(globalVars.roomLayout == 'timetable') {
+        if(globalVars.layoutData.layout == 'Timetable') {
             if(!IDs[1].toString().includes('b')) {
 
                 let firstIndex = parseInt(IDs[1]);
@@ -340,14 +338,14 @@ function Book(props) {
             } else {
                 sessions.push(IDs[1]);
             } 
-        } else if (globalVars.roomLayout == 'diary') {
+        } else if (globalVars.layoutData.layout == 'Diary') {
 
             let sTime = moment(globalVars.sessionLabel, 'HH:mm');
             const fTime = moment(settings.sessionLength, 'HH:mm');
             
             while (sTime.isBefore(fTime)) {
                 sessions.push(sTime.format('HH:mm').replace(':', ''));
-                sTime.add(orgLayouts.timeInterval, 'm');
+                sTime.add(globalVars.timeInterval, 'm');
             }
         }
 
@@ -366,6 +364,15 @@ function Book(props) {
             repeatUntil = ''
         }
 
+        //WEEK SYSTEM
+        let weekSysWeeks = '';
+        for(const holiday of organisation.holidays) {
+            if(holiday.titleUUID == globalVars.weekUUID) {
+                weekSysWeeks = holiday.weeks;
+                break;
+            }
+        }
+
         //DATES
         let startDate = moment(globalVars.date, 'DD/MM/YYYY');
 
@@ -377,9 +384,9 @@ function Book(props) {
             finishDate = '';
         }
 
-        const data = {orgID: orgID,roomID: globalVars.roomID, user: settings.user, departmentID: settings.departmentID, sessionDes: settings.sessDes, sessionTotal: sessions.length,
-                        sessions: sessions.toString(), comments: settings.comments, bookingType: bookingType, repeatType: repeatType,
-                        startDate: startDate.format('DD/MM/YYYY'), repeatUntil: finishDate, createdBy: user.name, dayList: globalVars.dayList};
+        const data = {orgID: orgID,roomID: globalVars.roomID, user: settings.userID, departmentID: settings.departmentID, sessionDes: settings.sessDes, sessionTotal: sessions.length,
+                        sessions: sessions.toString(), comments: settings.comments, bookingType: bookingType, repeatType: repeatType, startDate: startDate.format('DD/MM/YYYY'), 
+                        repeatUntil: finishDate, createdBy: user.uuid, dayList: globalVars.dayList, weekSystem: globalVars.weekSystem, weekSysWeeks: weekSysWeeks};
         
         Axios.post('/booking/createBooking', data)
         .then(res => {
@@ -450,7 +457,7 @@ function Book(props) {
                                         </Dropdown.Toggle>
                                         <Dropdown.Menu className='dropdown-items'>
                                             {settings.userList.map((user, index) => {
-                                                return <Dropdown.Item key={index} onClick={handleUsersDropdownItem}>{user.displayName}</Dropdown.Item>
+                                                return <Dropdown.Item key={index} onClick={() => handleUsersDropdownItem(user.displayName, user.uuid)}>{user.displayName}</Dropdown.Item>
                                             })}
                                         </Dropdown.Menu>
                                     </Dropdown>
@@ -465,7 +472,7 @@ function Book(props) {
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu className='dropdown-items'>
                                                 {settings.departmentList.map((department, index) => {
-                                                    return <Dropdown.Item key={index} onClick={() => handleDepartmentsDropdownItem(department.name, department.id)}>{department.name}</Dropdown.Item>
+                                                    return <Dropdown.Item key={index} onClick={() => handleDepartmentsDropdownItem(department.name, department.uuid)}>{department.name}</Dropdown.Item>
                                                 })}
                                             </Dropdown.Menu>
                                         </Dropdown>
@@ -499,9 +506,12 @@ function Book(props) {
                                         
                                         </Form.Group>   
                                     <Row>
+                                    {user.role != 'user' ? (<div>
                                         <Form.Group>
                                             <Form.Check className="check-side-by-side-b" type="checkbox" label="Repeat" onChange={handleRepeatCheckChanged} />
                                         </Form.Group>
+                                    </div>) : null}
+                                        
                                     </Row>
                                     {settings.repeat ? (<div>
                                         <Row>

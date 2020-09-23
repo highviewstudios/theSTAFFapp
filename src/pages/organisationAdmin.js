@@ -7,6 +7,8 @@ import DepartmentSettings from './orgAdminComponets/departmentSettings';
 import Users from './orgAdminComponets/users';
 import Rooms from "./orgAdminComponets/rooms";
 import Layouts from "./orgAdminComponets/layoutSettings";
+import WeekSystemHolidays from './orgAdminComponets/weekSystemHolidays';
+
 import SessionsContextProvider from '../context/adminTemplatesSessions';
 
 //Styles
@@ -33,8 +35,9 @@ function OrganisationAdmin(props) {
               <Users orgID={orgID} /> <br />
               <Rooms orgID={orgID} /> <br />
               <SessionsContextProvider>
-                <Layouts orgID={orgID} />
+                <Layouts orgID={orgID} /> <br />
               </SessionsContextProvider>
+              <WeekSystemHolidays orgID={orgID} />
             </Jumbotron>
         </Container>
     </div>

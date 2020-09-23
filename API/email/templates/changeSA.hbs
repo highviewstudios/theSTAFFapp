@@ -26,19 +26,14 @@
     </div>
 
     <p>Dear {{ name }} ({{ email }}),</p>
-    <p>You have requested a new password through the My STAFF platform</p>
+    <p>There has been a request from {{ POC_Name }} to make you a Senior Admin at {{ orgName }}</p>
+    <p>This will enable to you change the administrator settings for this organisation. You will also be the new 'point of contact' between {{ orgName }} and High-View Studios</p>
 
-    <p>Your new password is below</p>
-    <ul>
-            <li>Username: please use the email you see above</li>
-            <li>Password: {{ password }}</li><br />
-    </ul>
+    <p>You will need to go on the link below and accept and decline the request.</p>
 
-    <p>If you have NOT requested a new password, please contact High-View Studios immediately on shaun.evans@high-view-studios.co.uk</p>
+    <p>If you accept the request, the current Senior Admin will be informed as well as High-View Studios for their reconds</p>
 
-    <p>If you have requested this password, please go to http://localhost:3000/org/{{ orgID }} to sign in with the new password</p>
-
-    <p>The website will ask you to change it straight away!</p>
+    <p>Please follow this link: http://localhost:3000/org/{{ orgID }}/changeofSeniorRequest</p>
 
     <p>Regards,</p>
 

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import ReactTooltip from 'react-tooltip';
 import { Row, Col, Button, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
-import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomTotalSessions, UpdateRoomDayList, UpdateRoomLayout } from '../../../store/actions/globalVars';
+import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomTotalSessions, UpdateRoomDayList, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData } from '../../../store/actions/globalVars';
 import moment from 'moment';
 import Axios from 'axios';
 
@@ -11,14 +11,9 @@ function Timetable(props) {
 
 
     const orgID = props.orgID;
-    const orgLayouts = useSelector(state => state.layouts);
     const organisation = useSelector(state => state.organisation);
     const globalVars = useSelector(state => state.globalVars);
 
-    const days = orgLayouts.timetableDays; 
-    const order = orgLayouts.sessionOrder;
-    const sessions = orgLayouts.sessions;
-    const sessionTotal = orgLayouts.sessionTotal;
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const history = useHistory();
     const dispatch = useDispatch();
@@ -29,8 +24,17 @@ function Timetable(props) {
         dates: ['', '', '', '', '', '', ''],
         weekSlot: '',
         dayIndex: 0,
-        data: {}
+        data: {},
+        holiday: '',
+        weekSystemUUID: ''
     });
+
+    const [layout, setLayout] = useState({
+        days: [],
+        order: [],
+        sessions: [],
+        sessionTotal: 0
+    })
 
     const [modal, setModal] = useState({
         open: false,
@@ -53,26 +57,76 @@ function Timetable(props) {
 
     function setup() {
 
-        let totalDays = 0;
-        for(const day of days) {
-            if(day) {
-                totalDays++;
-            }
-        }
-        setSettings(prevState => {
-            return {...prevState, slotClass: 'session' + totalDays + '-slot timetable-layout', dayClass: 'session' + totalDays + '-days timetable-layout'}
-        });
+        console.log(props.weekSystem);
+        //SETUP NEW LAYOUT FROM REDUX
+        const layoutDays = props.layoutData.days.split(',');
+        const days = [];
+        let newSessions = {};
+        const order = props.layoutData.sessionOrder.split(',');
 
-        if(globalVars.weekBeginDate == '') {
-            const weekBG = FindWeekBegin();
-            BuildDataSlots(weekBG);
-        } else {
-            const firstDate = moment(globalVars.weekBeginDate, 'DD/MM/YYYY');
-            RebuildDates(firstDate);
+        for(const day of layoutDays) {
+            days.push(day == 'true');
         }
+
+        const data = {orgID: orgID, layoutUUID: props.layoutData.uuid};
+        Axios.post('/organisation/getTimetableSessions', data)
+        .then(res => {
+
+            const sessions = res.data.sessions;
+
+            for(const session of sessions) {
+                newSessions[session.id] = session;
+            }
+
+            setLayout(prevState => {
+                return {...prevState, days: days, sessions: newSessions, sessionTotal: props.layoutData.sessions, order: order}
+            });
+
+            /////
+
+            let totalDays = 0;
+            for(const day of days) { 
+                if(day) {
+                    totalDays++;
+                }
+            }
+            setSettings(prevState => {
+                return {...prevState, slotClass: 'session' + totalDays + '-slot timetable-layout', dayClass: 'session' + totalDays + '-days timetable-layout'}
+            });
+
+            console.log(globalVars.weekBeginDate);
+            if(globalVars.weekBeginDate == '') {
+                const weekBG = FindWeekBegin(days);
+                BuildDataSlots(weekBG, order, newSessions);
+                CheckHoliday(weekBG);
+            } else {
+                FindDayIndex(days);
+                const firstDate = moment(globalVars.weekBeginDate, 'DD/MM/YYYY');
+                RebuildDates(firstDate, order, newSessions);
+            }
+
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        //SETUP NEW LAYOUT FROM REDUX ^^^
     }
 
-    function BuildDataSlots(weekBg) {
+    function FindDayIndex(days) {
+        let dayIndex;
+        for(const [index, day] of days.entries()) {
+            if(day) {
+                dayIndex = index;
+                break;
+            }
+        }
+
+        setSettings(prevState => {
+            return {...prevState, dayIndex: dayIndex}
+        });
+    }
+
+    function BuildDataSlots(weekBg, order, sessions) {
 
         const data = {};
         const days = [];
@@ -92,10 +146,11 @@ function Timetable(props) {
             weekBG.add(1, 'd');
         }
 
-        const mySQLData = {orgID: orgID, room: props.roomID,week: weekSlot, days: days};
+        const mySQLData = {orgID: orgID, room: props.roomID,week: weekSlot, days: days, weekBG: weekBg};
         Axios.post('/booking/getBookings', mySQLData)
         .then(res => {
             const recievedData = res.data;
+            console.log(recievedData.bookings);
             if(recievedData.error === 'null') {
                 setSettings(prevState => {
                     return {...prevState, weekSlot: weekSlot, data: recievedData.bookings}
@@ -105,9 +160,35 @@ function Timetable(props) {
         .catch(err => {
             console.log(err);
         });
+    }
 
-        //console.log(data);
+    function CheckHoliday(weekBG) {
+        
+        const date = moment(weekBG, 'DD/MM/YYYY');
+        const week = formatString(date.week()) + '-' + date.format('YY');
+        let holidayTitle = '';
 
+        for(const holiday of organisation.holidays) {
+
+            if(holiday.weeks.includes(week)) {
+
+                if(holiday.titleUUID.includes('w')) {
+                    if(props.weekSystem) {
+                        holidayTitle = holiday.name;
+                        setSettings(prevState => {
+                            return {...prevState, weekSystemUUID: holiday.titleUUID}
+                        })
+                    }
+                } else if(holiday.titleUUID.includes('h')){
+                    holidayTitle = 'Holiday: ' + holiday.name
+                }
+                break;
+            }
+        }
+
+        setSettings(prevState => {
+            return {...prevState, holiday: holidayTitle}
+        });
     }
 
     function formatString(time) {
@@ -136,32 +217,33 @@ function Timetable(props) {
     function handleBookClick(event) {
         
         const { id } = event.target;
-        console.log(id);
         const IDs = id.toString().split('-');
         dispatch(UpdateRoomName(props.roomName));
         dispatch(UpdateRoomID(props.roomID));
         dispatch(UpdateRoomSessionID(id));
-        dispatch(UpdateRoomLayout('timetable'));
+        dispatch(UpdateRoomWeekSystem(props.weekSystem));
+        dispatch(UpdateRoomWeekUUID(settings.weekSystemUUID));
+        dispatch(UpdateRoomLayoutData(props.layoutData));
 
-        if(sessions[IDs[1]].id.includes('b')) {
+        if(layout.sessions[IDs[1]].id.includes('b')) {
             
-            dispatch(UpdateRoomSessionLabel(sessions[IDs[1]].breakText));
+            dispatch(UpdateRoomSessionLabel(layout.sessions[IDs[1]].breakText));
         } else {
-            if(sessions[IDs[1]].customText != '') {
-                dispatch(UpdateRoomSessionLabel(sessions[IDs[1]].customText));
+            if(layout.sessions[IDs[1]].customText != '') {
+                dispatch(UpdateRoomSessionLabel(layout.sessions[IDs[1]].customText));
             } else {
-                dispatch(UpdateRoomSessionLabel(sessions[IDs[1]].id));
+                dispatch(UpdateRoomSessionLabel(layout.sessions[IDs[1]].id));
             }
         }
         dispatch(UpdateRoomWeekBegin(settings.dates[0]));
         dispatch(UpdateRoomDate(settings.dates[IDs[0]]));
-        dispatch(UpdateRoomTotalSessions(sessionTotal));
-        dispatch(UpdateRoomDayList(days));
+        dispatch(UpdateRoomTotalSessions(layout.sessionTotal));
+        dispatch(UpdateRoomDayList(layout.days));
 
         history.push('/org/' + orgID + '/book')
     }
 
-    function FindWeekBegin() {
+    function FindWeekBegin(days) {
 
         let today = moment();
         today.startOf('week');
@@ -191,7 +273,7 @@ function Timetable(props) {
         return dates[0];
     }
 
-    function RebuildDates(firstDate) {
+    function RebuildDates(firstDate, order, sessions) {
 
         let dates = [];
         for(let i = 0; i < 7; i++) {
@@ -203,7 +285,8 @@ function Timetable(props) {
             return {...prevState, dates: dates}
         });
 
-        BuildDataSlots(dates[0]);
+        BuildDataSlots(dates[0], order, sessions);
+        CheckHoliday(dates[0]);
     }
 
     function handleAdvancedWeek() {
@@ -211,7 +294,7 @@ function Timetable(props) {
         let newDate = moment(settings.dates[0], 'DD/MM/YYYY');
         newDate.add(1, 'w');
 
-        RebuildDates(newDate);
+        RebuildDates(newDate, layout.order, layout.sessions);
     }
 
     function handleGoBackWeek() {
@@ -226,14 +309,14 @@ function Timetable(props) {
             setModal({heading: props.roomName, message: 'You cannot go back previous from this week', open: true});
         } else {
 
-            RebuildDates(newDate);
+            RebuildDates(newDate, layout.order, layout.sessions);
         }
     }
 
     function GetDepartment(id) {
 
         for(const department of organisation.departments) {
-            if(department.id == id) {
+            if(department.uuid == id) {
                 return department.name;
             }
         }
@@ -245,6 +328,11 @@ function Timetable(props) {
         <Row>
             <Col><strong>
                 <div className='centred'>Week Beginning: {settings.dates[settings.dayIndex]}</div>
+                </strong>
+            </Col>
+            <Col>
+                <strong>
+                    <div className='centred-100'>{settings.holiday}</div>
                 </strong>
             </Col>
             <Col>
@@ -261,25 +349,25 @@ function Timetable(props) {
                     <td className={settings.slotClass}>
                         Session
                     </td>
-                    {days.map((day, index) => {
+                    {layout.days.map((day, index) => {
                         if(day) {
                             return <td className={settings.dayClass} key={index} >{dayNames[index]} <br /> {settings.dates[index]}</td>
                         }
                     })}
                 </tr>
             </thead>
-            <tbody>{order.map((session, index) => {
+            <tbody>{layout.order.map((session, index) => {
                 if(session.toString().includes('b')) { //breaks \/\/
-                    return (<tr key={index} style={{backgroundColor:sessions[session].bgColor}}>
-                        <td className={settings.slotClass} style={{color:sessions[session].textColor}}>
-                        {sessions[session].breakText != '' ? sessions[session].breakText : sessions[session].id}</td>
-                        {days.map((day, index) => {
+                    return (<tr key={index} style={{backgroundColor:layout.sessions[session].bgColor}}>
+                        <td className={settings.slotClass} style={{color:layout.sessions[session].textColor}}>
+                        {layout.sessions[session].breakText != '' ? layout.sessions[session].breakText : layout.sessions[session].id}</td>
+                        {layout.days.map((day, index) => {
                             if(day) {
                                 if(Object.keys(settings.data).length > 0) {
 
-                                        const name = settings.weekSlot + '-' + formatString(index) + '-' + formatString(sessions[session].id);
+                                        const name = settings.weekSlot + '-' + formatString(index) + '-' + formatString(layout.sessions[session].id);
                                         if(settings.data[name].type == 'single') {
-                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + session} onClick={handleBookClick}>
+                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + layout.session} onClick={handleBookClick}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td> 
                                         } else if (settings.data[name].type == 'repeat') {
@@ -287,23 +375,23 @@ function Timetable(props) {
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {
-                                            return <td className=' timetable-layout emptySlot' key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
+                                            return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
                                         }
                                     } else {
-                                        return <td className=' timetable-layout emptySlot' key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
+                                        return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
                                     }
                             }
                         })}
                         </tr>)
                 } else { //sessions \/\/
                     return (<tr key={index}>
-                            <td className={settings.slotClass} data-tip={sessions[session].hoverText != '' ? sessions[session].hoverText : null }>
-                            {sessions[session].customText != '' ? sessions[session].customText : sessions[session].id}</td>
-                            {days.map((day, index) => {
+                            <td className={settings.slotClass} data-tip={layout.sessions[session].hoverText != '' ? layout.sessions[session].hoverText : null }>
+                            {layout.sessions[session].customText != '' ? layout.sessions[session].customText : layout.sessions[session].id}</td>
+                            {layout.days.map((day, index) => {
                                 if(day) {
                                     if(Object.keys(settings.data).length > 0) {
 
-                                        const name = settings.weekSlot + '-' + formatString(index) + '-' + formatString(sessions[session].id);
+                                        const name = settings.weekSlot + '-' + formatString(index) + '-' + formatString(layout.sessions[session].id);
                                         if(settings.data[name].type == 'single') {
                                             return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + session} onClick={handleBookClick}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
@@ -313,10 +401,10 @@ function Timetable(props) {
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {
-                                            return <td className=' timetable-layout emptySlot' key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
+                                            return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
                                         }
                                     } else {
-                                        return <td className=' timetable-layout emptySlot' key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
+                                        return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + session} onClick={handleBookClick}>Book</td> 
                                     }
                                     
                                 }
