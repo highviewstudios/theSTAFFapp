@@ -173,7 +173,7 @@ function Rooms(props) {
                     dispatch(orgUpdateRooms(data.rooms));
 
                     setSettings(prevState => {
-                        return {...prevState, rooms: data.rooms};
+                        return {...prevState, rooms: data.rooms, name: '', layout: 'layout', weekSystem: false};
                     });
 
                     checkIfAddRoomsAllowed(organisation.allocatedRooms, data.redeemedRooms);
@@ -252,6 +252,7 @@ function Rooms(props) {
 
             Axios.post('/organisation/getMainOrgWeekSystem', data)
             .then(res => {
+                console.log(res.data);
                 if(res.data.weekSystem == 'false') {
                     setModal({heading: 'Week System', message: "You cannot turn on a room week system until you turn on the main week system in the 'Week System / Holidays' tab", open: true});
 
@@ -333,7 +334,7 @@ function Rooms(props) {
                                                 <Row>
                                                     <div className={settings.yourLayouts.length == 0 ? 'rooms-layoutText' : 'rooms-layoutText rooms-hide'}>
                                                         <strong>
-                                                        There are no layouts in your system yet, use the layouts tab to add one. Then your will be able to assign a room to that layout.
+                                                        There are no layouts in your system yet, use the layouts tab to add one. Then your will be able to assign a room to a layout.
                                                         </strong>
                                                     </div>
                                                 </Row>

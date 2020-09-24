@@ -431,7 +431,7 @@ function Users(props) {
                                                 </Form>
                                             </Col>
                                             <Col className='bordered'>
-                                            <strong>Deparments:</strong>
+                                            <strong>Departments:</strong>
                                             <div className='scrollable-250'>
                                             <ListGroup>
                                                 {settings.departments.map((department, index) => {

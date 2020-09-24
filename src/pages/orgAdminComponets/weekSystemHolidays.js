@@ -94,7 +94,7 @@ function WeekSystemHolidays(props) {
 
     useEffect(() => {
         showHelp();
-    },[settings.showWeeks, settings.editWeek, settings.editTitle])
+    },[settings.showWeeks, settings.editWeek, settings.editTitle, settings.holidayTitles])
 
     function handleModalClose() {
         setModal(prevState => {
@@ -199,10 +199,14 @@ function WeekSystemHolidays(props) {
         if(!settings.showWeeks) {
             datesText = "Set the 'Start Date' and 'End Date' to bring up the weeks under Year Preview";
             dates = true;
-            holidayTitlesText= 'Click on a title above to edit it.';
+            if(settings.holidayTitles.length > 0) {
+                holidayTitlesText = 'Click on a holiday title to edit it.';
+            } else {
+                holidayTitlesText = "Add a holiday title"
+            }
             holidayTitles = true;
         } else if (!settings.editWeek && !settings.editTitle && settings.showWeeks) {
-            holidayTitlesText = 'Click on a title above to edit it.';
+            holidayTitlesText = 'Click on a holiday title to edit it.';
             holidayTitles = true;
             weeksText = 'Click on a week on the right to assign a holiday to it'
             weeks = true;
@@ -242,20 +246,38 @@ function WeekSystemHolidays(props) {
             .then(res => {
                 const data = res.data;
                 console.log(data);
+
+                let startDate = moment();
+                let endDate = moment();
+                let startDateString = '';
+                let endDateString = '';
+                if(data.org.holidayStartDate == '') {
+                    startDateString = '';
+                } else {
+                    startDate = moment(data.org.holidayStartDate, 'DD/MM/YYYY');
+                    startDateString = startDate.format('DD/MM/YYYY');
+                }
+                if(data.org.holidayEndDate == '') {
+                    endDateString = '';
+                } else {
+                    endDate = moment(data.org.holidayEndDate, 'DD/MM/YYYY');
+                    endDateString = endDate.format('DD/MM/YYYY');
+                }
+                console.log(startDate);
                 setSettings(prevState => {
                     return {...prevState, 
                         open: true, 
                         holidayTitles: data.titles,
-                        startDate: moment(data.org.holidayStartDate, 'DD/MM/YYYY'),
-                        startDateValue: moment(data.org.holidayStartDate, 'DD/MM/YYYY').format('DD/MM/YYYY'),
-                        endDate: moment(data.org.holidayEndDate, 'DD/MM/YYYY'),
-                        endDateValue: moment(data.org.holidayEndDate, 'DD/MM/YYYY').format('DD/MM/YYYY'),
+                        startDate: startDate,
+                        startDateValue: startDateString,
+                        endDate: endDate,
+                        endDateValue: endDateString,
                         weekSystem: (data.org.weekSystem == 'true'),
                         orgLocked: (data.locked == 'true'),
                         collides: data.collideBookings
                     };
                 });
-                const weeks = getWeeks(moment(data.org.holidayStartDate, 'DD/MM/YYYY').format('DD/MM/YYYY'), moment(data.org.holidayEndDate, 'DD/MM/YYYY').format('DD/MM/YYYY'));
+                const weeks = getWeeks(startDateString, endDateString);
                 workDownloadedHolidays(weeks, data.holidays);
                 BuildWeekNums(data.org.weeks)
             })
@@ -432,8 +454,7 @@ function WeekSystemHolidays(props) {
             console.log(data);
             if(data.message == 'Successfully added') {
                 setSettings(prevState => {
-                    const titles = [{name: 'Normal'}, ...data.titles]
-                    return{...prevState, holidayTitles: titles, addNew: false, newHoliday: ''};
+                    return{...prevState, holidayTitles: data.titles, addNew: false, newHoliday: ''};
                 });
             }
         })
@@ -563,8 +584,7 @@ function WeekSystemHolidays(props) {
 
             if(data.message == 'Successfully Updated') {
                 setSettings(prevState => {
-                    const titles = [{name: 'Normal'}, ...data.titles]
-                    return {...prevState, holidayTitles: titles};
+                    return {...prevState, holidayTitles: data.titles};
                 });
             }
         })
@@ -585,8 +605,7 @@ function WeekSystemHolidays(props) {
 
             if(data.message == 'Successfully Deleted') {
                 setSettings(prevState => {
-                    const titles = [{name: 'Normal'}, ...data.titles]
-                    return {...prevState, holidayTitles: titles};
+                    return {...prevState, holidayTitles: data.titles};
                 });
                 deleteInWeeks(settings.titleUUID);
 
@@ -716,10 +735,14 @@ function WeekSystemHolidays(props) {
                     <Collapse in={settings.open}>
                         <div>
                         <div className='margin-text'>
+                            {help.dates ? (
+                                <div>{help.datesText}</div>
+                            ) : null}
+                            {help.dates && help.holidayTitles ? '---' : null}
                             {help.holidayTitles ? (
                                 <div className='help-holidayTitles'>{help.holidayTitlesText}</div>
                                 ) : null}
-                                ---
+                            {help.holidayTitles && help.weeks || help.holidayTitles && help.weekNums ? '---' : null}
                             {help.weeks ? (
                                 <div className='help-weeks'>{help.weeksText}</div>
                             ) : null}
@@ -750,7 +773,7 @@ function WeekSystemHolidays(props) {
                                                     <Button variant='primary' onClick={handleAddTitle}>Add</Button>
                                                     <Button variant='primary' onClick={handleAddClose}>Close</Button>
                                                 </div>) : (<div>
-                                                            <Button  className='side-by-side' variant='primary' onClick={handleAddNew}>Add New</Button>
+                                                            <Button  className='side-by-side' variant='primary' onClick={handleAddNew}>Add New Holiday Title</Button>
                                                             <div className={settings.editTitle ? null : 'weeks-holidays-hide'}>
                                                                 <Button className='side-by-side' variant='primary' onClick={handleRename}>Rename</Button>
                                                                 <Button className='side-by-side' variant='primary' onClick={handleDelete}>Delete</Button>

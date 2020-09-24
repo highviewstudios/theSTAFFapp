@@ -101,14 +101,14 @@ function OrganisationHome(props) {
                 <Col></Col>                
               </Row>
               <Row>
-                <Col>text</Col>
+                <Col></Col>
                 <Col xs={8}>
                 {settings.view ? (<div>
                   {settings.roomLayout != '' && settings.roomLayout == 'Timetable' ? <Timetable orgID={organisationId} roomName={settings.roomName} roomID={settings.roomID} layoutData={settings.layoutData} weekSystem={settings.weekSystem}/> : null}
                   {settings.roomLayout != '' && settings.roomLayout == 'Diary' ? <Diary orgID={organisationId} roomName={settings.roomName} roomID={settings.roomID} layoutData={settings.layoutData} weekSystem={settings.weekSystem}/> : null}
                 </div>) : null}
                 </Col>
-                <Col>Text</Col>                
+                <Col></Col>                
               </Row>
             </Jumbotron>
         </Container>

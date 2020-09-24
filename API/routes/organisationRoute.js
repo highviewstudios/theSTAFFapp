@@ -1072,7 +1072,11 @@ router.post('/organisation/getMainOrgWeekSystem', async (req, res) => {
 
     const orgID = req.body.orgID;
 
-    const result = await GetMainOrgWeekSystem(orgID);
+    let result = await GetMainOrgWeekSystem(orgID);
+    
+    if(result == '') {
+        result = 'false';
+    }
 
     const json = {
         weekSystem: result
@@ -2283,7 +2287,7 @@ function GetHoliday(orgID, week) {
 
 function GetMainOrgWeekSystem(orgID) {
     return new Promise(async (resolve, reject) => {
-
+        console.log(orgID);
         const data = {orgID: orgID}
         const query = "SELECT weekSystem FROM organisations WHERE ?";
         mySQLConnection.query(query, data, (err, result) => {
