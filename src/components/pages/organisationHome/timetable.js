@@ -90,6 +90,8 @@ function Timetable(props) {
                     totalDays++;
                 }
             }
+
+            console.log(totalDays);
             setSettings(prevState => {
                 return {...prevState, slotClass: 'session' + totalDays + '-slot timetable-layout', dayClass: 'session' + totalDays + '-days timetable-layout'}
             });

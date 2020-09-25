@@ -926,6 +926,9 @@ router.post('/organisation/saveHolidays', async (req, res) => {
                     await BackupHolidayWeeks(holiday.weeks, holiday.uuid);
                 }
 
+                //clear all holiday data
+                await ClearWeeksFromHolidays(orgID);
+
                 //Update holidays or insert of new holidays
                 for(const holiday of holidays) {
 
@@ -1028,12 +1031,14 @@ router.post('/organisation/saveHolidays', async (req, res) => {
 
                 //Change Organisation Data
                 await UpdateOrganisationLock(orgID, 'true');
+                const newHolidayData = await GetOrgHolidays(orgID);
 
                 const json = {
                     error: 'null',
                     message: 'Successfully Updated Holidays',
                     locked: true,
-                    collidedBookings: collidedBookings
+                    collidedBookings: collidedBookings,
+                    holidays: newHolidayData
                 }
 
                 res.send(json);
@@ -1047,10 +1052,13 @@ router.post('/organisation/saveHolidays', async (req, res) => {
                         await InsertHoliday(orgID, holiday, holidayWeeks[holiday]);
                     }
 
+                    const newHolidayData = await GetHolidayOrgData(orgID);
+
                     const json = {
                         error: 'null',
                         message: 'Successfully Updated Holidays',
-                        locked: false
+                        locked: false,
+                        holidays: newHolidayData
                     }
 
                     res.send(json);
@@ -1383,7 +1391,11 @@ router.post('/organisation/unlock', async (req, res) => {
             const holidayBackups = await GetHolidaysBackups(orgID);
 
             for(const holiday of holidayBackups) {
-                await DeleteHolidayBackup(holiday.uuid);
+                if(holiday.weeks == '') {
+                    await DeleteHolidayData(holiday.uuid);
+                } else {
+                    await DeleteHolidayBackup(holiday.uuid);
+                }
             }
 
             const deleteBookings = await GetCollideDeleteBookings(orgID);
@@ -2285,6 +2297,22 @@ function GetHoliday(orgID, week) {
     });
 }
 
+function ClearWeeksFromHolidays(orgID) {
+    return new Promise((resolve, reject) => {
+
+        const data = [{weeks: ''}, orgID];
+        const UPDATE_QUERY = "UPDATE holidays SET ? WHERE orgID=?";
+    
+        mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+            if(err) {
+                reject();
+            } else {
+                resolve('Success');
+            }
+        });
+        })
+}
+
 function GetMainOrgWeekSystem(orgID) {
     return new Promise(async (resolve, reject) => {
         console.log(orgID);
@@ -2680,6 +2708,23 @@ function DeleteHolidayBackup(uuid) {
     });
 }
 
+function DeleteHolidayData(uuid) {
+    return new Promise(async (resolve, reject) => {
+
+        const data = {uuid: uuid};
+        const query = "DELETE FROM holidays WHERE ?";
+
+        mySQLConnection.query(query, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve('Success');
+            }
+        });
+    });
+}
+
 function GetCollideBookings(orgID) {
     return new Promise(async (resolve, reject) => {
         
@@ -2932,6 +2977,51 @@ function findUsersName(uuid) {
             }
         });
         })
+}
+
+function GetOrgHolidays(orgID) {
+    return new Promise (async (resolve, reject) => {
+
+        const holidays = await GetHolidays(orgID);
+        const holidayTitles = await GetHolidayTitles(orgID);
+        
+        //Week System / Holidays
+        for(const holiday of holidays) {
+
+            if(holiday.titleUUID.includes('w')) {
+
+                let id = '';
+                const num = holiday.titleUUID.replace('w', '');
+
+                if(num[0] == '0') {
+                    id = num[1];
+                } else {
+                    id = num;
+                }
+                holiday.name = 'Week ' + id;
+            }
+            if(holiday.titleUUID.includes('h')) {
+
+                let id = '';
+                const num = holiday.titleUUID.replace('h', '');
+
+                if(num[0] == '0') {
+                    id = num[1];
+                } else {
+                    id = num;
+                }
+
+                for(const title of holidayTitles) {
+                    if(id == title.uuid) {
+                        holiday.name = title.name;
+                    }
+                }
+            }
+        }
+    //Week System / Holidays^^^
+
+        resolve(holidays);
+    })
 }
 
 module.exports = router;

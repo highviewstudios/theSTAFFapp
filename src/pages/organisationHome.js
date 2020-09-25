@@ -8,7 +8,7 @@ import Diary from '../components/pages/organisationHome/diary';
 //Styles
 import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
-import { Row, Col, Dropdown } from 'react-bootstrap';
+import { Row, Col, Dropdown, Button } from 'react-bootstrap';
 
 
 function OrganisationHome(props) {
@@ -108,7 +108,13 @@ function OrganisationHome(props) {
                   {settings.roomLayout != '' && settings.roomLayout == 'Diary' ? <Diary orgID={organisationId} roomName={settings.roomName} roomID={settings.roomID} layoutData={settings.layoutData} weekSystem={settings.weekSystem}/> : null}
                 </div>) : null}
                 </Col>
-                <Col></Col>                
+                <Col>
+                <div className="edit-booking">
+                          <div className='edit-delete'>
+                            <Button variant='primary'>Delete</Button>
+                          </div>
+                  </div>
+                </Col>                
               </Row>
             </Jumbotron>
         </Container>

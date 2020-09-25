@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { orgUpdateLocked } from '../../store/actions/organistion';
+import { orgUpdateHolidays, orgUpdateLocked } from '../../store/actions/organistion';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { Collapse, Image, Row, Col, ListGroup, ListGroupItem, Button, Form, Modal } from 'react-bootstrap';
@@ -480,14 +480,14 @@ function WeekSystemHolidays(props) {
         }
 
         const keys = Object.keys(holidays)
-        // console.log(keys);
+        console.log(keys);
         // console.log(holidays);
 
         const data = {orgID: orgID, startDate: settings.startDateValue, endDate: settings.endDateValue, holidays: keys, holidayWeeks: holidays, weekSystem: settings.weekSystem.toString(), weeksNo: settings.weeksNum.length};
         Axios.post('/organisation/saveHolidays', data)
         .then(res => {
             const data = res.data;
-
+            dispatch(orgUpdateHolidays(data.holidays));
             if(data.locked) {
 
                 dispatch(orgUpdateLocked('true'));
@@ -584,7 +584,7 @@ function WeekSystemHolidays(props) {
 
             if(data.message == 'Successfully Updated') {
                 setSettings(prevState => {
-                    return {...prevState, holidayTitles: data.titles};
+                    return {...prevState, holidayTitles: data.titles, editTitle: false};
                 });
             }
         })
@@ -605,7 +605,7 @@ function WeekSystemHolidays(props) {
 
             if(data.message == 'Successfully Deleted') {
                 setSettings(prevState => {
-                    return {...prevState, holidayTitles: data.titles};
+                    return {...prevState, holidayTitles: data.titles, editTitle: false};
                 });
                 deleteInWeeks(settings.titleUUID);
 
@@ -646,7 +646,7 @@ function WeekSystemHolidays(props) {
             Axios.post('/organisation/geRoomsWeekSystem', data)
             .then(res => {
                 if(res.data.rooms) {
-                    setModal({heading: 'Week System', message: 'There are some rooms still using the week system, uncheck them first', open: true});
+                    setModal({heading: 'Week System', message: 'There are some rooms still using the week system, delete them first', open: true});
                 } else {
                     setSettings(prevState => {
                         return {...prevState, weekSystem: checked, weeksNum: weeksNum}
