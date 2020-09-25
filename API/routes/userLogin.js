@@ -345,6 +345,13 @@ router.post('/requestPassword', async(req, res) => {
             message: 'There is no user with that email reqistered'
         }
         res.send(json);
+    } else if(user.strategy == '') {
+        const json = {
+            error: 'null',
+            userError: 'Yes',
+            message: 'This user has not set up their account yet, please see your registration email'
+        }
+        res.send(json);
     } else if(user.strategy != 'local') {
         const json = {
             error: 'null',

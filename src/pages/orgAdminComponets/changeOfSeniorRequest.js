@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Col, Container, Jumbotron, Row, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { userUpdateRole, userUpdateSARequest} from '../../store/actions/user';
-import { UpdateForceSignIn } from '../../store/actions/globalVars';
+import { UpdateForceSignIn, UpdateFromSignIn } from '../../store/actions/globalVars';
 
 function ChangeOfSeniorRequest(props) {
 
@@ -82,8 +82,10 @@ function ChangeOfSeniorRequest(props) {
                 dispatch(userUpdateSARequest(''));
 
                 if(globalVars.forceSignIn) {
+                    dispatch(UpdateFromSignIn(true));
                     dispatch(UpdateForceSignIn(false));
                 } else {
+                    dispatch(UpdateFromSignIn(true));
                     dispatch(UpdateForceSignIn(true));
                 }
             }
