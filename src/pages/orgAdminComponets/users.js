@@ -291,7 +291,7 @@ function Users(props) {
                 });
 
                 setSettings(prevState => {
-                    return {...prevState, users: data.users};
+                    return {...prevState, users: data.users, edit: false};
                 })
             }
         })
@@ -323,7 +323,8 @@ function Users(props) {
                             email: '',
                             role_Admin: false,
                             role_User: false,
-                            userDepartments: []
+                            userDepartments: [],
+                            edit: false
                             };
                     });
                 }
