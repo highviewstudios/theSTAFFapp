@@ -64,7 +64,7 @@ router.post('/administrator/addOrganisation', async (req, res) => {
 
                     //Send email
                     let mailOptions = {
-                        from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+                        from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
                         to: pEmail, // list of receivers
                         subject: "Welcome to My STAFF", // Subject line
                         template: 'organisationReg',
@@ -127,7 +127,7 @@ router.post('/organisation/changeSeniorAdmin', async (req, res) => {
 
         //Send email
         let mailOptions = {
-            from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+            from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
             to: newSenior.email, // list of receivers
             subject: "Change of Senior Admin Request", // Subject line
             template: 'changeSA',
@@ -194,7 +194,7 @@ router.post('/organisation/SAInvate', async (req, res) => {
         //SEND TO OLD SA
         //Send email
         let mailOptions = {
-            from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+            from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
             to: oldUser.email, // list of receivers
             subject: "Change of Senior Admin Confirmed", // Subject line
             template: 'changeSAConfirmed',
@@ -218,7 +218,7 @@ router.post('/organisation/SAInvate', async (req, res) => {
         //SEND TO HIGH-VIEW-STUIDOS
         //Send email
         let mailOptions2 = {
-            from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+            from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
             to: 'shaun.evans@high-view-studios.co.uk', // list of receivers
             subject: "Change of 'Point of Contact' Details", // Subject line
             template: 'changeOFPOC',
@@ -256,7 +256,7 @@ router.post('/organisation/SAInvate', async (req, res) => {
 
         //Send email
         let mailOptions = {
-            from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+            from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
             to: oldUser.email, // list of receivers
             subject: "Change of Senior Admin Declied", // Subject line
             template: 'changeSADelined',
@@ -496,7 +496,7 @@ router.post('/organisation/addUser', async (req, res) => {
 
                 //Send email
                 let mailOptions = {
-                    from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+                    from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
                     to: pEmail, // list of receivers
                     subject: "Welcome to My STAFF", // Subject line
                     template: 'regUser',

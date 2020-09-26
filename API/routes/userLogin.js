@@ -366,7 +366,7 @@ router.post('/requestPassword', async(req, res) => {
 
         //Send email
         let mailOptions = {
-            from: '"My STAFF" <staff-development@high-view-studios.co.uk>', // sender address
+            from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
             to: user.email, // list of receivers
             subject: "New Password Requested", // Subject line
             template: 'requestNewPassword',
