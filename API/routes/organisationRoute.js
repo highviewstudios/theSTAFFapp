@@ -1212,11 +1212,13 @@ router.post('/organisation/restore', async (req, res) => {
 
         //Change Organisation Data
         await UpdateOrganisationLock(orgID, '');
+        const newHolidayData = await GetOrgHolidays(orgID);
 
         const json = {
             error: 'null',
             message: 'System Restored',
-            locked: 'false'
+            locked: 'false',
+            holidays: newHolidayData
         }
 
         res.send(json);

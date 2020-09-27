@@ -25,8 +25,10 @@ function ChangeOfSeniorRequest(props) {
     function handleModalClose() {
         
         if(globalVars.forceSignIn) {
+            dispatch(UpdateFromSignIn(true));
             dispatch(UpdateForceSignIn(false));
         } else {
+            dispatch(UpdateFromSignIn(true));
             dispatch(UpdateForceSignIn(true));
         }
         

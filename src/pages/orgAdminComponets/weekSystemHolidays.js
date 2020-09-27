@@ -150,6 +150,7 @@ function WeekSystemHolidays(props) {
             
             if(data.message == 'System Restored') {
                 dispatch(orgUpdateLocked((data.locked == 'true')));
+                dispatch(orgUpdateHolidays(data.holidays));
                 setModalYN({heading: 'System Restored', message: 'Your system has been restored!', showAccept: true, acceptName: 'Ok', acceptFunction: AcceptenceOK, showCancel: false, open: true});
             }
         })
