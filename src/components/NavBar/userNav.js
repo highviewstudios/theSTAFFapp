@@ -4,11 +4,11 @@ import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
 import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID} from "../../store/actions/user";
+import { UpdateBookingEdit } from '../../store/actions/bookings';
 
 import Dropdown from "react-bootstrap/Dropdown";
-
-
 import Button from "react-bootstrap/Button";
+
 
 function User() {
 
@@ -72,6 +72,7 @@ function User() {
                 dispatch(userUpdateNew(''));
                 dispatch(userUpdateRequestedPassword(false));
                 dispatch(userUpdateOrgID(''));
+                dispatch(UpdateBookingEdit(false));
                 history.push(page);
             }
         })

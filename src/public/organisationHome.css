@@ -115,12 +115,16 @@ hr {
     text-align: center;
 }
 
-.edit-booking {
+.edit-booking-show {
     height: 100%;
+}
+
+.edit-booking-hide {
+    height: 100%;
+    visibility: hidden;
 }
 
 .edit-delete {
     position: absolute;
     bottom: 5px;
-    visibility: hidden;
 }
