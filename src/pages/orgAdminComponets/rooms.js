@@ -23,7 +23,8 @@ function Rooms(props) {
         editRoom: false,
         roomUUID: 0,
         yourLayouts: [],
-        weekSystem: false
+        weekSystem: false,
+        editAdd: false
     });
 
     const [modal, setModal] = useState({
@@ -121,11 +122,11 @@ function Rooms(props) {
         console.log(redeemedRooms);
         if(allocatedRooms === redeemedRooms) {
             setSettings(prevState => {
-                return {...prevState, newAdd: false, layouts: false}
+                return {...prevState, newAdd: false, layouts: false, editAdd: false}
             });
         } else {
             setSettings(prevState => {
-                return {...prevState, newAdd: true, layouts: true}
+                return {...prevState, newAdd: true, layouts: true, editAdd: true}
             });
         }
     }
@@ -197,12 +198,23 @@ function Rooms(props) {
                 setSettings(prevState => {
                     return {...prevState, rooms: res.data.rooms, roomUUID: 0, editRoom: false, layouts: false};
                 });
+
+                checkIfAddRoomsAllowed(organisation.allocatedRooms, organisation.redeemedRooms);
             }
         })
         .catch(err => {
             console.log(err);
         })
 
+    }
+
+    function handleAddNewRoom() {
+
+        setSettings(prevState => {
+            return {...prevState, editRoom: false, layouts: false};
+        });
+
+        checkIfAddRoomsAllowed(organisation.allocatedRooms, organisation.redeemedRooms);
     }
 
     function checkNameExsist(name) {
@@ -329,7 +341,10 @@ function Rooms(props) {
                                                 </Row>
                                                 <Row className='add-button'>
                                                     {settings.newAdd && settings.yourLayouts.length > 0 ? <Button variant="primary" onClick={handleRoomAdd}>Add</Button> : null }
-                                                    {settings.editRoom&& settings.yourLayouts.length > 0 ? <Button variant="primary" onClick={handleRoomUpdate}>Update</Button> : null }
+                                                    {settings.editRoom && settings.yourLayouts.length > 0 ? (<div>
+                                                        {settings.editAdd ? <Button variant="primary" onClick={handleAddNewRoom}>Add New Room</Button> : null }
+                                                        <Button variant="primary" onClick={handleRoomUpdate}>Update</Button>
+                                                    </div>) : null }
                                                 </Row>
                                                 <Row>
                                                     <div className={settings.yourLayouts.length == 0 ? 'rooms-layoutText' : 'rooms-layoutText rooms-hide'}>
