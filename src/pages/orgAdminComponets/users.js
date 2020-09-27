@@ -248,16 +248,16 @@ function Users(props) {
 
         if(role == 'seniorAdmin') {
             setSettings(prevState => {
-                return {...prevState, role_SeniorAdmin: true, roles: false,}
+                return {...prevState, role_SeniorAdmin: true, role_Admin: false, role_User: false, roles: false,}
             })
         } else {
             if(role == 'user') {
                 setSettings(prevState => {
-                    return {...prevState, role_User: true, role_SeniorAdmin: false, roles: true}
+                    return {...prevState, role_User: true, role_SeniorAdmin: false, role_Admin: false, roles: true}
                 });
             } else if(role == 'admin') {
                 setSettings(prevState => {
-                    return {...prevState, role_Admin: true, role_SeniorAdmin: false, roles: true}
+                    return {...prevState, role_Admin: true, role_SeniorAdmin: false, role_User: false, roles: true}
                 });
             }
         }
