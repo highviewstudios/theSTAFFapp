@@ -33,6 +33,14 @@ router.get("/org/:id/organisationAdmin", (req, res) => {
     res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });
 
+router.get("/org/:id/book", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
+router.get("/org/:id/changeOfSeniorRequest", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
 router.get("/home", (req, res) => {
     res.redirect('/');
 });

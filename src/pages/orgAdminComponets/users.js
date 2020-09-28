@@ -170,12 +170,16 @@ function Users(props) {
 
     function ConvertIDsToDepartments(IDs) {
 
+        const userDepartments = IDs.split(',');
+
         let departmentArray = [];
 
-        for(const department of organisation.departments) {
+        for(const department of userDepartments) {
 
-            if(IDs.includes(department.uuid)) {
-                departmentArray.push(department.name);
+            for( const dep of organisation.departments) {
+                if(dep.uuid == department) {
+                    departmentArray.push(dep.name);
+                }
             }
         }
 
