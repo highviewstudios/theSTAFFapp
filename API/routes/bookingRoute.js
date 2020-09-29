@@ -280,7 +280,7 @@ router.post('/getBookings', async (req, res) => {
 
     if(validateID) {
 
-        let query = 'SELECT user, departmentID, bookingType, startDate, repeatUntil, weeks, sessions FROM ' + orgID + '_bookings WHERE';//...
+        let query = 'SELECT uuid, user, departmentID, bookingType, startDate, repeatUntil, weeks, sessions FROM ' + orgID + '_bookings WHERE';//...
         let data = ''
         for(const day of days) {
 
@@ -300,7 +300,7 @@ router.post('/getBookings', async (req, res) => {
         }
 
         let finalData = {};
-        const emptySlot = {user: '', department: '', type: ''};
+        const emptySlot = {uuid: '', user: '', department: '', type: ''};
 
         for(const day of days) {
             const id = week + '-' + day;
@@ -321,12 +321,12 @@ router.post('/getBookings', async (req, res) => {
                         date.add(dayBreak[0], 'd');
 
                         if(date.isBetween(sDate, fDate, undefined, '[]')) {
-                            slot = {user: result.user, department: result.departmentID, type: result.bookingType}; 
+                            slot = {uuid: result.uuid,user: result.user, department: result.departmentID, type: result.bookingType}; 
                         } else {
                             slot = emptySlot;
                         }
                     } else {
-                        slot = {user: result.user, department: result.departmentID, type: result.bookingType}; 
+                        slot = {uuid: result.uuid, user: result.user, department: result.departmentID, type: result.bookingType}; 
                     }
                     
                     finalData[id] = slot;
@@ -348,6 +348,36 @@ router.post('/getBookings', async (req, res) => {
         res.send(json);
     }
 
+});
+
+router.post('/deleteBooking', async (req, res) => {
+
+    const orgID = req.body.orgID;
+    const bookingID = req.body.bookingID;
+
+    const validateID = CheckOrgID(orgID);
+
+    if(validateID) {
+
+        const result = DeleteBooking(orgID, bookingID);
+
+        if(result) {
+            
+            const json = {
+                error: 'null',
+                message: 'Booking Deleted'
+            }
+
+            res.send(json);
+        }
+
+    } else {
+        const json = {
+            error: 'Yes',
+            message: 'Invalid Data'
+        }
+        res.send(json);
+    }
 });
 
 //FUNCTIONS
@@ -580,6 +610,24 @@ function findUsersName(uuid) {
             }
         });
         })
+}
+
+function DeleteBooking(orgID, uuid) {
+    return new Promise(async (resolve, reject) => {
+
+        const data = {uuid: uuid}
+        const query = "DELETE FROM " + orgID + "_bookings WHERE ?";
+        mySQLConnection.query(query, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve("Success");
+            }
+        })
+
+
+    });
 }
 
 module.exports = router;

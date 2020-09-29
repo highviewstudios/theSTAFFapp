@@ -318,7 +318,7 @@ function WeekSystemHolidays(props) {
 
             let weeks = [];
             while(sDate.isBefore(eDate)) {
-                const week = {week: formatString(sDate.week() + '-' +sDate.format('YY')), date: sDate.format('DD/MM/YYYY'), holiday: 0};
+                const week = {week: formatString(sDate.week()) + '-' +sDate.format('YY'), date: sDate.format('DD/MM/YYYY'), holiday: 0};
                 weeks.push(week);
                 sDate.add(1, 'w');
             }
@@ -465,7 +465,7 @@ function WeekSystemHolidays(props) {
     }
 
     function handleSave() {
-
+        console.log(settings.weeks);
         const holidays = {};
         for(const holiday of settings.weeks) {
             
@@ -482,7 +482,7 @@ function WeekSystemHolidays(props) {
 
         const keys = Object.keys(holidays)
         console.log(keys);
-        // console.log(holidays);
+        console.log(holidays);
 
         const data = {orgID: orgID, startDate: settings.startDateValue, endDate: settings.endDateValue, holidays: keys, holidayWeeks: holidays, weekSystem: settings.weekSystem.toString(), weeksNo: settings.weeksNum.length};
         Axios.post('/organisation/saveHolidays', data)

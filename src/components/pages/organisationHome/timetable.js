@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 import { Row, Col, Button, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomTotalSessions, UpdateRoomDayList, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData } from '../../../store/actions/globalVars';
-import { UpdateBookingEdit } from '../../../store/actions/bookings';
+import { UpdateBookingEdit, UpdateBookingID } from '../../../store/actions/bookings';
 import moment from 'moment';
 import Axios from 'axios';
 
@@ -137,7 +137,7 @@ function Timetable(props) {
         const slot = {user: '', department: '', type: ''};
 
         const weekSlot = formatString(weekBG.week()) + '-' + weekBG.format('YY');
-
+        console.log(weekSlot);
         for(let i = 0; i < 7; i++) {
             
             for(const sess of order) {
@@ -153,7 +153,7 @@ function Timetable(props) {
         Axios.post('/booking/getBookings', mySQLData)
         .then(res => {
             const recievedData = res.data;
-            console.log(recievedData.bookings);
+            //console.log(recievedData.bookings);
             if(recievedData.error === 'null') {
                 setSettings(prevState => {
                     return {...prevState, weekSlot: weekSlot, data: recievedData.bookings}
@@ -246,8 +246,9 @@ function Timetable(props) {
         history.push('/org/' + orgID + '/book')
     }
 
-    function handleEditBooking() {
+    function handleEditBooking(uuid) {
         dispatch(UpdateBookingEdit(true));
+        dispatch(UpdateBookingID(uuid))
     }
 
     function FindWeekBegin(days) {
@@ -374,11 +375,11 @@ function Timetable(props) {
 
                                         const name = settings.weekSlot + '-' + formatString(index) + '-' + formatString(layout.sessions[session].id);
                                         if(settings.data[name].type == 'single') {
-                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + layout.session} onClick={handleEditBooking}>
+                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + layout.session} onClick={() => handleEditBooking(settings.data[name].uuid)}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td> 
                                         } else if (settings.data[name].type == 'repeat') {
-                                            return <td className=' timetable-layout repeatSlot' key={index} id={index + '-' + session} onClick={handleEditBooking}>
+                                            return <td className=' timetable-layout repeatSlot' key={index} id={index + '-' + session} onClick={() => handleEditBooking(settings.data[name].uuid)}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {
@@ -400,11 +401,11 @@ function Timetable(props) {
 
                                         const name = settings.weekSlot + '-' + formatString(index) + '-' + formatString(layout.sessions[session].id);
                                         if(settings.data[name].type == 'single') {
-                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + session} onClick={handleEditBooking}>
+                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + session} onClick={() => handleEditBooking(settings.data[name].uuid)}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td> 
                                         } else if (settings.data[name].type == 'repeat') {
-                                            return <td className=' timetable-layout repeatSlot' key={index} id={index + '-' + session} onClick={handleEditBooking}>
+                                            return <td className=' timetable-layout repeatSlot' key={index} id={index + '-' + session} onClick={() => handleEditBooking(settings.data[name].uuid)}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {

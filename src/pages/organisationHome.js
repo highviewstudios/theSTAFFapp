@@ -9,6 +9,7 @@ import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import { Row, Col, Dropdown, Button, Modal } from 'react-bootstrap';
 import { UpdateBookingEdit } from '../store/actions/bookings';
+import Axios from 'axios';
 
 
 function OrganisationHome(props) {
@@ -38,8 +39,27 @@ function OrganisationHome(props) {
       message: '',
   });
 
+  const [modalYN, setModalYN] = useState({
+      open: false,
+      heading: '',
+      message: '',
+      acceptFunction: '',
+      acceptName: '',
+      showAccept: false,
+      cancelName: '',
+      showCancel: false
+  });
+
   function handleModalClose() {
       setModal(prevState => {
+          return {...prevState,
+          open: false
+      }
+  });
+  }
+
+  function handleModalYNClose() {
+      setModalYN(prevState => {
           return {...prevState,
           open: false
       }
@@ -94,7 +114,34 @@ function OrganisationHome(props) {
 
   //EDIT BOOKING
   function handleDeleteBooking() {
-    setModal({heading: 'Delete Booking', message: 'This feature has not been completed yet!', open: true})
+    setModalYN({heading: 'Delete Booking', message: 'Are you sure you want to delete this booking?', acceptFunction: acceptDelete, acceptName: 'Yes', showAccept: true, showCancel: true, cancelName: 'No', open: true});
+  }
+
+  function acceptDelete() {
+
+    setModalYN({open: false});
+
+    const data = {orgID: organisationId, bookingID: bookings.bookingID};
+    Axios.post('/booking/deleteBooking', data)
+    .then(res => {
+      const data = res.data;
+      if(data.error == 'null') {
+        setModal({heading: 'Delete booking', message: 'Booking deleted!', open: true});
+        
+        setSettings(prevState => {
+          return {...prevState, view: false}
+        })
+
+        setTimeout(() => {
+          setSettings(prevState => {
+            return {...prevState, view: true}
+          })
+        }, 100);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    })
   }
 
   return (
@@ -150,7 +197,25 @@ function OrganisationHome(props) {
                     Close
                 </Button>
                 </Modal.Footer>
-            </Modal>
+          </Modal>
+          <Modal show={modalYN.open} onHide={handleModalYNClose}>
+            <Modal.Header closeButton>
+            <Modal.Title>{modalYN.heading}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{modalYN.message}</Modal.Body>
+            <Modal.Footer>
+            {modalYN.showAccept ? (<div>
+                <Button variant="primary" onClick={modalYN.acceptFunction}>
+                    {modalYN.acceptName}
+                </Button>
+            </div>) : null}
+            {modalYN.showCancel ? (<div>
+                <Button variant="primary" onClick={handleModalYNClose}>
+                    {modalYN.cancelName}
+                </Button>
+            </div>) : null}
+            </Modal.Footer>
+        </Modal>
     </div>
   );
 }

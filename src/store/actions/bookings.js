@@ -4,3 +4,10 @@ export const UpdateBookingEdit = (val) => {
         value: val
     };
 }
+
+export const UpdateBookingID = (val) => {
+    return {
+        type: 'UPDATE_BOOKING_ID',
+        value: val
+    };
+}
