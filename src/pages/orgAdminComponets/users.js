@@ -38,6 +38,17 @@ function Users(props) {
         open: false
     });
 
+    const [modalYN, setModalYN] = useState({
+        open: false,
+        heading: '',
+        message: '',
+        acceptFunction: '',
+        acceptName: '',
+        showAccept: false,
+        cancelName: '',
+        showCancel: false
+    });
+
     function handleModalClose() {
         setModal(prevState => {
             return {...prevState,
@@ -46,8 +57,16 @@ function Users(props) {
     });
     }
 
-    function handleModalYNClose() {
+    function handleModalChangeSAClose() {
         setModalChangeSA(prevState => {
+            return {...prevState,
+            open: false
+        }
+    });
+    }
+
+    function handleModalYNClose() {
+        setModalYN(prevState => {
             return {...prevState,
             open: false
         }
@@ -309,7 +328,16 @@ function Users(props) {
         if(settings.role_SeniorAdmin) {
             setModal({heading: 'Remove User', message: 'You cannot delete a Senior Admin', open: true});
         } else {
-            const data = {uuid: settings.editID, orgID: orgID};
+
+            setModalYN({heading: 'Remove User', message: 'Are you sure you want to remove this user and all their bookings?', acceptName: 'Yes', acceptFunction: acceptRemove, showAccept: true, showCancel: true, cancelName: 'No', open: true});
+        }
+    }
+
+    function acceptRemove() {
+
+        setModalYN({open: false});
+
+        const data = {uuid: settings.editID, orgID: orgID};
 
             Axios.post('/organisation/removeUser', data)
             .then(res => {
@@ -336,7 +364,6 @@ function Users(props) {
             .catch(err => {
                 console.log(err);
             })
-        }
     }
 
     function handleSeniorAdminRequest() {
@@ -489,7 +516,7 @@ function Users(props) {
                 </Button>
                 </Modal.Footer>
             </Modal>
-            <Modal show={modalChangeSA.open} onHide={handleModalYNClose}>
+            <Modal show={modalChangeSA.open} onHide={handleModalChangeSAClose}>
             <Modal.Header closeButton>
             <Modal.Title>Change of Senior Admin Request</Modal.Title>
             </Modal.Header>
@@ -504,9 +531,27 @@ function Users(props) {
                 <Button variant="primary" onClick={handleAcceptOfSARequest}>
                     Yes
                 </Button>
-                <Button variant="primary" onClick={handleModalYNClose}>
+                <Button variant="primary" onClick={handleModalChangeSAClose}>
                     No
                 </Button>
+            </Modal.Footer>
+        </Modal>
+        <Modal show={modalYN.open} onHide={handleModalYNClose}>
+            <Modal.Header closeButton>
+            <Modal.Title>{modalYN.heading}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{modalYN.message}</Modal.Body>
+            <Modal.Footer>
+            {modalYN.showAccept ? (<div>
+                <Button variant="primary" onClick={modalYN.acceptFunction}>
+                    {modalYN.acceptName}
+                </Button>
+            </div>) : null}
+            {modalYN.showCancel ? (<div>
+                <Button variant="primary" onClick={handleModalYNClose}>
+                    {modalYN.cancelName}
+                </Button>
+            </div>) : null}
             </Modal.Footer>
         </Modal>
         </div>

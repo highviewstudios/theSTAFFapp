@@ -128,6 +128,8 @@ function OrganisationHome(props) {
       if(data.error == 'null') {
         setModal({heading: 'Delete booking', message: 'Booking deleted!', open: true});
         
+        dispatch(UpdateBookingEdit(false));
+
         setSettings(prevState => {
           return {...prevState, view: false}
         })

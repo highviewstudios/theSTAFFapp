@@ -153,7 +153,7 @@ function Timetable(props) {
         Axios.post('/booking/getBookings', mySQLData)
         .then(res => {
             const recievedData = res.data;
-            //console.log(recievedData.bookings);
+            console.log(recievedData.bookings);
             if(recievedData.error === 'null') {
                 setSettings(prevState => {
                     return {...prevState, weekSlot: weekSlot, data: recievedData.bookings}

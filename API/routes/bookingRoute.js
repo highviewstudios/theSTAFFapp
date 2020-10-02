@@ -597,7 +597,7 @@ function InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTot
 
 function findUsersName(uuid) {
     return new Promise ((resolve, reject) => {
-    
+        
         const data = {uuid: uuid}
         const FIND_QUERY = "SELECT displayName FROM users WHERE ?";
 

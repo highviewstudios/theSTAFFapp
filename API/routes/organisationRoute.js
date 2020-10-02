@@ -569,17 +569,31 @@ router.post('/organisation/removeUser', async (req, res) => {
     const uuid = req.body.uuid;
     const orgID = req.body.orgID;
 
-    const result = await RemoveUser(uuid);
+    const validateID = CheckOrgID(orgID);
 
-    if(result == 'Success') {
-        
-        const users = await getAllOrganisationUsers(orgID);
+    if(validateID) {
+
+        const result = await RemoveUser(uuid);
+        const result2 = await RemoveUserBookings(orgID, uuid);
+
+        if(result == 'Success' && result2 == 'Success') {
+            
+            const users = await getAllOrganisationUsers(orgID);
+
+            const json = {
+                error: 'null',
+                userError: 'null',
+                message: 'User removed successfully',
+                users: users
+            }
+
+            res.send(json);
+        }
+    } else {
 
         const json = {
-            error: 'null',
-            userError: 'null',
-            message: 'User removed successfully',
-            users: users
+            error: 'Yes',
+            message: 'Invalid Data'
         }
 
         res.send(json);
@@ -1786,6 +1800,24 @@ function RemoveUser(uuid) {
 
         const data = {uuid: uuid}
         const query = "DELETE FROM users WHERE ?";
+        mySQLConnection.query(query, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve("Success");
+            }
+        })
+
+
+    });
+}
+
+function RemoveUserBookings(orgID, userUUID) {
+    return new Promise(async (resolve, reject) => {
+
+        const data = {user: userUUID}
+        const query = "DELETE FROM " + orgID + "_bookings WHERE ?";
         mySQLConnection.query(query, data, (err, result) => {
             if(err) {
                 console.log(err);
