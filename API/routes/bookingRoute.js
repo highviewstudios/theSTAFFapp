@@ -294,7 +294,7 @@ router.post('/getBookings', async (req, res) => {
         query += data;
         
         let results = await GetBookings(query);
-        
+
         for(result of results) {
             result.user = await findUsersName(result.user);
         }
@@ -597,13 +597,13 @@ function InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTot
 
 function findUsersName(uuid) {
     return new Promise ((resolve, reject) => {
-        
+
         const data = {uuid: uuid}
         const FIND_QUERY = "SELECT displayName FROM users WHERE ?";
 
         mySQLConnection.query(FIND_QUERY, data, (err, result) => {
             if(err) {
-                console.log(err);
+                //console.log("ERR: " + err);
                 reject();
             } else {
                 resolve(result[0].displayName)

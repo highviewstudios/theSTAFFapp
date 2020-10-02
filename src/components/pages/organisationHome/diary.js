@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import Axios from 'axios';
 import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomDayList, UpdateRoomLayout, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData, UpdateDiaryStartTime, UpdateDiaryFinishTime, UpdateDiaryTimeInterval } from '../../../store/actions/globalVars';
+import { UpdateBookingEdit, UpdateBookingID } from '../../../store/actions/bookings';
 
 function Dairy(props) {
 
@@ -314,6 +315,12 @@ function Dairy(props) {
 
     }
 
+    function handleEditBooking(uuid) {
+        console.log('booking');
+        dispatch(UpdateBookingEdit(true));
+        dispatch(UpdateBookingID(uuid))
+    }
+
     return (
         <div>
         <Row>
@@ -356,11 +363,11 @@ function Dairy(props) {
                                     if(Object.keys(settings.data).length > 0) {
                                         const name = settings.weekSlot + '-' + formatString(index) + '-' + time.replace(':', '');
                                         if(settings.data[name].type == 'single') {
-                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + time} onClick={handleBookClick}>
+                                            return <td className=' timetable-layout singleSlot' key={index} id={index + '-' + time} onClick={() => handleEditBooking(settings.data[name].uuid)}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td> 
                                         } else if (settings.data[name].type == 'repeat') {
-                                            return <td className=' timetable-layout repeatSlot' key={index} id={index + '-' + time} onClick={handleBookClick}>
+                                            return <td className=' timetable-layout repeatSlot' key={index} id={index + '-' + time} onClick={() => handleEditBooking(settings.data[name].uuid)}>
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {
