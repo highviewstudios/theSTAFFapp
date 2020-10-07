@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        
+        .center{display: block; margin-left: auto; margin-right: auto; width: 95px; height: 95px}
+
+        .body-heading {
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: red;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="body-heading">
+        <img src="http://app.high-view-studios.co.uk/HighViewStudios/templates/logo.jpg" class="center">
+        <h1><strong>My STAFF</strong></h1>
+        <h2><strong>Space, Times, Flexible, Facilities</strong></h2>
+    </div>
+
+    <p>Dear {{ name }} ({{ email }}),</p>
+    <p>High-View Studios has changed the way that you log into MySTAFF</p>
+    <p>You can now log into the website using the {{ newMethod }} login. This will be the way you log in from now on</p>
+    {{#eqlsTo newMethod 'local'}}
+        <p>Please use the following details to access your account</p>
+        <ul>
+            <li>Username: please use the email you see above</li>
+            <li>Password: {{ localPassword }}</li><br />
+        </ul>
+    {{/eqlsTo}}
+
+    {{#eqlsTo newMethod 'google'}}
+        <p>Please use the email you see above</p>
+    {{/eqlsTo}}
+
+    <p>If you have disabled the above login method previously, this has automatically has been re-enabled for you to gain access</p>
+
+    <p>Regards,</p>
+
+    <p><strong>High-View Studios</strong></p>
+
+</body>
+</html>

@@ -6,7 +6,7 @@ import OrganisationItem from './organisationItem';
 //Styles
 import Button  from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Dropdown } from 'react-bootstrap';
 
 function OrganisationList() {
 
@@ -23,6 +23,7 @@ function OrganisationList() {
 
         Axios.get('/organisation/all')
         .then(res => {
+            console.log(res.data);
             setOrganisations(res.data);
             setLoaded(true);
         })
@@ -50,7 +51,10 @@ function OrganisationList() {
                     <label>Point of Contact</label>
                 </Col>
                 <Col>
-                    <label>Unquie URL</label>
+                    <label>Org ID</label>
+                </Col>
+                <Col>
+                    
                 </Col>
             </Row>
             </Card>
@@ -58,7 +62,7 @@ function OrganisationList() {
             {organisations.map((organisation, index) => {
                return (
                    <div key={index}>
-                        <OrganisationItem name={organisation.name} email={organisation.POC_Email} poc={organisation.POC_Name} id={organisation.url} />
+                        <OrganisationItem name={organisation.name} email={organisation.POC_Email} poc={organisation.POC_Name} orgID={organisation.orgID} />
                         <br />
                     </div>)
             })}

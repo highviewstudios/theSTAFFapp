@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Collapse, Image, Row, Col, Form, Button, Modal, ListGroup } from 'react-bootstrap';
+import { Collapse, Image, Row, Col, Form, Button, Modal, ListGroup, Dropdown } from 'react-bootstrap';
 
 import plus from '../../public/images/plus.png';
 import minus from '../../public/images/minus.png';
@@ -49,6 +49,18 @@ function Users(props) {
         showCancel: false
     });
 
+    const [modalTO, setModalTO] = useState({
+        open: false,
+        heading: '',
+        message: '',
+        option1Function: '',
+        option1Name: '',
+        showOption1: false,
+        option2Function: '',
+        option2Name: '',
+        showOption2: false
+    });
+
     function handleModalClose() {
         setModal(prevState => {
             return {...prevState,
@@ -67,6 +79,14 @@ function Users(props) {
 
     function handleModalYNClose() {
         setModalYN(prevState => {
+            return {...prevState,
+            open: false
+        }
+    });
+    }
+
+    function handleModalTOClose() {
+        setModalTO(prevState => {
             return {...prevState,
             open: false
         }
@@ -388,6 +408,87 @@ function Users(props) {
         })
     }
 
+    function handleUserChangeMethod() {
+
+        const data = {uuid: settings.editID};
+        Axios.post('/organisation/getUserLoginMethod', data)
+        .then(res => {
+
+            const method = res.data.method;
+
+            if(method == '') {
+
+                const message = res.data.name + " has not logged into the website yet, you can choose which method you want them to log in with.";
+
+                setModalTO({heading: 'Change Login Method', message: message, option1Name: 'Local', option2Name: 'Google', option1Function: acceptToChangeToLocal, option2Function: acceptToChangeToGoogle,
+                            showOption1: true, showOption2: true, open: true})
+
+            } else {
+            let newMethod;
+            if(method == 'local') {
+                newMethod = 'google'
+            } else if(method == 'google') {
+                newMethod = 'local'
+            }
+
+            const message = res.data.name + "'s login method is " + method + ". Are you sure you want to change it to a " + newMethod + " method?";
+
+            setModalYN({heading: 'Change Login Method', message: message, acceptName: 'Yes', acceptFunction: () => {acceptToChangeMethods(settings.editID, newMethod, orgID)}, showAccept: true, cancelName: 'No', showCancel: true, open: true});    
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    function acceptToChangeMethods(id, newMethod, orgID) {
+
+        setModalYN({open: false});
+        
+        const data = {orgID: orgID, uuid: id, method: newMethod}
+        Axios.post('/organisaation/changeUserLoginMethod', data)
+        .then(res => {
+            if(res.data.message == 'Strategy Updated') {
+                setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    function acceptToChangeToGoogle() {
+
+        setModalTO({open: false});
+
+        const data = {orgID: orgID, uuid: settings.editID, method: 'google'}
+        Axios.post('/organisaation/changeUserLoginMethod', data)
+        .then(res => {
+            if(res.data.message == 'Strategy Updated') {
+                setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    function acceptToChangeToLocal() {
+
+        setModalTO({open: false});
+
+        const data = {orgID: orgID, uuid: settings.editID, method: 'local'}
+        Axios.post('/organisaation/changeUserLoginMethod', data)
+        .then(res => {
+            if(res.data.message == 'Strategy Updated') {
+                setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
     return (
         <div>
             <table width='100%' border='1px'>
@@ -449,15 +550,24 @@ function Users(props) {
                                                             <Button variant="primary" onClick={handleSingleAdd}>Add</Button>
                                                         </div>) : (
                                                             <div>
-                                                        <Button variant="primary" onClick={handleBackToAdd}>Add New User</Button>
-                                                        <Button variant="primary" onClick={handleSeniorAdminRequest}>S/A Request</Button> </div>)}
+                                                        <Button className='side-by-side' variant="primary" onClick={handleBackToAdd}>Add New User</Button>
+                                                        <Button className='side-by-side' variant="primary" onClick={handleRemove}>Remove</Button>
+                                                        </div>)}
                                                     </div>
                                                     </Form.Row>
                                                     
                                                     <Form.Row className={settings.edit ? 'user-edit' : 'user-edit edit-hidden'}>
                                                         <div> 
-                                                            <Button variant="primary" onClick={handleRemove}>Remove</Button> 
-                                                            <Button variant="primary" onClick={handleUpdate}>Update</Button> 
+                                                             <Dropdown className='side-by-side'>
+                                                                <Dropdown.Toggle variant='primary'>
+                                                                    More
+                                                                </Dropdown.Toggle>
+                                                                <Dropdown.Menu>
+                                                                    <Dropdown.Item onClick={handleSeniorAdminRequest}>S/A Request</Dropdown.Item>
+                                                                    <Dropdown.Item onClick={handleUserChangeMethod}>Change Login Method</Dropdown.Item>
+                                                                </Dropdown.Menu>
+                                                            </Dropdown>
+                                                            <Button className='side-by-side' variant="primary" onClick={handleUpdate}>Update</Button> 
                                                         </div>
                                                     </Form.Row>
                                                 </Form>
@@ -550,6 +660,24 @@ function Users(props) {
             {modalYN.showCancel ? (<div>
                 <Button variant="primary" onClick={handleModalYNClose}>
                     {modalYN.cancelName}
+                </Button>
+            </div>) : null}
+            </Modal.Footer>
+        </Modal>
+        <Modal show={modalTO.open} onHide={handleModalTOClose}>
+            <Modal.Header closeButton>
+            <Modal.Title>{modalTO.heading}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{modalTO.message}</Modal.Body>
+            <Modal.Footer>
+            {modalTO.showOption1 ? (<div>
+                <Button variant="primary" onClick={modalTO.option1Function}>
+                    {modalTO.option1Name}
+                </Button>
+            </div>) : null}
+            {modalTO.showOption2 ? (<div>
+                <Button variant="primary" onClick={modalTO.option2Function}>
+                    {modalTO.option2Name}
                 </Button>
             </div>) : null}
             </Modal.Footer>

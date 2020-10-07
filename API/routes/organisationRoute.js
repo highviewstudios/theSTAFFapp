@@ -1445,6 +1445,144 @@ router.post('/organisation/unlock', async (req, res) => {
     }
 });
 
+router.post('/organisation/getSALoginMethod', async (req, res) => {
+
+    const email = req.body.email;
+
+    const user = await GetUserByEmail(email);
+
+    const json = {
+        method: user.strategy
+    }
+
+    res.send(json);
+});
+
+router.post('/organisaation/changeASLoginMethod', async (req, res) => {
+
+    const orgID = req.body.orgID
+    const uEmail = req.body.email;
+    const method = req.body.method;
+
+    const user = await GetUserByEmail(uEmail);
+    let password = '';
+    let request = 'false'
+
+    if(method == 'local') {
+        password = generatePass.generate({length: 10, numbers: true, uppercase: true});
+        request = 'true';
+    }
+
+    const result = await updateUserStrategy(user.uuid, method, password, request);
+
+    if(result == 'Success') {
+
+        await updateOrgAuthMethod(orgID, method);
+
+        console.log(user.email)
+                //Send email
+                let mailOptions = {
+                    from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
+                    to: user.email, // list of receivers
+                    subject: "Your Login method has changed", // Subject line
+                    template: 'ASChangeStrategy',
+                    context: {
+                        name: user.displayName,
+                        email: user.email,
+                        newMethod: method,
+                        localPassword: password
+                    }
+                };
+                //send mail with defined transport object
+                email.mail.sendMail(mailOptions, (error, info) => {
+                    if(error) {
+                        return console.log(error);
+                    }
+                console.log("Message sent: %s", info.messageId);
+                console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+
+                console.log("Email has been sent");
+                });
+
+        const json = {
+            error: 'null',
+            message: 'Strategy Updated'
+        }
+
+        res.send(json);
+    }
+});
+
+router.post('/organisation/getUserLoginMethod', async (req, res) => {
+
+    const uuid = req.body.uuid;
+
+    const user = await GetUserByID(uuid);
+
+    const json = {
+        name: user.displayName,
+        method: user.strategy
+    }
+
+    res.send(json);
+});
+
+router.post('/organisaation/changeUserLoginMethod', async (req, res) => {
+
+    const orgID = req.body.orgID
+    const uuid = req.body.uuid;
+    const method = req.body.method;
+
+    const user = await GetUserByID(uuid);
+
+    let password = '';
+    let request = 'false'
+
+    if(method == 'local') {
+        password = generatePass.generate({length: 10, numbers: true, uppercase: true});
+        request = 'true';
+    }
+
+    const result = await updateUserStrategy(user.uuid, method, password, request);
+
+    const organisation = await getOneOrganisation(orgID);
+
+    if(result == 'Success') {
+
+        //Send email
+        let mailOptions = {
+            from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
+            to: user.email, // list of receivers
+            subject: "Your Login method has changed", // Subject line
+            template: 'userChangeStrategy',
+            context: {
+                name: user.displayName,
+                email: user.email,
+                seniorAdmin: organisation.POC_Name,
+                newMethod: method,
+                localPassword: password
+            }
+        };
+        //send mail with defined transport object
+        email.mail.sendMail(mailOptions, (error, info) => {
+            if(error) {
+                return console.log(error);
+            }
+        console.log("Message sent: %s", info.messageId);
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+
+        console.log("Email has been sent");
+        });
+
+        const json = {
+            error: 'null',
+            message: 'Strategy Updated'
+        }
+
+        res.send(json);
+    }
+})
+
 //FUNCTIONS
 
 function ValidateEmail(mail) 
@@ -1522,9 +1660,55 @@ function addUser(name, email, authLocal, localPassword, departments, role, orgID
             } else {
                 resolve("Success");
             }
-        })
+        });
 
 
+    });
+}
+
+function updateUserStrategy(uuid, strategy, password, request) {
+    return new Promise(async (resolve, reject) => {
+
+        let hashedPassword = ''
+        if(strategy == 'local') {
+            hashedPassword = await bcrypt.hash(password, parseInt(process.env.SALT));
+        }
+
+        const data = [{strategy: strategy, password: hashedPassword, requestedPassword: request}, uuid];
+        const UPDATE_QUERY = "UPDATE users SET ? WHERE uuid=?";
+    
+        mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve('Success');
+            }
+        });
+    
+    });
+}
+
+function updateOrgAuthMethod(orgID, strategy) {
+    return new Promise(async (resolve, reject) => {
+
+        const UPDATE_QUERY = "UPDATE organisations SET ? WHERE orgID=?";
+        let data = [];
+        if(strategy == 'local') {
+            data = [{auth_Local: 'true'}, orgID];
+        } else if(strategy == 'google') {
+            data = [{auth_Google: 'true'}, orgID];
+        }
+    
+        mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve('Success');
+            }
+        });
+    
     });
 }
 
@@ -1549,7 +1733,7 @@ function GetUserByID(uuid) {
     return new Promise ((resolve, reject) => {
     
         const data = {uuid: uuid}
-        const FIND_QUERY = "SELECT uuid, email, displayName, role FROM users WHERE ?";
+        const FIND_QUERY = "SELECT uuid, strategy, email, displayName, role FROM users WHERE ?";
 
         mySQLConnection.query(FIND_QUERY, data, (err, result) => {
             if(err) {
