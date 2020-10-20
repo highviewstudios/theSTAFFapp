@@ -128,3 +128,7 @@ hr {
     position: absolute;
     bottom: 5px;
 }
+
+.password-help-text {
+    color: red;
+}

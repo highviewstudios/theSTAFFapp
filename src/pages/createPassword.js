@@ -13,6 +13,7 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 function CreatePassword(props) {
 
   const [message, setmessage] = useState('');
+  const [passwordHelp, setPasswordHelp] = useState(false);
   const dispatch = useDispatch();
   const globalVars = useSelector(state => state.globalVars);
 
@@ -34,7 +35,13 @@ function CreatePassword(props) {
       axios.post('/createPassword', data)
       .then(res => {
         if(res.data.userError == 'Yes') {
-          setmessage(res.data.message);
+          if(res.data.message == 'Your password is not strong enough') {
+            setmessage(res.data.message);
+            setPasswordHelp(true);
+          } else {
+            setPasswordHelp(false);
+            setmessage(res.data.message);
+          }
         } else {
           if(res.data.message == 'Updated user first password') {
             dispatch(userUpdateNew(res.data.user.new));
@@ -68,6 +75,10 @@ function CreatePassword(props) {
           <label id="lblConfirmPassword">Confirm Password:</label><br />
           <input id="txtConfirmPassword" type="password" required /><br /> <br />
           <p>{message}</p>
+          {passwordHelp ? (
+            <div className='password-help-text'>
+              Your password must contain at least 1 uppercase, 1 lowercase, 1 number & 1 special character. It also requires to be a minimum 8 characters in length
+          </div>) : null}
           <Button type='submit' variant="warning" onClick={setPassword}>Set Password</Button><br /><br />
         </form><br />
       </Jumbotron>
