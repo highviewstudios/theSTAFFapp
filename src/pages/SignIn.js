@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import ServerPath, { hostPath } from "../ServerPath";
 import {useDispatch, useSelector} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateSARequest, userUpdateUUID} from '../store/actions/user';
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateSARequest, userUpdateUUID, userUpdateUserDepartments} from '../store/actions/user';
 import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 
 //Styles
@@ -78,11 +78,12 @@ function SignIn(props) {
             dispatch(userUpdateAuth(true));
             dispatch(userUpdateUUID(res.data.uuid));
             dispatch(userUpdateName(res.data.displayName));
+            dispatch(userUpdateUserDepartments(res.data.departments));
             dispatch(userUpdateRole(res.data.role));
             dispatch(userUpdateNew(res.data.new));
             dispatch(userUpdateRequestedPassword(res.data.requestedPassword));
             dispatch(userUpdateOrgID(res.data.orgID));
-            dispatch(userUpdateSARequest(res.data.SARequest))
+            dispatch(userUpdateSARequest(res.data.SARequest));
 
             if(globalVars.forceSignIn) {
               dispatch(UpdateFromSignIn(true));

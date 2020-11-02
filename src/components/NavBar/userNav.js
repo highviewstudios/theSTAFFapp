@@ -3,7 +3,7 @@ import ServerPath, { hostPath } from "../../ServerPath";
 import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID} from "../../store/actions/user";
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateUserDepartments} from "../../store/actions/user";
 import { UpdateBookingEdit } from '../../store/actions/bookings';
 
 import Dropdown from "react-bootstrap/Dropdown";
@@ -71,6 +71,7 @@ function User() {
                 dispatch(userUpdateRole(''));
                 dispatch(userUpdateNew(''));
                 dispatch(userUpdateRequestedPassword(false));
+                dispatch(userUpdateUserDepartments([]));
                 dispatch(userUpdateOrgID(''));
                 dispatch(UpdateBookingEdit(false));
                 history.push(page);
