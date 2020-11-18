@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 import { Row, Col, Button, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomTotalSessions, UpdateRoomDayList, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData } from '../../../store/actions/globalVars';
-import { UpdateBookingEdit, UpdateBookingID } from '../../../store/actions/bookings';
+import { UpdateBookingBookingType, UpdateBookingBookingUntil, UpdateBookingSessionDes, UpdateBookingComments, UpdateBookingDepartment, UpdateBookingEdit, UpdateBookingID, UpdateBookingUser, UpdateBookingSessionLength } from '../../../store/actions/bookings';
 import moment from 'moment';
 import Axios from 'axios';
 
@@ -219,6 +219,7 @@ function Timetable(props) {
 
     function handleBookClick(event) {
         
+        dispatch(UpdateBookingEdit(false));
         const { id } = event.target;
         const IDs = id.toString().split('-');
         dispatch(UpdateRoomName(props.roomName));
@@ -247,8 +248,33 @@ function Timetable(props) {
     }
 
     function handleEditBooking(uuid) {
-        dispatch(UpdateBookingEdit(true));
-        dispatch(UpdateBookingID(uuid))
+
+        const data = {orgID: orgID, uuid: uuid};
+        Axios.post('/booking/getBookingData', data)
+        .then(res => {
+
+            const data = res.data;
+            dispatch(UpdateBookingUser(data.booking.user));
+            dispatch(UpdateBookingDepartment(GetDepartment(data.booking.departmentID)));
+            dispatch(UpdateBookingSessionDes(data.booking.sessionDes));
+            dispatch(UpdateBookingSessionLength(data.booking.sessionTotal));
+
+            //SINGLE / REPEAT
+            const type = data.booking.bookingType;
+            if(type == 'single') {
+                dispatch(UpdateBookingBookingType('Single'));
+            } else {
+                dispatch(UpdateBookingBookingType('Repeat - ' + data.booking.repeatType));
+                dispatch(UpdateBookingBookingUntil(data.booking.repeatUntil));
+            }
+
+            dispatch(UpdateBookingComments(data.booking.comments));            
+            dispatch(UpdateBookingEdit(true));
+            dispatch(UpdateBookingID(uuid));
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
     function FindWeekBegin(days) {
@@ -299,6 +325,7 @@ function Timetable(props) {
 
     function handleAdvancedWeek() {
         
+        dispatch(UpdateBookingEdit(false));
         let newDate = moment(settings.dates[0], 'DD/MM/YYYY');
         newDate.add(1, 'w');
 
@@ -307,6 +334,7 @@ function Timetable(props) {
 
     function handleGoBackWeek() {
         
+        dispatch(UpdateBookingEdit(false));
         let newDate = moment(settings.dates[0], 'DD/MM/YYYY');
         newDate.subtract(1, 'w');
 

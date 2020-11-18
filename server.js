@@ -65,6 +65,9 @@ app.use(organisationRoutes);
 const booking = require('./API/routes/bookingRoute');
 app.use('/booking',booking);
 
+const userProfile = require('./API/routes/userProfileRoute');
+app.use('/userProfile', userProfile);
+
 app.listen(process.env.PORT || 8080, () => {
   console.log("Listening on port 8080")
 });

@@ -8,12 +8,14 @@ import Users from './orgAdminComponets/users';
 import Rooms from "./orgAdminComponets/rooms";
 import Layouts from "./orgAdminComponets/layoutSettings";
 import WeekSystemHolidays from './orgAdminComponets/weekSystemHolidays';
+import UserProfiles from './orgAdminComponets/userProfiles';
 
 import SessionsContextProvider from '../context/adminTemplatesSessions';
 
 //Styles
 import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
+import userProfiles from './orgAdminComponets/userProfiles';
 
 
 function OrganisationAdmin(props) {
@@ -32,12 +34,13 @@ function OrganisationAdmin(props) {
             <Jumbotron className="back-color">
               <LoginSettings orgID={orgID}/><br />
               <DepartmentSettings orgID={orgID}/><br />
-              <Users orgID={orgID} /> <br />
+                <Users orgID={orgID} /> <br />
               <Rooms orgID={orgID} /> <br />
               <SessionsContextProvider>
                 <Layouts orgID={orgID} /> <br />
               </SessionsContextProvider>
-              <WeekSystemHolidays orgID={orgID} />
+              <WeekSystemHolidays orgID={orgID} /><br />
+              {/* <UserProfiles orgID={orgID} /> */}
             </Jumbotron>
         </Container>
     </div>

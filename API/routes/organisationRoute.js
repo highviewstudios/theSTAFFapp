@@ -357,6 +357,27 @@ router.get('/organisation/:id', async (req, res) => {
     }
 });
 
+router.post('/organisation/getJustUser', async (req, res) => {
+
+    const uuid = req.body.uuid;
+
+    const user = await GetUserDetailsByID(uuid);
+
+    let json ={};
+    if(user == null) {
+        json = {
+            error: 'no user'
+        }
+    } else {
+        json = {
+            error: 'null',
+            user: user
+        }
+    }
+
+    res.send(json);
+})
+
 router.post('/organisation/updateLoginSettings', async (req, res) => {
 
     
@@ -1533,6 +1554,13 @@ router.post('/organisaation/changeUserLoginMethod', async (req, res) => {
     const uuid = req.body.uuid;
     const method = req.body.method;
 
+    let refresh = ''
+    if(method == 'google') {
+        refresh = 'true';
+    } else {
+        refresh = 'false';
+    }
+
     const user = await GetUserByID(uuid);
 
     let password = '';
@@ -1543,7 +1571,7 @@ router.post('/organisaation/changeUserLoginMethod', async (req, res) => {
         request = 'true';
     }
 
-    const result = await updateUserStrategy(user.uuid, method, password, request);
+    const result = await updateUserStrategy(user.uuid, method, password, request, refresh);
 
     const organisation = await getOneOrganisation(orgID);
 
@@ -1581,7 +1609,7 @@ router.post('/organisaation/changeUserLoginMethod', async (req, res) => {
 
         res.send(json);
     }
-})
+});
 
 //FUNCTIONS
 
@@ -1666,7 +1694,7 @@ function addUser(name, email, authLocal, localPassword, departments, role, orgID
     });
 }
 
-function updateUserStrategy(uuid, strategy, password, request) {
+function updateUserStrategy(uuid, strategy, password, request, refresh) {
     return new Promise(async (resolve, reject) => {
 
         let hashedPassword = ''
@@ -1674,7 +1702,7 @@ function updateUserStrategy(uuid, strategy, password, request) {
             hashedPassword = await bcrypt.hash(password, parseInt(process.env.SALT));
         }
 
-        const data = [{strategy: strategy, password: hashedPassword, requestedPassword: request}, uuid];
+        const data = [{strategy: strategy, password: hashedPassword, requestedPassword: request, new: 'false', refreshID: refresh}, uuid];
         const UPDATE_QUERY = "UPDATE users SET ? WHERE uuid=?";
     
         mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
@@ -1734,6 +1762,23 @@ function GetUserByID(uuid) {
     
         const data = {uuid: uuid}
         const FIND_QUERY = "SELECT uuid, strategy, email, displayName, role FROM users WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0]);
+            }
+        });
+        })
+}
+
+function GetUserDetailsByID(uuid) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {uuid: uuid}
+        const FIND_QUERY = "SELECT uuid, strategy, email, displayName, role, departments FROM users WHERE ?";
 
         mySQLConnection.query(FIND_QUERY, data, (err, result) => {
             if(err) {

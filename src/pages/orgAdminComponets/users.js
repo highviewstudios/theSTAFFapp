@@ -1,15 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Collapse, Image, Row, Col, Form, Button, Modal, ListGroup, Dropdown } from 'react-bootstrap';
+
+import { GUserContext } from '../../context/GUserContext';
 
 import plus from '../../public/images/plus.png';
 import minus from '../../public/images/minus.png';
 import { useSelector } from 'react-redux';
 import Axios from 'axios';
+import { useHistory } from 'react-router-dom'
 
 function Users(props) {
 
+    const { GUser, setGUserID, setFromDetails } = useContext(GUserContext);
+
     const orgID = props.orgID;
     const organisation = useSelector(state => state.organisation);
+    const history = useHistory();
+
+    useEffect(() => {
+
+        if(GUser.fromDetails) {
+            setSettings(prevState => {
+                return {...prevState, open: true}
+            });
+            getAllOrgUsers();
+            setFromDetails(false);
+        }
+    }, [])
 
     const [settings, setSettings] = useState({
         open: false,
@@ -34,59 +51,8 @@ function Users(props) {
         message: ''
     });
 
-    const [modalChangeSA, setModalChangeSA] = useState({
-        open: false
-    });
-
-    const [modalYN, setModalYN] = useState({
-        open: false,
-        heading: '',
-        message: '',
-        acceptFunction: '',
-        acceptName: '',
-        showAccept: false,
-        cancelName: '',
-        showCancel: false
-    });
-
-    const [modalTO, setModalTO] = useState({
-        open: false,
-        heading: '',
-        message: '',
-        option1Function: '',
-        option1Name: '',
-        showOption1: false,
-        option2Function: '',
-        option2Name: '',
-        showOption2: false
-    });
-
     function handleModalClose() {
         setModal(prevState => {
-            return {...prevState,
-            open: false
-        }
-    });
-    }
-
-    function handleModalChangeSAClose() {
-        setModalChangeSA(prevState => {
-            return {...prevState,
-            open: false
-        }
-    });
-    }
-
-    function handleModalYNClose() {
-        setModalYN(prevState => {
-            return {...prevState,
-            open: false
-        }
-    });
-    }
-
-    function handleModalTOClose() {
-        setModalTO(prevState => {
             return {...prevState,
             open: false
         }
@@ -97,7 +63,7 @@ function Users(props) {
 
         if(!settings.open) {
             setSettings(prevState => {
-                return {...prevState, departments: organisation.departments, open: true}
+                return {...prevState, open: true}
             })
 
             getAllOrgUsers();
@@ -343,150 +309,11 @@ function Users(props) {
         })
     }
 
-    function handleRemove() {
+    function goToUserDetails(uuid) {
+        setGUserID(uuid);
+        setFromDetails(true);
 
-        if(settings.role_SeniorAdmin) {
-            setModal({heading: 'Remove User', message: 'You cannot delete a Senior Admin', open: true});
-        } else {
-
-            setModalYN({heading: 'Remove User', message: 'Are you sure you want to remove this user and all their bookings?', acceptName: 'Yes', acceptFunction: acceptRemove, showAccept: true, showCancel: true, cancelName: 'No', open: true});
-        }
-    }
-
-    function acceptRemove() {
-
-        setModalYN({open: false});
-
-        const data = {uuid: settings.editID, orgID: orgID};
-
-            Axios.post('/organisation/removeUser', data)
-            .then(res => {
-                const data = res.data;
-
-                if(data.message == 'User removed successfully') {
-                    setModal(prevState => {
-                        return {...prevState, heading: 'Remove User', message: 'User has been removed and deleted', open: true};
-                    });
-
-                    setSettings(prevState => {
-                        return {...prevState, 
-                            users: data.users,
-                            name: '',
-                            email: '',
-                            role_Admin: false,
-                            role_User: false,
-                            userDepartments: [],
-                            edit: false
-                            };
-                    });
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
-    }
-
-    function handleSeniorAdminRequest() {
-
-        setModalChangeSA({open: true})
-    }
-
-    function handleAcceptOfSARequest() {
-
-        const data = {orgID: orgID, newUUID: settings.editID};
-        Axios.post('/organisation/changeSeniorAdmin', data)
-        .then(res => {
-            
-            if(res.data.message == 'Request sent successfully') {
-
-                setModalChangeSA({open: false});
-                setModal({heading: 'Change of Senior Admin Request', message: 'A request has been sent to ' + settings.name, open: true});
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }
-
-    function handleUserChangeMethod() {
-
-        const data = {uuid: settings.editID};
-        Axios.post('/organisation/getUserLoginMethod', data)
-        .then(res => {
-
-            const method = res.data.method;
-
-            if(method == '') {
-
-                const message = res.data.name + " has not logged into the website yet, you can choose which method you want them to log in with.";
-
-                setModalTO({heading: 'Change Login Method', message: message, option1Name: 'Local', option2Name: 'Google', option1Function: acceptToChangeToLocal, option2Function: acceptToChangeToGoogle,
-                            showOption1: true, showOption2: true, open: true})
-
-            } else {
-            let newMethod;
-            if(method == 'local') {
-                newMethod = 'google'
-            } else if(method == 'google') {
-                newMethod = 'local'
-            }
-
-            const message = res.data.name + "'s login method is " + method + ". Are you sure you want to change it to a " + newMethod + " method?";
-
-            setModalYN({heading: 'Change Login Method', message: message, acceptName: 'Yes', acceptFunction: () => {acceptToChangeMethods(settings.editID, newMethod, orgID)}, showAccept: true, cancelName: 'No', showCancel: true, open: true});    
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }
-
-    function acceptToChangeMethods(id, newMethod, orgID) {
-
-        setModalYN({open: false});
-        
-        const data = {orgID: orgID, uuid: id, method: newMethod}
-        Axios.post('/organisaation/changeUserLoginMethod', data)
-        .then(res => {
-            if(res.data.message == 'Strategy Updated') {
-                setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }
-
-    function acceptToChangeToGoogle() {
-
-        setModalTO({open: false});
-
-        const data = {orgID: orgID, uuid: settings.editID, method: 'google'}
-        Axios.post('/organisaation/changeUserLoginMethod', data)
-        .then(res => {
-            if(res.data.message == 'Strategy Updated') {
-                setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }
-
-    function acceptToChangeToLocal() {
-
-        setModalTO({open: false});
-
-        const data = {orgID: orgID, uuid: settings.editID, method: 'local'}
-        Axios.post('/organisaation/changeUserLoginMethod', data)
-        .then(res => {
-            if(res.data.message == 'Strategy Updated') {
-                setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        })
+        history.push("/org/" + orgID + "/userDetails");
     }
 
     return (
@@ -551,22 +378,12 @@ function Users(props) {
                                                         </div>) : (
                                                             <div>
                                                         <Button className='side-by-side' variant="primary" onClick={handleBackToAdd}>Add New User</Button>
-                                                        <Button className='side-by-side' variant="primary" onClick={handleRemove}>Remove</Button>
                                                         </div>)}
                                                     </div>
                                                     </Form.Row>
                                                     
                                                     <Form.Row className={settings.edit ? 'user-edit' : 'user-edit edit-hidden'}>
                                                         <div> 
-                                                             <Dropdown className='side-by-side'>
-                                                                <Dropdown.Toggle variant='primary'>
-                                                                    More
-                                                                </Dropdown.Toggle>
-                                                                <Dropdown.Menu>
-                                                                    <Dropdown.Item onClick={handleSeniorAdminRequest}>S/A Request</Dropdown.Item>
-                                                                    <Dropdown.Item onClick={handleUserChangeMethod}>Change Login Method</Dropdown.Item>
-                                                                </Dropdown.Menu>
-                                                            </Dropdown>
                                                             <Button className='side-by-side' variant="primary" onClick={handleUpdate}>Update</Button> 
                                                         </div>
                                                     </Form.Row>
@@ -576,7 +393,7 @@ function Users(props) {
                                             <strong>Departments:</strong>
                                             <div className='scrollable-250'>
                                             <ListGroup>
-                                                {settings.departments.map((department, index) => {
+                                                {organisation.departments.map((department, index) => {
                                                    return <ListGroup.Item key={index} action onClick={() => { handleClickedItem_Deparment(department.name) }}>{department.name}</ListGroup.Item>
                                                 })}
                                             </ListGroup>
@@ -589,7 +406,8 @@ function Users(props) {
                                             </Row>
                                         </Col>
                                         <Col>
-                                            Users:
+                                            Users: <br />
+                                            Single Click on a user to make quick changes on the left, or Double Click to see Advanced Actions                                            
                                             <div className='scrollable-250'>
                                             <ListGroup>
                                                 {settings.users.map((user, index) => {
@@ -601,7 +419,7 @@ function Users(props) {
                                                     } else {
                                                         name = user.displayName;
                                                     }
-                                                    return <ListGroup.Item key={index} action onClick={() => { handleClickedItem_User(user.uuid, user.displayName, user.email, user.role, user.departments) }}>{name}</ListGroup.Item>
+                                                    return <ListGroup.Item key={index} action onDoubleClick={() => {goToUserDetails(user.uuid)}} onClick={() => { handleClickedItem_User(user.uuid, user.displayName, user.email, user.role, user.departments) }}>{name}</ListGroup.Item>
                                                 })}
                                             </ListGroup>
                                             </div>
@@ -626,62 +444,6 @@ function Users(props) {
                 </Button>
                 </Modal.Footer>
             </Modal>
-            <Modal show={modalChangeSA.open} onHide={handleModalChangeSAClose}>
-            <Modal.Header closeButton>
-            <Modal.Title>Change of Senior Admin Request</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <p>You are requesting {settings.name} to change roles to the Senior Admin of this organisation. You can only have ONE Senior Admin per organisation, so this means you will not have access to the administrator panel for this organisation. Your role will change to Admin</p>
-                <p>This user will also be to new ‘point of contact’ for High-View Studios.</p>
-                <p>This user will be sent an email and they have to accept the request. In the meantime you will still have access.</p>
-                <p>You and High-View Studios will be notified when this request has been accepted.</p>
-                <p>Do you want to continue?</p>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="primary" onClick={handleAcceptOfSARequest}>
-                    Yes
-                </Button>
-                <Button variant="primary" onClick={handleModalChangeSAClose}>
-                    No
-                </Button>
-            </Modal.Footer>
-        </Modal>
-        <Modal show={modalYN.open} onHide={handleModalYNClose}>
-            <Modal.Header closeButton>
-            <Modal.Title>{modalYN.heading}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{modalYN.message}</Modal.Body>
-            <Modal.Footer>
-            {modalYN.showAccept ? (<div>
-                <Button variant="primary" onClick={modalYN.acceptFunction}>
-                    {modalYN.acceptName}
-                </Button>
-            </div>) : null}
-            {modalYN.showCancel ? (<div>
-                <Button variant="primary" onClick={handleModalYNClose}>
-                    {modalYN.cancelName}
-                </Button>
-            </div>) : null}
-            </Modal.Footer>
-        </Modal>
-        <Modal show={modalTO.open} onHide={handleModalTOClose}>
-            <Modal.Header closeButton>
-            <Modal.Title>{modalTO.heading}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{modalTO.message}</Modal.Body>
-            <Modal.Footer>
-            {modalTO.showOption1 ? (<div>
-                <Button variant="primary" onClick={modalTO.option1Function}>
-                    {modalTO.option1Name}
-                </Button>
-            </div>) : null}
-            {modalTO.showOption2 ? (<div>
-                <Button variant="primary" onClick={modalTO.option2Function}>
-                    {modalTO.option2Name}
-                </Button>
-            </div>) : null}
-            </Modal.Footer>
-        </Modal>
         </div>
     )
 }

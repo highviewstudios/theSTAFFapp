@@ -124,11 +124,10 @@ hr {
     visibility: hidden;
 }
 
-.edit-delete {
-    position: absolute;
-    bottom: 5px;
-}
-
 .password-help-text {
     color: red;
+}
+
+.row-nothing {
+    visibility: hidden;
 }

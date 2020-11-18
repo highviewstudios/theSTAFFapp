@@ -6,16 +6,21 @@ import { UpdateFromSignIn } from '../store/actions/globalVars';
 import OrganisationHome from "../pages/organisationHome";
 import CollisionBookings from '../pages/orgAdminComponets/collisionBookings';
 import ChangeofSeniorRequest from '../pages/orgAdminComponets/changeOfSeniorRequest';
+import userDetails from '../pages/orgAdminComponets/userDetails';
 import ForgotPassword from "../pages/forgotPassword";
 import ChangePassword from '../pages/changePassword';
 import CreatePassword from "../pages/createPassword";
 import WrongOrganisation from '../pages/wrongOrganisation';
 
 import OrganisationAdmin from "../pages/organisationAdmin";
+import ProfileSettings from '../pages/orgAdminComponets/profileSettings';
 
 import SignIn from "../pages/signIn";
 import Axios from 'axios';
 import {useSelector, useDispatch} from 'react-redux';
+
+import GUserContextProvider from '../context/GUserContext';
+import GProfileContextProvider from '../context/GProfileContext';
 
 
 function OrganisationRouter(props) {
@@ -96,7 +101,13 @@ function OrganisationRouter(props) {
             {isLoaded ? (<div>
                 <Route path='/org/:id' exact component={OrganisationHome} />
                 <Route path='/org/:id/collisionBookings' component={CollisionBookings} />
+                <GProfileContextProvider>
+                <GUserContextProvider>
                 <Route path="/org/:id/organisationAdmin" component={OrganisationAdmin} />
+                <Route path="/org/:id/userDetails" component={userDetails} />
+                <Route path="/org/:id/profileSettings" component={ProfileSettings} />
+                </GUserContextProvider>
+                </GProfileContextProvider>
                 <Route path="/org/:id/signIn" component={SignIn} />
                 <Route path="/org/:id/forgotPassword" component={ForgotPassword} />
                 <Route path="/org/:id/changePassword" component={ChangePassword} />

@@ -115,12 +115,15 @@ router.get('/auth/google/development',
 
         let continu = false;
         const user = await GetUserByEmail(req.user.emails[0].value);
-        
+
         if(user == null) {
             req.logOut();
             res.redirect("/notConnected");
-        } else if (user.new == 'true') {
+        } else if (user.new == 'true' && user.strategy == '') {
             await UpdateGoogleFirstTimeUser(req.user.emails[0].value, req.user.id);
+            continu = true;
+        } else if(user.refreshID == 'true') {
+            await UpdateGoogleID(req.user.emails[0].value, req.user.id);
             continu = true;
         } else {
 
@@ -515,6 +518,21 @@ function UpdateGoogleFirstTimeUser(email, id) {
     return new Promise((resolve, reject) => {
     const UPDATE_QUERY = "UPDATE users SET ? WHERE email=?";
     const data = [{id: id, strategy: 'google', new: 'false'}, email];
+
+    mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+        if(err) {
+            reject();
+        } else {
+            resolve();
+        }
+    });
+    })
+}
+
+function UpdateGoogleID(email, id) {
+    return new Promise((resolve, reject) => {
+    const UPDATE_QUERY = "UPDATE users SET ? WHERE email=?";
+    const data = [{id: id, refreshID: 'false'}, email];
 
     mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
         if(err) {

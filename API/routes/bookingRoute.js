@@ -380,6 +380,34 @@ router.post('/deleteBooking', async (req, res) => {
     }
 });
 
+router.post('/getBookingData', async (req, res) => {
+
+    const orgID = req.body.orgID;
+    const uuid = req.body.uuid;
+
+    const validateID = CheckOrgID(orgID);
+
+    if(validateID) {
+
+        const booking = await GetBookingData(orgID, uuid);
+        
+        booking.user = await findUsersName(booking.user);
+
+        const json = {
+            error: 'null',
+            booking: booking
+        }
+        res.send(json);
+    } else {
+        const json = {
+            error: 'Yes',
+            message: 'Invalid Data'
+        }
+        res.send(json);
+    }
+
+})
+
 //FUNCTIONS
 
 function GetBookings(query) {
@@ -607,6 +635,23 @@ function findUsersName(uuid) {
                 reject();
             } else {
                 resolve(result[0].displayName)
+            }
+        });
+        })
+}
+
+function GetBookingData(orgID, uuid) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {uuid: uuid}
+        const FIND_QUERY = "SELECT * FROM " + orgID + "_bookings WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0]);
             }
         });
         })

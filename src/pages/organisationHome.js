@@ -145,6 +145,7 @@ function OrganisationHome(props) {
       console.log(err);
     })
   }
+  ////////////////////////////////////////////////////////
 
   return (
     <div className="body">
@@ -180,11 +181,87 @@ function OrganisationHome(props) {
                 </div>) : null}
                 </Col>
                 <Col>
-                <div className={bookings.editBooking ? 'edit-booking-show' : 'edit-booking-hide'}>
-                          <div className='edit-delete'>
-                            {user.role != 'user' ? <Button variant='primary' onClick={handleDeleteBooking}>Delete</Button> : null}
-                          </div>
+                <Row>
+                  <div className='row-nothing'>
+                    <Button disabled>Test</Button>
                   </div>
+                </Row>
+                <Row>
+                  <Col>
+                    <div className={bookings.editBooking ? 'edit-booking-show' : 'edit-booking-hide'}>
+                      <strong>Booking Details</strong>
+                      <div className='align-left'>
+                            <br />
+                            <Row>
+                              <Col>
+                                <strong>User:</strong>
+                              </Col>
+                              <Col>
+                                {bookings.user}
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col>
+                                <strong>Department:</strong>
+                              </Col>
+                              <Col>
+                                {bookings.department}
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col>
+                                <strong>Class:</strong>
+                              </Col>
+                              <Col>
+                                {bookings.sessionDes}
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col>
+                                <br /><strong>Session Length:</strong>
+                              </Col>
+                              <Col>
+                                <br />{bookings.sessionLength}
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col>
+                                <strong>Booking Type:</strong>
+                              </Col>
+                              <Col>
+                                {bookings.bookingType}
+                              </Col>
+                            </Row>
+                            {bookings.bookingType == 'Repeat - weekly' || bookings.bookingType == 'Repeat - Daily' ? (
+                              <div>
+                                <Row>
+                                  <Col>
+                                    <strong>Repeat Until:</strong>
+                                  </Col>
+                                  <Col>
+                                    {bookings.bookingUntil}
+                                  </Col>
+                                </Row>
+                              </div>
+                            ) : null}
+                            {bookings.comments != '' ? (<div>
+                              <Row>
+                              <Col>
+                                <br /><strong>Comments</strong>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col>
+                                {bookings.comments}
+                              </Col>
+                            </Row>
+                            </div>) : null}
+                            
+                              <br /> <br />{user.role != 'user' ? <Button variant='primary' onClick={handleDeleteBooking}>Delete</Button> : null}
+                      </div>
+                    </div>
+                    </Col>
+                  </Row>
                 </Col>                
               </Row>
             </Jumbotron>

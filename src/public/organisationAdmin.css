@@ -11,6 +11,7 @@ table, th, td {
     font: 1rem;
     padding-left: 1%;
     float: left;
+    text-align: left;
     width: 90%;
 }
 
@@ -44,6 +45,26 @@ table, th, td {
     float: right;
 }
 
+.align-right{
+    text-align: right;
+    color: red;
+}
+
+.align-left{
+    text-align: left;
+}
+
+.valign-center {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+.valign {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 .remove-button-hidden, .save-button-hidden {
     float: right;
     visibility: hidden;
@@ -53,7 +74,7 @@ table, th, td {
     float: right;
 }
 
-.roles-hidden, .edit-hidden, .departments-hidden {
+.roles-hidden, .edit-hidden, .departments-hidden .btn-hidden {
     visibility: hidden;
 }
 
@@ -84,6 +105,13 @@ table, th, td {
     height: 300px;
     overflow: auto;
     overflow-x: hidden;
+}
+
+.scrollable-300-max {
+    height: 300px;
+    overflow: auto;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 .side-by-side {

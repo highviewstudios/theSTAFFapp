@@ -84,6 +84,8 @@ function App() {
         <Route path="/org/:id/changeOfSeniorRequest" component={OrganisationRouter} /> 
         <Route path="/org/:id/createPassword" component={OrganisationRouter} />
         <Route path='/org/:id/wrongOrganisation' component={OrganisationRouter} />
+        <Route path="/org/:id/userDetails" component={OrganisationRouter} />
+        <Route path="/org/:id/profileSettings" component={OrganisationRouter} />
 
         {/* not moving this until later versions */}
         <Route path='/org/:id/book' component={Book} />
