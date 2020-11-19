@@ -3,7 +3,7 @@ require('dotenv').config();
 const LocalStrategy = require('passport-local').Strategy
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const GithubStrategy = require('passport-github2').Strategy
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const mySQLConnection = require('../connection');
 
 let user;

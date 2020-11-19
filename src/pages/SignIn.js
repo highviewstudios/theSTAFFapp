@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import axios from 'axios';
+import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import ServerPath, { hostPath } from "../ServerPath";
 import {useDispatch, useSelector} from 'react-redux';
@@ -69,7 +69,8 @@ function SignIn(props) {
     const email = document.getElementById("txtEmail").value;
     const password = document.getElementById("txtPassword").value;
 
-    axios.get("/login?email=" + email + "&password=" + password)
+    const data = {email: email, password: password}
+    Axios.post("/login", data)
     .then(res => {
       console.log(res.data);
         const message = res.data.message;

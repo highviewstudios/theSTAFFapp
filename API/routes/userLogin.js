@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const passport = require('passport');
 const { uuid } = require('uuidv4');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const generatePass = require('generate-password');
 const mySQLConnection = require('../connection');
 const email = require('../email');
@@ -54,10 +54,10 @@ router.get("/auth", async function(req, res) {
 });
 
 //LOCAL LOGIN
-router.get("/login", async function(req, res, next) { 
+router.post("/login", async function(req, res, next) { 
 
         let continu = false;
-        const email = req.query.email;
+        const email = req.body.email;
         const user = await GetUserByEmail(email);
         
         if(user == null) {
@@ -223,6 +223,23 @@ router.get("/f/logout", (req, res) => {
     }
     res.send(json);
 });
+
+//TEST
+router.get('/user/loginTest', async (req, res) => {
+
+    const text = 'RyanSian£'
+    const password1 = await bcrypt.hash(text, parseInt(process.env.SALT));
+    const password2 = await bcrypt.hash(text, parseInt(process.env.SALT));
+
+    const result = await bcrypt.compare(text, password2);
+    const json = {
+        password1,
+        password2,
+        result
+    }
+
+    res.send(json);
+})
 
 //REGISTER
 router.get("/register/:name/:email/:password/:confirmPassword", async (req, res) => {
