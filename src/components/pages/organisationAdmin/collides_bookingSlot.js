@@ -12,7 +12,7 @@ function Collides_bookingSlot(props) {
     function handleDelete(uuid) {
         
         const data = {orgID: props.orgID, bookingUUID: uuid};
-        Axios.post('/collide/deleteBooking', data)
+        Axios.post('/organisation/collide/deleteBooking', data)
         .then(res => {
             const data = res.data;
 

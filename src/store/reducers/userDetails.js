@@ -1,4 +1,4 @@
-const userDetails = (state = {auth: false, uuid: '', name: '', email: '', role:'', new:'', requestedPassword: false, orgID: '', userDepartments: '', SARequest: ''}, action) => {
+const userDetails = (state = {auth: false, uuid: '', name: '', email: '', role:'', new:'', requestedPassword: false, orgID: '', userDepartments: '', SARequest: '', profiles: ''}, action) => {
     switch(action.type){
         case 'USER_UPDATE_AUTH':
             return {...state, auth: action.value};
@@ -19,7 +19,9 @@ const userDetails = (state = {auth: false, uuid: '', name: '', email: '', role:'
         case 'USER_UPDATE_USERDEPARTMENTS':
             return {...state, userDepartments: action.value}
         case 'USER_UPDATE_SAREQUEST':
-            return {...state, SARequest: action.value}    
+            return {...state, SARequest: action.value}
+        case 'USER_UPDATE_PROFILES':
+            return {...state, profiles: action.value}
         default:
             return state;
     }

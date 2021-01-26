@@ -1,30 +1,29 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Collapse, Image, Row, Col, Form, Button, Modal, ListGroup, Dropdown } from 'react-bootstrap';
-
-import { GUserContext } from '../../context/GUserContext';
+import React, { useState, useEffect } from 'react';
+import { Collapse, Image, Row, Col, Form, Button, Modal, ListGroup} from 'react-bootstrap';
 
 import plus from '../../public/images/plus.png';
 import minus from '../../public/images/minus.png';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Axios from 'axios';
-import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom';
+import { setGUserID, setFromDetails } from '../../globalSettings/adminUserSettings';
 
 function Users(props) {
 
-    const { GUser, setGUserID, setFromDetails } = useContext(GUserContext);
-
     const orgID = props.orgID;
     const organisation = useSelector(state => state.organisation);
+    const AdminUserGlobalSettings = useSelector(state => state.AdminUserGlobalSettings);
     const history = useHistory();
+    const dispatch = useDispatch();
 
     useEffect(() => {
 
-        if(GUser.fromDetails) {
+        if(AdminUserGlobalSettings.fromDetails) {
             setSettings(prevState => {
                 return {...prevState, open: true}
             });
             getAllOrgUsers();
-            setFromDetails(false);
+            setFromDetails(dispatch, false);
         }
     }, [])
 
@@ -310,8 +309,8 @@ function Users(props) {
     }
 
     function goToUserDetails(uuid) {
-        setGUserID(uuid);
-        setFromDetails(true);
+        setGUserID(dispatch, uuid);
+        setFromDetails(dispatch, true);
 
         history.push("/org/" + orgID + "/userDetails");
     }

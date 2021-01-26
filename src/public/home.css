@@ -1,0 +1,93 @@
+.blue-heading {
+    color: blue;
+}
+
+.home-alignLeft {
+    text-align: left;
+}
+
+.home-text{
+    font-size: 1.3rem;
+}
+
+.orgNumber-style{
+    font-size: 1.3rem;
+    border: blue;
+    border-style: solid;
+    width: 300px;
+    padding: 10px;
+}
+
+.orgNumber-alignLeft {
+    text-align: left;
+}
+
+.homeOrgNumber {
+    text-align: center;
+}
+
+.home-img {
+    width: 600px;
+    height: 400px;
+    border: solid 1px;
+}
+
+.features-icon {
+    width: 200px;
+    height: 200px;
+}
+
+.mx-auto{
+    font-size: 1.3rem;
+    color: white;
+}
+
+.nav-link{
+    padding-left:30px;
+    padding-right:30px;
+  }
+
+  .nav-bar {
+      background-color: #184d47;
+      margin-left: 20%;
+      margin-right: 20%;
+  }
+
+  .features-alignRight {
+      text-align: right;
+      padding-right: 5%;
+      /* border: solid 1px; */
+  }
+
+  .features-alignLeft {
+      text-align: left;
+      /* border: solid 1px; */
+  }
+
+  .features-bulletPionts-square {
+      list-style: square;
+  }
+
+  .home-card{
+      width: 18rem;
+  }
+
+  .home-cardTitle {
+      background-color: darkblue;
+      color: white;
+      padding: 20px;
+  }
+
+  .home-cardText {
+      color: black;
+      font-size: 1rem;
+  }
+
+  .home-contact {
+      font-size: 1.3rem;
+      text-align: left;
+  }
+
+  .home-contact-sent {
+    font-size: 1.3rem;
+}

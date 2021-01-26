@@ -1,7 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-import ServerPath, { hostPath } from "../ServerPath";
 import { useSelector, useDispatch } from 'react-redux';
 import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 

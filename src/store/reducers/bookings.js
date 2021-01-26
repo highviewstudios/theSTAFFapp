@@ -1,4 +1,4 @@
-const bookings = (state = {editBooking: false, bookingID: 0, user: '', department: '', sessionDes: '', sessionLength: '', bookingType: '', bookingUntil: '',  comments: ''}, action) => {
+const bookings = (state = {editBooking: false, bookingID: 0, user: '', department: '', sessionDes: '', sessionLength: '', bookingType: '', bookingUntil: '',  comments: '', createdBy: ''}, action) => {
 
     switch(action.type){
         case 'UPDATE_EDIT_BOOKING':
@@ -19,6 +19,8 @@ const bookings = (state = {editBooking: false, bookingID: 0, user: '', departmen
             return {...state, bookingUntil: action.value};
         case 'UPDATE_BOOKING_COMMENTS':
             return {...state, comments: action.value};
+        case 'UPDATE_BOOKING_CREATEDBY':
+            return {...state, createdBy: action.value};
         default:
             return state;
     }

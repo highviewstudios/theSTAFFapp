@@ -1,11 +1,13 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Form, Dropdown, Modal, Button } from 'react-bootstrap';
-import { SessionsContext } from '../../context/adminTemplatesSessions';
 import { CompactPicker } from 'react-color';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleBreakBtns, updateBreakText, updateBreakColor } from '../../globalSettings/adminLayoutsSettings';
 
 function BreakSlot(props) {
 
-    const { toggleBreakBtns, updateBreakText, updateBreakColor } = useContext(SessionsContext);
+    const AdminLayoutsGlobalSettings = useSelector(state => state.AdminLayoutsGlobalSettings);
+    const dispatch = useDispatch();
 
     const [colorModal, setColorModal] = useState({
         open: false,
@@ -22,19 +24,19 @@ function BreakSlot(props) {
     }
 
     function handleBreakBtns() {
-        toggleBreakBtns(props.id, true);
+        toggleBreakBtns(dispatch, props.id, true);
     }
 
     function handleChangeText(event) {
 
         const { value } = event.target;
 
-        updateBreakText(value);
+        updateBreakText(AdminLayoutsGlobalSettings, dispatch, value);
     }
 
     function handleOpenColorModal_TextColor() {
         
-        toggleBreakBtns(props.id, true);
+        toggleBreakBtns(dispatch, props.id, true);
         setColorModal(prevState => {
             return {...prevState, open: true, property: 'textColor'}
         })
@@ -42,14 +44,14 @@ function BreakSlot(props) {
 
     function handleOpenColorModal_BgColor() {
         
-        toggleBreakBtns(props.id, true);
+        toggleBreakBtns(dispatch, props.id, true);
         setColorModal(prevState => {
             return {...prevState, open: true, property: 'bgColor'}
         })
     }
 
     function handleModelPickColor() {
-        updateBreakColor(colorModal.property, colorModal.color)
+        updateBreakColor(AdminLayoutsGlobalSettings, dispatch, colorModal.property, colorModal.color)
         setColorModal(prevState => {
             return {...prevState,
             open: false

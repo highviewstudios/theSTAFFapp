@@ -1,5 +1,6 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {useSelector, useDispatch} from 'react-redux';
+import { updateRoomProfileSettings } from '../globalSettings/userProfileSettings';
 
 import Timetable from '../components/pages/organisationHome/timetable';
 import Diary from '../components/pages/organisationHome/diary';
@@ -20,6 +21,7 @@ function OrganisationHome(props) {
   const globalVars = useSelector(state => state.globalVars);
   const bookings = useSelector(state => state.bookings);
   const user = useSelector(state => state.user);
+  const userProfile = useSelector(state => state.userProfile);
   const dispatch = useDispatch();
 
   const [settings, setSettings] = useState({
@@ -73,7 +75,7 @@ function OrganisationHome(props) {
 
   function CheckPreviousState() {
       if(globalVars.roomName != '') {
-        console.log(globalVars.roomName);
+
         setSettings(prevState => {
           return {...prevState, roomName: globalVars.roomName, roomLayout: globalVars.layoutData.layout, layoutData: globalVars.layoutData, roomID: globalVars.roomID, weekSystem: globalVars.weekSystem};
         });
@@ -104,6 +106,12 @@ function OrganisationHome(props) {
     setSettings(prevState => {
       return {...prevState, roomName: name, roomLayout: layoutData.layout, roomID: id, weekSystem: (weekSystem == 'true'), layoutData: layoutData, view: false}
     });
+
+    //USER PROFILE
+    if(!userProfile.default) {
+        updateRoomProfileSettings(dispatch, id, userProfile);
+    }
+
     dispatch(UpdateBookingEdit(false))
     setTimeout(() => {
       setSettings(prevState => {
@@ -257,7 +265,7 @@ function OrganisationHome(props) {
                             </Row>
                             </div>) : null}
                             
-                              <br /> <br />{user.role != 'user' ? <Button variant='primary' onClick={handleDeleteBooking}>Delete</Button> : null}
+                              <br /> <br />{user.uuid == bookings.createdBy || userProfile.room_Delete ? <Button variant='primary' onClick={handleDeleteBooking}>Delete</Button> : null}
                       </div>
                     </div>
                     </Col>

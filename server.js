@@ -60,7 +60,7 @@ const redirectRoutes = require('./API/routes/redirectedRoutes');
 app.use(redirectRoutes);
 
 const organisationRoutes = require('./API/routes/organisationRoute');
-app.use(organisationRoutes);
+app.use('/organisation', organisationRoutes);
 
 const booking = require('./API/routes/bookingRoute');
 app.use('/booking',booking);

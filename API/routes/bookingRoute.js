@@ -35,167 +35,177 @@ router.post('/createBooking', async (req, res) => {
     if(validateID) {
         
         const result = await CheckBooking(orgID, roomID, bookingType, repeatType, startDate, repeatUntil, sessions, dayList, weekSystem, weekSysWeeks);
-
-        if(result.length > 0) {
-            const json = {
-                error: 'null',
-                userError: 'Yes',
-                message: 'Your booking has collided with another booking' // meaning there are collides
-            }
         
-            res.send(json);
-        } else {
+        if(result != 'error'){
 
-            let sDate = moment(startDate, 'DD/MM/YYYY');
-
-            if(bookingType == 'single') {
-                
-                weeks.push(formatString(sDate.week()) + "-" + sDate.format('YY'));
-                
-                const sess = sessions.split(',');
-                const dayIndex = sDate.day();
-
-                for(const s of sess) {
-                    days.push(formatString(dayIndex) + '-' + formatString(s)); //format sessions
+            if(result.length > 0) {
+                const json = {
+                    error: 'null',
+                    userError: 'Yes',
+                    message: 'Your booking has collided with another booking' // meaning there are collides
                 }
+            
+                res.send(json);
+            } else {
 
-            } else if(bookingType == 'repeat') {
+                let sDate = moment(startDate, 'DD/MM/YYYY');
 
-                const fDate = moment(repeatUntil, 'DD/MM/YYYY');
+                if(bookingType == 'single') {
+                    
+                    weeks.push(formatString(sDate.week()) + "-" + sDate.format('YY'));
+                    
+                    const sess = sessions.split(',');
+                    const dayIndex = sDate.day();
 
-                if(repeatType == 'daily') {
+                    for(const s of sess) {
+                        days.push(formatString(dayIndex) + '-' + formatString(s)); //format sessions
+                    }
 
-                    while(sDate.isSameOrBefore(fDate)) {
+                } else if(bookingType == 'repeat') {
 
-                        let con = false;
-                        if(weekSystem) {
+                    const fDate = moment(repeatUntil, 'DD/MM/YYYY');
 
-                            const week = formatString(sDate.week()) + '-' + sDate.format('YY');
-                            if(weekSysWeeks.includes(week)) {
+                    if(repeatType == 'daily') {
+
+                        while(sDate.isSameOrBefore(fDate)) {
+
+                            let con = false;
+                            if(weekSystem) {
+
+                                const week = formatString(sDate.week()) + '-' + sDate.format('YY');
+                                if(weekSysWeeks.includes(week)) {
+                                    con = true;
+                                }
+                            } else {
                                 con = true;
                             }
-                        } else {
-                            con = true;
+
+                            if(con) {
+                                if(dayList[sDate.day()]) {
+
+                                    weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+        
+                                    const sess = sessions.split(',');
+                                    const dayIndex = sDate.day();
+        
+                                    for(const s of sess) {
+                                        days.push(formatString(dayIndex) + '-' + formatString(s)); 
+                                    }
+                                }
+                            }
+
+                            sDate.add(1, 'd');
                         }
+                    } else if(repeatType == 'weekly') {
 
-                        if(con) {
-                            if(dayList[sDate.day()]) {
+                        while(sDate.isSameOrBefore(fDate)) {
 
+                            let con = false;
+                            if(weekSystem) {
+
+                                const week = formatString(sDate.week()) + '-' + sDate.format('YY');
+                                if(weekSysWeeks.includes(week)) {
+                                    con = true;
+                                }
+                            } else {
+                                con = true;
+                            }
+
+                            if(con){
                                 weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
-    
+
                                 const sess = sessions.split(',');
                                 const dayIndex = sDate.day();
-    
+
                                 for(const s of sess) {
                                     days.push(formatString(dayIndex) + '-' + formatString(s)); 
                                 }
-                            }
-                        }
 
-                        sDate.add(1, 'd');
+                            }
+                        
+                            sDate.add(1, 'w');
+                        }
                     }
-                } else if(repeatType == 'weekly') {
+                }
 
-                    while(sDate.isSameOrBefore(fDate)) {
+                let sortWeeks = [];
+                for(const week of weeks) {
+                    if(!sortWeeks.includes(week)) {
+                        sortWeeks.push(week);
+                    }
+                }
 
-                        let con = false;
-                        if(weekSystem) {
+                let sortDays = [];
+                for(const day of days) {
+                    if(!sortDays.includes(day)) {
+                        sortDays.push(day);
+                    }
+                }
 
-                            const week = formatString(sDate.week()) + '-' + sDate.format('YY');
-                            if(weekSysWeeks.includes(week)) {
-                                con = true;
-                            }
-                        } else {
-                            con = true;
-                        }
+                let len = [];
+                let dayStrings = [];
+                for(const sort of sortDays) {
 
-                        if(con){
-                            weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
+                    len.push(sort);
+                    if(len.toString().length > 700) {
+                    const last = len.pop();
+                    dayStrings.push(len.toString());
+                    len = [];
+                    len.push(last); 
+                    }
+                }
+                if(len.length > 0) {
+                    dayStrings.push(len.toString());
+                    len = [];
+                }
 
-                            const sess = sessions.split(',');
-                            const dayIndex = sDate.day();
+                if(dayStrings.length == 1) {
 
-                            for(const s of sess) {
-                                days.push(formatString(dayIndex) + '-' + formatString(s)); 
-                            }
+                    const result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), dayStrings[0], dateCreated, createdBy, 'No', '');
 
+                    if(result.result == 'Success') {
+                        const json = {
+                            error: 'null',
+                            userError: 'null',
+                            message: 'Session booked'
                         }
                     
-                        sDate.add(1, 'w');
+                        res.send(json);
+                    }
+
+                } else {
+                    let uuid = '';
+                    let result;
+                    for(const [index, days] of dayStrings.entries()) {
+
+                        if(index == 0) {
+                            result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), days, dateCreated, createdBy, 'Yes', '');
+                            //console.log(result.uuid);
+                            uuid = result.uuid;
+                        } else {
+                            result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), days, dateCreated, createdBy, 'Yes', uuid);
+                        }
+                    }
+
+                    if(result.result == 'Success') {
+                        const json = {
+                            error: 'null',
+                            userError: 'null',
+                            message: 'Session booked'
+                        }
+                    
+                        res.send(json);
                     }
                 }
             }
-
-            let sortWeeks = [];
-            for(const week of weeks) {
-                if(!sortWeeks.includes(week)) {
-                    sortWeeks.push(week);
-                }
+        } else {
+            const json = {
+                error: 'Yes',
+                userError: 'null',
+                message: 'MSQL error'
             }
-
-            let sortDays = [];
-            for(const day of days) {
-                if(!sortDays.includes(day)) {
-                    sortDays.push(day);
-                }
-            }
-
-            let len = [];
-            let dayStrings = [];
-            for(const sort of sortDays) {
-
-                len.push(sort);
-                if(len.toString().length > 700) {
-                   const last = len.pop();
-                   dayStrings.push(len.toString());
-                   len = [];
-                   len.push(last); 
-                }
-            }
-            if(len.length > 0) {
-                dayStrings.push(len.toString());
-                len = [];
-            }
-
-            if(dayStrings.length == 1) {
-
-                const result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), dayStrings[0], dateCreated, createdBy, 'No', '');
-
-                if(result.result == 'Success') {
-                    const json = {
-                        error: 'null',
-                        userError: 'null',
-                        message: 'Session booked'
-                    }
-                
-                    res.send(json);
-                }
-
-            } else {
-                let uuid = '';
-                let result;
-                for(const [index, days] of dayStrings.entries()) {
-
-                    if(index == 0) {
-                        result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), days, dateCreated, createdBy, 'Yes', '');
-                        //console.log(result.uuid);
-                        uuid = result.uuid;
-                    } else {
-                        result = await InsertBooking(orgID, roomID, user, departmentID, sessionDes, sessionTotal, comments, bookingType, repeatType, startDate, repeatUntil, sortWeeks.toString(), days, dateCreated, createdBy, 'Yes', uuid);
-                    }
-                }
-
-                if(result.result == 'Success') {
-                    const json = {
-                        error: 'null',
-                        userError: 'null',
-                        message: 'Session booked'
-                    }
-                
-                    res.send(json);
-                }
-            }
-        }
+            res.send(json);
+        }    
     } else {
         const json = {
             error: 'Yes',
@@ -429,6 +439,8 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
 
     return new Promise ((resolve, reject) => {
 
+    let indexes = true;
+
     query = "Select * FROM " + orgID + "_bookings WHERE";//...
     //query = "Select * FROM sample WHERE";//...
     let data = ''
@@ -460,10 +472,11 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
             const fDate = moment(finishDate, 'DD/MM/YYYY');
             let dayIndexes = [];
             let weeks = [];
+            
             while(sDate.isSameOrBefore(fDate)) {
-
+                
                 if(weekSystem) {
-
+                    
                     const week = formatString(sDate.week()) + '-' + sDate.format('YY');
                     if(sysWeeks.includes(week)) {
 
@@ -474,6 +487,7 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
                     }
 
                 } else {
+                    
                     if(dayTitles[sDate.day()]) {
                         dayIndexes.push(sDate.day());
                         weeks.push(formatString(sDate.week()) + '-' + sDate.format('YY'));
@@ -482,24 +496,27 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
 
                 sDate.add(1, 'd');
             }
+            if(dayIndexes.length == 0) {
+                indexes = false;
+            } else {
+                const ses = sessions.split(',');
 
-            const ses = sessions.split(',');
+                for(const [index, day] of dayIndexes.entries()) {
 
-            for(const [index, day] of dayIndexes.entries()) {
+                    for(const s of ses) {
 
-                for(const s of ses) {
+                        const sessionIndex = formatString(day) + '-' + formatString(s);
 
-                    const sessionIndex = formatString(day) + '-' + formatString(s);
-
-                    if(data == '') {
-                        data = " `roomID`='"+ roomID +"' AND weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
-                    } else {
-                        data += " OR `roomID`='"+ roomID +"' AND weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
+                        if(data == '') {
+                            data = " `roomID`='"+ roomID +"' AND weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
+                        } else {
+                            data += " OR `roomID`='"+ roomID +"' AND weeks LIKE '%"+weeks[index]+"%' AND sessions LIKE '%"+sessionIndex+"%'";
+                        }
                     }
                 }
-            }
 
-            query += data;
+                query += data;
+            }
 
         } else if( repeatType == 'weekly') {
 
@@ -523,15 +540,20 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
                 sDate.add(1, 'w');
             }
 
-            const ses = sessions.split(',');
-            
-            for(const week of weeks) {
+            if(weeks.length == 0) {
+                indexes = false;
+            } else {
 
-                for(const s of ses) {
-                    if(data == '') {
-                        data = " `roomID`='"+ roomID +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
-                    } else {
-                        data += " OR `roomID`='"+ roomID +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
+                const ses = sessions.split(',');
+                
+                for(const week of weeks) {
+
+                    for(const s of ses) {
+                        if(data == '') {
+                            data = " `roomID`='"+ roomID +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
+                        } else {
+                            data += " OR `roomID`='"+ roomID +"' AND weeks LIKE '%"+week+"%' AND sessions LIKE '%"+sessionIndex+formatString(s)+"%'";
+                        }
                     }
                 }
             }
@@ -539,17 +561,20 @@ function CheckBooking(orgID, roomID, bookingType, repeatType, startDate, finishD
             query = query + data;
         }
     }
-    //resolve();
-    //RUN QUERY
-    mySQLConnection.query(query, (err, result) => {
-        if(err) {
-            console.log(err);
-            reject('failed');
-        } else {
-            resolve(result);
-        }
+    if(!indexes) {
+        resolve('error');
+    } else {
+            //RUN QUERY
+            mySQLConnection.query(query, (err, result) => {
+                if(err) {
+                    //console.log(err);
+                    reject('failed');
+                } else {
+                    resolve(result);
+                }
+            });
+        };
     });
-     });
 }
 
 function formatString(time) {

@@ -1,20 +1,30 @@
-import React, { useEffect, useContext } from 'react';
-import {useSelector} from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import {useSelector, useDispatch} from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { UpdateTab, UpdateFormSettings } from '../globalSettings/homePageSettings';
+
 
 //Styles
-import Button from "react-bootstrap/Button"
-import Container from "react-bootstrap/Container";
-import Jumbotron from "react-bootstrap/Jumbotron";
+import { Container, Jumbotron, Row, Col, Navbar, Nav } from "react-bootstrap"
+
+import OrgNumberSignIn from './homeComponents/orgNumberSignIn';
+
+import HomePage from './homeComponents/homePage';
+import Features from './homeComponents/features';
+import Contact from './homeComponents/contact';
 
 
 function Home() {
 
   const user = useSelector(state => state.user);
   const history = useHistory();
+  const dispatch = useDispatch();
+  const HomePageGlobalSettings = useSelector(state => state.HomePageGlobalSettings)
+  
 
   useEffect(() => {
     document.title = "STAFF";
+    console.log(HomePageGlobalSettings);
     onOpen();
   },[]);
 
@@ -29,12 +39,44 @@ function Home() {
     }
   }
 
+  function changeTab(tab) {
+
+    UpdateTab(dispatch, tab);
+    UpdateFormSettings(dispatch, false);
+    
+  }
+
   return (
     <div className="body">
         <Container fluid className="p-3">
             <Jumbotron className="back-color">
-              <h1>My STAFF homepage is coming soon...</h1><br />
-              <h2>If your organisation is already using My STAFF, please use the direct link from your registration email.</h2>             
+            <Row>
+              <Col>
+                <h1 className='blue-heading'><strong>A place to be flexible with your bookings...</strong></h1><br />
+              </Col>
+            </Row>
+            <Row>
+              <Col sm={10}>
+              <Row>
+                <Col>
+                  <Navbar className='nav-bar' variant='dark'>
+                    <Nav className='mx-auto'>
+                      <Nav.Link className='nav-link' onClick={() => changeTab('home')}>Home &nbsp;</Nav.Link>
+                      <Nav.Link className='nav-link' onClick={() => changeTab('features')}> &nbsp;Features &nbsp;</Nav.Link>
+                      <Nav.Link className='nav-link' onClick={() => changeTab('contact')}> &nbsp;Contact</Nav.Link>
+                    </Nav>
+                  </Navbar>
+                </Col>
+              </Row>
+              <br />
+                {HomePageGlobalSettings.tab == 'home' ? (<HomePage />) : null}
+                {HomePageGlobalSettings.tab == 'features' ? (<Features />) : null}
+                {HomePageGlobalSettings.tab == 'contact' ? (<Contact />) : null}
+              </Col>
+              <Col sm={2}>
+                <OrgNumberSignIn />
+              </Col>
+            </Row>        
             </Jumbotron>
         </Container>
     </div>

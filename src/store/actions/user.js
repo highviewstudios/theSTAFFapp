@@ -68,3 +68,10 @@ export const userUpdateSARequest = (val) => {
     }
 }
 
+export const userUpdateProfiles = (val) => {
+    return {
+        type: "USER_UPDATE_PROFILES",
+        value: val
+    }
+}
+

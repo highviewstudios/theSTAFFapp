@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import plus from '../../public/images/plus.png';
 import minus from '../../public/images/minus.png';
 import {Image, Collapse, Row, Col, Dropdown, Form, Button, Modal} from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
-//import {layoutsUpdateDiaryDays, layoutsUpdateStartTime, layoutsUpdateFinishTime, layoutsUpdateTimeInterval, layoutsUpdateTimetableDays, layoutsUpdateSessionTotal, layoutsUpdateBreakTotal, layoutsUpdateSessionOrder, layoutsUpdateSessions} from '../../store/actions/layouts';
-import { SessionsContext } from '../../context/adminTemplatesSessions';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { resetSessions, SetOrder, SetSessions, addSession, minusSession, addBreak, removeBreak, orderMoveUp, orderMoveDown } from '../../globalSettings/adminLayoutsSettings';
 
 import SessionSlot from './sessionSlot';
 import BreakSlot from './breakSlot';
@@ -15,9 +15,8 @@ import moment from 'moment';
 function Layouts(props) {
 
      const orgID = props.orgID;
-     //const dispatch = useDispatch();
-     
-     const { sessions, order, breakBtns, addSession, minusSession, resetSessions, addBreak, orderMoveUp, orderMoveDown, removeBreak, SetSessions, SetOrder } = useContext(SessionsContext);
+     const dispatch = useDispatch();
+     const AdminLayoutsGlobalSettings = useSelector(state => state.AdminLayoutsGlobalSettings);
 
      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -97,7 +96,7 @@ function Layouts(props) {
     function handlePickLayout(uuid) {
 
         let currentLayout;
-        resetSessions();
+        resetSessions(dispatch);
         
         setSettings(prevState => {
             return {...prevState, sessions: 0, breaks: 0}
@@ -137,8 +136,6 @@ function Layouts(props) {
                 setSettings(prevState => {
                     return {...prevState, sessions: 1}
                 });
-                addSession(1);
-
             } else if(innerText == 'Diary') {
 
             }
@@ -177,14 +174,14 @@ function Layouts(props) {
                         newSessions[session.id] = session;
                       }
 
-                    SetSessions(newSessions);
+                    SetSessions(dispatch, newSessions);
                 })
                 .catch(err => {
                     console.log(err);
                 })
                 
                 const order = currentLayout.sessionOrder.split(',');
-                SetOrder(order);
+                SetOrder(dispatch, order);
 
                 setSettings(prevState => {
                 return {...prevState, open: true, sessions: currentLayout.sessions, breaks: currentLayout.breakTotal, days: days, showTimetableSave: true, showPreview: true}
@@ -297,7 +294,7 @@ function Layouts(props) {
             return {...prevState, sessions: settings.sessions + 1}
         });
 
-        addSession(settings.sessions + 1);
+        addSession(AdminLayoutsGlobalSettings, dispatch, settings.sessions + 1);
     }
 
     function handleMinusSessions() {
@@ -307,7 +304,7 @@ function Layouts(props) {
                 return {...prevState, sessions: settings.sessions - 1}
             });
 
-            minusSession(settings.sessions);
+            minusSession(AdminLayoutsGlobalSettings, dispatch, settings.sessions);
         }
 
         
@@ -321,15 +318,15 @@ function Layouts(props) {
             return {...prevState, breaks: settings.breaks + 1}
         });
 
-        addBreak(settings.breaks + 1);
+        addBreak(AdminLayoutsGlobalSettings, dispatch, settings.breaks + 1);
     }
 
     function handleMoveBreakUp() {
-        orderMoveUp();
+        orderMoveUp(AdminLayoutsGlobalSettings, dispatch);
     }
 
     function handleMoveBreakDown() {
-        orderMoveDown();
+        orderMoveDown(AdminLayoutsGlobalSettings, dispatch);
     }
 
     function handleRemoveBreak() {
@@ -337,7 +334,7 @@ function Layouts(props) {
         setSettings(prevState => {
             return {...prevState, breaks: settings.breaks - 1}
         }); 
-        removeBreak();
+        removeBreak(AdminLayoutsGlobalSettings, dispatch);
     }
     //BREAK BUTTONS^^^
 
@@ -373,8 +370,8 @@ function Layouts(props) {
     //SAVE METHODS
     function handleTimetableSave() {
 
-        const data = {orgID: orgID, uuid: settings.currentLayout.uuid, layout: settings.layoutText, sessionTotal: settings.sessions, breakTotal: settings.breaks, sessionOrder: order, days: settings.days.toString(),
-                     sessions: sessions};
+        const data = {orgID: orgID, uuid: settings.currentLayout.uuid, layout: settings.layoutText, sessionTotal: settings.sessions, breakTotal: settings.breaks, sessionOrder: AdminLayoutsGlobalSettings.order, days: settings.days.toString(),
+                     sessions: AdminLayoutsGlobalSettings.sessions};
 
         Axios.post('/organisation/saveLayout', data)
         .then(res => {
@@ -547,11 +544,11 @@ function Layouts(props) {
                                                     <Row>
                                                     <div className='layout-settings'>
                                                         <Button variant='primary' onClick={handleAddBreak}>Add Break</Button>
-                                                        {breakBtns.view ? <Button variant='primary' onClick={handleRemoveBreak}>Remove</Button> : null }
+                                                        {AdminLayoutsGlobalSettings.breakBtns.view ? <Button variant='primary' onClick={handleRemoveBreak}>Remove</Button> : null }
                                                     </div>
                                                 </Row>
                                                 <Row>
-                                                    <div className={breakBtns.view ? 'layout-settings-move-btn-show' : 'layout-settings-move-btn-hide'}>
+                                                    <div className={AdminLayoutsGlobalSettings.breakBtns.view ? 'layout-settings-move-btn-show' : 'layout-settings-move-btn-hide'}>
                                                         <Button variant='primary' onClick={handleMoveBreakUp}>Move Up</Button>
                                                         <Button variant='primary' onClick={handleMoveBreakDown}>Move Down</Button>
                                                     </div>
@@ -638,12 +635,12 @@ function Layouts(props) {
                                                         </Col>
                                                     </Row>
                                                     <div className='scrollable-250'>
-                                                    {Object.keys(sessions).length > 0 ? (<div>
-                                                        {order.map(session => {
+                                                    {Object.keys(AdminLayoutsGlobalSettings.sessions).length > 0 ? (<div>
+                                                        {AdminLayoutsGlobalSettings.order.map(session => {
                                                         if(session.toString().includes('b')) {
-                                                            return <BreakSlot key={session} id={sessions[session].id} breakText={sessions[session].breakText} bgColor={sessions[session].bgColor} textColor={sessions[session].textColor} />
+                                                            return <BreakSlot key={session} id={AdminLayoutsGlobalSettings.sessions[session].id} breakText={AdminLayoutsGlobalSettings.sessions[session].breakText} bgColor={AdminLayoutsGlobalSettings.sessions[session].bgColor} textColor={AdminLayoutsGlobalSettings.sessions[session].textColor} />
                                                         } else {
-                                                            return <SessionSlot key={session} id={sessions[session].id} customText={sessions[session].customText} hoverText={sessions[session].hoverText} />
+                                                            return <SessionSlot key={session} id={AdminLayoutsGlobalSettings.sessions[session].id} customText={AdminLayoutsGlobalSettings.sessions[session].customText} hoverText={AdminLayoutsGlobalSettings.sessions[session].hoverText} />
                                                         }
                                                     })}
                                                     </div>) : null}
@@ -672,12 +669,12 @@ function Layouts(props) {
                                                             })}
                                                         </tr>
                                                     </thead>
-                                                    {settings.layoutText == 'Timetable' && Object.keys(sessions).length > 0 ? (
-                                                        <tbody>{order.map((session, index) => {
+                                                    {settings.layoutText == 'Timetable' && Object.keys(AdminLayoutsGlobalSettings.sessions).length > 0 ? (
+                                                        <tbody>{AdminLayoutsGlobalSettings.order.map((session, index) => {
                                                         if(session.toString().includes('b')) {
-                                                            return (<tr key={index} style={{backgroundColor:sessions[session].bgColor}}>
-                                                                <td style={{color:sessions[session].textColor}}>
-                                                                {sessions[session].breakText != '' ? sessions[session].breakText : sessions[session].id}</td>
+                                                            return (<tr key={index} style={{backgroundColor:AdminLayoutsGlobalSettings.sessions[session].bgColor}}>
+                                                                <td style={{color:AdminLayoutsGlobalSettings.sessions[session].textColor}}>
+                                                                {AdminLayoutsGlobalSettings.sessions[session].breakText != '' ? AdminLayoutsGlobalSettings.sessions[session].breakText : AdminLayoutsGlobalSettings.sessions[session].id}</td>
                                                                 {settings.days.map((day, index) => {
                                                                     if(day) {
                                                                         return <td key={index}></td>
@@ -686,8 +683,8 @@ function Layouts(props) {
                                                                 </tr>)
                                                         } else {
                                                             return (<tr key={index}>
-                                                                    <td data-tip={sessions[session].hoverText != '' ? sessions[session].hoverText : null }>
-                                                                    {sessions[session].customText != '' ? sessions[session].customText : sessions[session].id}</td>
+                                                                    <td data-tip={AdminLayoutsGlobalSettings.sessions[session].hoverText != '' ? AdminLayoutsGlobalSettings.sessions[session].hoverText : null }>
+                                                                    {AdminLayoutsGlobalSettings.sessions[session].customText != '' ? AdminLayoutsGlobalSettings.sessions[session].customText : AdminLayoutsGlobalSettings.sessions[session].id}</td>
                                                                     {settings.days.map((day, index) => {
                                                                         if(day) {
                                                                             return <td key={index}></td>

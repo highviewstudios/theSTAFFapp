@@ -310,7 +310,7 @@ router.post('/createPassword', async (req, res) => {
     const newPassword = req.body.newPassword;
     const confirmPassword = req.body.confirmPassword;
 
-    const user = await GetUserByID(req.user);
+    const user = await GetUserByID(req.user); //CREATE NEW METHOD HERE FOR PASSWORD
 
     if(!await bcrypt.compare(oldPassword, user.password)) {
         const json = {
@@ -356,7 +356,7 @@ router.post('/requestPassword', async(req, res) => {
 
     const uEmail = req.body.email;
 
-    const user = await GetUserByEmail(uEmail);
+    const user = await GetUserByEmail(uEmail); //CREATE NEW METHOD FOR THIS
 
     if(user == null) {
         const json = {
@@ -424,7 +424,7 @@ router.post('/changePassword', async (req, res) => {
     const newPassword = req.body.newPassword;
     const confirmPassword = req.body.confirmPassword;
 
-    const user = await GetUserByID(req.user);
+    const user = await GetUserByID(req.user); //CREATE NEW METHOD HERE FOR PASSWORD
 
     if(!await bcrypt.compare(oldPassword, user.password)) {
         const json = {
@@ -500,7 +500,7 @@ function GetUserByID(id) {
     
         const data = {id: id}
         const FIND_QUERY = "SELECT * FROM users WHERE ?";
-
+        
         mySQLConnection.query(FIND_QUERY, data, (err, result) => {
             if(err) {
                 console.log(err);

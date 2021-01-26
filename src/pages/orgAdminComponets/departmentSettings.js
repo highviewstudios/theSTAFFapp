@@ -100,33 +100,43 @@ function DepartmentSettings(props) {
 
     function handleAddDepartment() {
 
-        if(CheckDepartment(departments.aname)) {
-            
+        if(departments.aname == '') {
             setModal(prevState => {
                 return {...prevState,
                 heading: 'Add Deparment',
-                message: 'There is already a department with this name',
+                message: 'Please enter a name',
                 open: true
-            }
-        });
-
+                }
+            })
         } else {
-            const data = {orgID: orgID, departmentName: departments.aname};
+            if(CheckDepartment(departments.aname)) {
+                
+                setModal(prevState => {
+                    return {...prevState,
+                    heading: 'Add Deparment',
+                    message: 'There is already a department with this name',
+                    open: true
+                }
+            });
 
-            Axios.post('/organisation/addDepartment', data)
-            .then(res => {
-                console.log(res.data);
-                dispatch(orgUpdateNoOfDepartments(res.data.noOfDepartments));
-                dispatch(orgUpdateDepartments(res.data.departments));
+            } else {
+                const data = {orgID: orgID, departmentName: departments.aname};
 
-                setDepartments(prevState => {
-                    return {...prevState, names: res.data.departments,
-                    aname: ''}
-                });
-            })
-            .catch(err => {
-                console.log(err);
-            })
+                Axios.post('/organisation/addDepartment', data)
+                .then(res => {
+                    console.log(res.data);
+                    dispatch(orgUpdateNoOfDepartments(res.data.noOfDepartments));
+                    dispatch(orgUpdateDepartments(res.data.departments));
+
+                    setDepartments(prevState => {
+                        return {...prevState, names: res.data.departments,
+                        aname: ''}
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+            }
         }
     }
 

@@ -60,3 +60,10 @@ export const UpdateBookingComments = (val) => {
         value: val
     };
 }
+
+export const UpdateBookingCreatedBy = (val) => {
+    return {
+        type: 'UPDATE_BOOKING_CREATEDBY',
+        value: val
+    };
+}

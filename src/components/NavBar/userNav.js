@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ServerPath, { hostPath } from "../../ServerPath";
 import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
@@ -14,6 +14,7 @@ function User() {
 
     const history = useHistory();
     const user = useSelector(state => state.user);
+    const userProfile = useSelector(state => state.userProfile)
     const dispatch = useDispatch();
     
     const [details, setDetails] = useState({
@@ -88,7 +89,7 @@ function User() {
         {details.show ? (
             <div>
             <strong>User: {details.name}</strong><br />
-            {user.role == "seniorAdmin" ? (
+            {user.role == "seniorAdmin" || userProfile.orgAdminAccess ? (
                 <div>
                 <Dropdown>
             <Dropdown.Toggle variant="warning" id="dropdown-basic">

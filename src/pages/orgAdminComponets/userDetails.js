@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { GUserContext } from '../../context/GUserContext';
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {Container, Jumbotron, Col, Row, Form, Button, ListGroup, Modal} from 'react-bootstrap'
@@ -9,8 +8,7 @@ function UserDetails(props) {
 
     const orgID = props.match.params.id;
     const organisation = useSelector(state => state.organisation);
-
-    const { GUser } = useContext(GUserContext);
+    const AdminUserGlobalSettings = useSelector(state => state.AdminUserGlobalSettings);
     const history = useHistory();
 
     const [user, setUser] = useState({
@@ -115,7 +113,7 @@ function UserDetails(props) {
 
     function onOpen() {
 
-        const data = {uuid: GUser.uuid}
+        const data = {uuid: AdminUserGlobalSettings.uuid}
         Axios.post('/organisation/getJustUser', data)
         .then(res => {
             const data = res.data;
@@ -212,7 +210,7 @@ function UserDetails(props) {
         if(user.role_User) role = 'user';
         if(user.role_Admin) role = 'admin';
 
-        const data = {uuid: GUser.uuid, name: user.name, email: user.email, role: role, departments: departments, orgID: orgID};
+        const data = {uuid: AdminUserGlobalSettings.uuid, name: user.name, email: user.email, role: role, departments: departments, orgID: orgID};
 
         Axios.post('/organisation/updateUser', data)
         .then(res => {
@@ -251,7 +249,7 @@ function UserDetails(props) {
 
     function handleAcceptOfSARequest() {
 
-        const data = {orgID: orgID, newUUID: GUser.uuid};
+        const data = {orgID: orgID, newUUID: AdminUserGlobalSettings.uuid};
         Axios.post('/organisation/changeSeniorAdmin', data)
         .then(res => {
             
@@ -268,7 +266,7 @@ function UserDetails(props) {
 
     function handleUserChangeMethod() {
 
-        const data = {uuid: GUser.uuid};
+        const data = {uuid: AdminUserGlobalSettings.uuid};
         Axios.post('/organisation/getUserLoginMethod', data)
         .then(res => {
 
@@ -291,7 +289,7 @@ function UserDetails(props) {
 
             const message = res.data.name + "'s login method is " + method + ". Are you sure you want to change it to a " + newMethod + " method?";
 
-            setModalYN({heading: 'Change Login Method', message: message, acceptName: 'Yes', acceptFunction: () => {acceptToChangeMethods(GUser.uuid, newMethod, orgID)}, showAccept: true, cancelName: 'No', showCancel: true, open: true});    
+            setModalYN({heading: 'Change Login Method', message: message, acceptName: 'Yes', acceptFunction: () => {acceptToChangeMethods(AdminUserGlobalSettings.uuid, newMethod, orgID)}, showAccept: true, cancelName: 'No', showCancel: true, open: true});    
             }
         })
         .catch(err => {
@@ -304,7 +302,7 @@ function UserDetails(props) {
         setModalYN({open: false});
         
         const data = {orgID: orgID, uuid: id, method: newMethod}
-        Axios.post('/organisaation/changeUserLoginMethod', data)
+        Axios.post('/organisation/changeUserLoginMethod', data)
         .then(res => {
             if(res.data.message == 'Strategy Updated') {
                 setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
@@ -319,8 +317,8 @@ function UserDetails(props) {
 
         setModalTO({open: false});
 
-        const data = {orgID: orgID, uuid: GUser.uuid, method: 'google'}
-        Axios.post('/organisaation/changeUserLoginMethod', data)
+        const data = {orgID: orgID, uuid: AdminUserGlobalSettings.uuid, method: 'google'}
+        Axios.post('/organisation/changeUserLoginMethod', data)
         .then(res => {
             if(res.data.message == 'Strategy Updated') {
                 setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
@@ -335,8 +333,8 @@ function UserDetails(props) {
 
         setModalTO({open: false});
 
-        const data = {orgID: orgID, uuid: GUser.uuid, method: 'local'}
-        Axios.post('/organisaation/changeUserLoginMethod', data)
+        const data = {orgID: orgID, uuid: AdminUserGlobalSettings.uuid, method: 'local'}
+        Axios.post('/organisation/changeUserLoginMethod', data)
         .then(res => {
             if(res.data.message == 'Strategy Updated') {
                 setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})
@@ -361,7 +359,7 @@ function UserDetails(props) {
 
         setModalYN({open: false});
 
-        const data = {uuid: GUser.uuid, orgID: orgID};
+        const data = {uuid: AdminUserGlobalSettings.uuid, orgID: orgID};
 
             Axios.post('/organisation/removeUser', data)
             .then(res => {

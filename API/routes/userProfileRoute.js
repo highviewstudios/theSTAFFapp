@@ -8,7 +8,10 @@ router.post('/createProfile', async (req, res) => {
     const orgID = req.body.orgID;
     const name = req.body.name;
 
-    const result = await createUserProfile(orgID, name);
+    const profiles = await GetOrgProfiles(orgID);
+
+
+    const result = await createUserProfile(orgID, name, profiles.length + 1);
 
     if(result == 'Success') {
 
@@ -27,10 +30,14 @@ router.post('/getOrgProfiles', async (req, res) => {
 
     const profiles = await GetOrgProfiles(orgID);
     const useProfiles = await GetUseProfiles(orgID);
+    const orgUsers = await CountOrgUsers(orgID);
+    const usersWithoutProfiles = await CountUsersWithOutProfiles(orgID);
 
     const json = {
         profiles: profiles,
-        useProfiles: useProfiles
+        useProfiles: useProfiles,
+        totalUsers: orgUsers,
+        usersWithoutProfiles: usersWithoutProfiles
     }
 
     res.send(json);
@@ -40,10 +47,13 @@ router.post('/saveProfile', async (req, res) => {
 
     const orgID = req.body.orgID;
     const profileUUID = req.body.profileUUID;
+    const profileUserCount = req.body.profileUserCount;
 
     const usersToUpdate = req.body.usersToUpdate;
 
     const rooms = req.body.rooms;
+
+    const userSettings = req.body.userSettings;
 
     //USERS
     usersToUpdate.map( async user => {
@@ -51,8 +61,10 @@ router.post('/saveProfile', async (req, res) => {
         await UpdateUser(user.uuid, user.userProfiles);
     })
 
-    //ROOMS
+    //USER PROFILE
+    await UpdateProfileUserCount(profileUUID, profileUserCount);
 
+    //ROOMS
     rooms.map( async room => {
 
         const rm = await GetUPRoom(orgID, profileUUID, room.uuid);
@@ -70,6 +82,15 @@ router.post('/saveProfile', async (req, res) => {
         }
     });
 
+    //SETTINGS
+    let settings = {};
+    let keys = Object.keys(userSettings);
+    
+    for(const key of keys) {
+        settings[key] = userSettings[key].toString();
+    }
+    await UpdateUserSettings(profileUUID, settings);
+
     const json = {
         error: 'null',
         message: 'User Profile Updated'
@@ -82,22 +103,50 @@ router.post('/loadProfile', async (req, res) => {
 
     const orgID = req.body.orgID;
     const profileUUID = req.body.profileUUID;
+    const userSettingKeys = req.body.userSettingKeys;
 
-    //USERS
-    const users = await getAllOrganisationUsers(orgID);
-
-    //ROOMS AND THEIR PROPERTIES
-    const UPRooms = await GetOrgUPRooms(orgID, profileUUID);
-    const orgRooms = await getOrganisationRooms(orgID);
-
-    const json = {
-        error: 'null',
-        users: users,
-        UPRooms: UPRooms,
-        orgRooms: orgRooms
-    }
+    const validateID = CheckOrgID(orgID);
     
-    res.send(json);
+    if(validateID) {
+    
+        //USERS
+        const users = await getAllOrganisationUsers(orgID);
+
+        //ROOMS AND THEIR PROPERTIES
+        const UPRooms = await GetOrgUPRooms(orgID, profileUUID);
+        const orgRooms = await getOrganisationRooms(orgID);
+
+        //SETTINGS
+        let columns = '';
+        for(const setting of userSettingKeys) {
+            if(columns == '') {
+                columns = setting;
+            } else {
+                columns += ', ' + setting;
+            }
+        }
+
+        const settings = await GetUserSettings(profileUUID, columns);
+
+        console.log(settings);
+
+        const json = {
+            error: 'null',
+            users: users,
+            UPRooms: UPRooms,
+            orgRooms: orgRooms,
+            userSettings: settings
+        }
+        
+        res.send(json);
+
+    } else {
+        const json = {
+            error: 'Yes',
+            message: 'Invalid Data'
+        }
+        res.send(json);
+    }
 
 });
 
@@ -117,14 +166,48 @@ router.post('/useProfiles', async (req, res) => {
 
         res.json(json);
     }
+});
+
+router.post('/priority', async (req, res) => {
+
+    const orgID = req.body.orgID;
+    const level = req.body.level;
+    const profileUUID = req.body.profileUUID;
+
+    const profile1 = await GetProfile(profileUUID);
+    
+    let newPosition;
+    if(level == 'increase') {
+        newPosition = profile1.priority - 1;
+    } else if(level == 'decrease'){
+        newPosition = profile1.priority + 1;
+    }
+
+    const profileTotal = await CountOrgProfiles(orgID);
+
+    if(newPosition > 0 && newPosition <= profileTotal) {
+        const profile2 = await GetProfileOnPriority(orgID, newPosition);
+
+        await UpdateProfilePriority(profile1.uuid, newPosition);
+        await UpdateProfilePriority(profile2.uuid, profile1.priority);
+    }
+
+    const profiles = await GetOrgProfiles(orgID);
+
+    const json = {
+        profiles: profiles
+    }
+
+    res.send(json);
+
 })
 
 //FUNCTIONS
-function createUserProfile(orgID, name) {
+function createUserProfile(orgID, name, priority) {
 
     return new Promise ((resolve, reject) => {
        
-        const data = {orgID: orgID, name: name};
+        const data = {orgID: orgID, name: name, priority: priority};
         const query = "INSERT INTO userProfiles SET ?";
         mySQLConnection.query(query, data, (err) => {
             if(err) {
@@ -148,6 +231,123 @@ function GetOrgProfiles(orgID) {
                 reject();
             } else {
                 resolve(result);
+            }
+        });
+        })
+}
+
+function GetProfile(uuid) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {uuid: uuid}
+        const FIND_QUERY = "SELECT * FROM userProfiles WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0]);
+            }
+        });
+        })
+}
+
+function GetProfileOnPriority(orgID, priority) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = [{orgID: orgID}, {priority: priority}]
+        const FIND_QUERY = "SELECT * FROM userProfiles WHERE ? AND ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0]);
+            }
+        });
+        })
+}
+
+function UpdateProfilePriority(uuid, priority) {
+    return new Promise((resolve, reject) => {
+
+    const data = [{priority: priority}, {uuid: uuid}];
+    const UPDATE_QUERY = "UPDATE userProfiles SET ? WHERE ?";
+
+    mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+        if(err) {
+            reject();
+        } else {
+            resolve('Success');
+        }
+    });
+    })
+}
+
+function UpdateProfileUserCount(uuid, count) {
+    return new Promise((resolve, reject) => {
+
+    const data = [{noOfUsers: count}, {uuid: uuid}];
+    const UPDATE_QUERY = "UPDATE userProfiles SET ? WHERE ?";
+
+    mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+        if(err) {
+            reject();
+        } else {
+            resolve('Success');
+        }
+    });
+    })
+}
+
+function CountOrgProfiles(orgID) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {orgID: orgID}
+        const FIND_QUERY = "SELECT COUNT(name) AS 'total' FROM userProfiles WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0].total);
+            }
+        });
+        })
+}
+
+function CountOrgUsers(orgID) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {orgID: orgID}
+        const FIND_QUERY = "SELECT COUNT(displayName) AS 'total' FROM users WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0].total);
+            }
+        });
+        })
+}
+
+function CountUsersWithOutProfiles(orgID) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = [{orgID: orgID}, {userProfiles: ''}]
+        const FIND_QUERY = "SELECT COUNT(displayName) AS 'total' FROM users WHERE ? AND ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0].total);
             }
         });
         })
@@ -287,6 +487,42 @@ function DeleteRoomInUPRooms(uuid) {
     });
 }
 
+function UpdateUserSettings(profileUUID, userSettings) {
+    return new Promise((resolve, reject) => {
+
+        var data = [];
+        data.push(userSettings);
+        data.push({uuid: profileUUID});
+
+        const UPDATE_QUERY = 'UPDATE userProfiles SET ? WHERE ?';
+
+        mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+            if(err) {
+                reject();
+            } else {
+                resolve();
+            }
+        });
+    });
+}
+
+function GetUserSettings(profileUUID, columns) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {uuid: profileUUID}
+        const FIND_QUERY = "SELECT " + columns + " FROM userProfiles WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result[0]);
+            }
+        });
+        })
+}
+
 // COPIED FROM ORGANISATION ROUTE WITH SLIGHT DIFFERENCE
 function getOrganisationRooms(orgID) {
 
@@ -319,6 +555,30 @@ function getAllOrganisationUsers(orgID) {
             }
         });
         })
+}
+
+function CheckOrgID(orgID) {
+
+    let check = true
+    if(orgID.length != 10) {
+        check = false;
+    } else {
+        if(!ValidateNumber(orgID)) {
+            check = false;
+        }
+    }
+
+    return check;
+}
+
+function ValidateNumber(number) 
+{
+    if (!/^\d+$/.test(number))
+    {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 module.exports = router;

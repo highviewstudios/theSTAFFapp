@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 //COMPONENTS
 import LoginSettings from './orgAdminComponets/loginSettings';
@@ -10,19 +10,17 @@ import Layouts from "./orgAdminComponets/layoutSettings";
 import WeekSystemHolidays from './orgAdminComponets/weekSystemHolidays';
 import UserProfiles from './orgAdminComponets/userProfiles';
 
-import SessionsContextProvider from '../context/adminTemplatesSessions';
-
 //Styles
 import Container from "react-bootstrap/Container";
 import Jumbotron from "react-bootstrap/Jumbotron";
-import userProfiles from './orgAdminComponets/userProfiles';
 
 
 function OrganisationAdmin(props) {
 
   const orgID = props.match.params.id;
 
-  const history = useHistory();
+  const user = useSelector(state => state.user);
+  const userProfile = useSelector(state => state.userProfile);
 
   useEffect(() => {
     document.title = "STAFF";
@@ -32,15 +30,13 @@ function OrganisationAdmin(props) {
     <div className="body">
         <Container fluid className="p-3">
             <Jumbotron className="back-color">
-              <LoginSettings orgID={orgID}/><br />
-              <DepartmentSettings orgID={orgID}/><br />
-                <Users orgID={orgID} /> <br />
-              <Rooms orgID={orgID} /> <br />
-              <SessionsContextProvider>
-                <Layouts orgID={orgID} /> <br />
-              </SessionsContextProvider>
-              <WeekSystemHolidays orgID={orgID} /><br />
-              {/* <UserProfiles orgID={orgID} /> */}
+            {userProfile.admin_loginSettings || user.role == 'seniorAdmin' ? (<LoginSettings orgID={orgID}/>) : null}<br />
+            {userProfile.admin_departments || user.role == 'seniorAdmin' ? (<DepartmentSettings orgID={orgID}/>) : null}<br />
+            {userProfile.admin_users || user.role == 'seniorAdmin' ? (<Users orgID={orgID} />) : null } <br />
+            {userProfile.admin_rooms || user.role == 'seniorAdmin' ? (<Rooms orgID={orgID} />) : null } <br />
+            {userProfile.admin_layouts || user.role == 'seniorAdmin' ? (<Layouts orgID={orgID} />) : null}<br />
+            {userProfile.admin_weekSystemHolidays || user.role == 'seniorAdmin' ? (<WeekSystemHolidays orgID={orgID} />) : null }<br />
+            {userProfile.admin_userProfiles || user.role == 'seniorAdmin' ? (<UserProfiles orgID={orgID} />) : null }
             </Jumbotron>
         </Container>
     </div>

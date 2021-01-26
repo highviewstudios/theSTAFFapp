@@ -1,31 +1,35 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d5989582ffaa6e4fc258ed8d91984f31",
+    "revision": "c0691746198c561fbea8ee481fda7818",
     "url": "/index.html"
   },
   {
-    "revision": "0e570509d1f497b0ac1c",
+    "revision": "7bcb2b07f48521f2a101",
     "url": "/static/css/2.8a5b80e8.chunk.css"
   },
   {
-    "revision": "bf6316d3d1d7151f4d6b",
-    "url": "/static/css/main.f9a07486.chunk.css"
+    "revision": "cb24c7d51fc7e05ecc4b",
+    "url": "/static/css/main.12c31064.chunk.css"
   },
   {
-    "revision": "0e570509d1f497b0ac1c",
-    "url": "/static/js/2.81477eb1.chunk.js"
+    "revision": "7bcb2b07f48521f2a101",
+    "url": "/static/js/2.bad698f1.chunk.js"
   },
   {
     "revision": "bb710ead0354e3904bc7088411f3e7c9",
-    "url": "/static/js/2.81477eb1.chunk.js.LICENSE.txt"
+    "url": "/static/js/2.bad698f1.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "bf6316d3d1d7151f4d6b",
-    "url": "/static/js/main.50c18f67.chunk.js"
+    "revision": "cb24c7d51fc7e05ecc4b",
+    "url": "/static/js/main.d8e08f25.chunk.js"
   },
   {
     "revision": "69c4b2f801cc4be0afdb",
     "url": "/static/js/runtime-main.aa7d4d0c.js"
+  },
+  {
+    "revision": "53fdf8896935b51e5b14a89d7da13e81",
+    "url": "/static/media/admin.53fdf889.png"
   },
   {
     "revision": "11911410dca2de148f30954eb2fd5eab",
@@ -34,6 +38,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "8ef6a08cdc1154920165680a4edde771",
     "url": "/static/media/arrow_right.8ef6a08c.svg"
+  },
+  {
+    "revision": "53665c4595d8946c49d113fb5ca75df5",
+    "url": "/static/media/departments.53665c45.png"
   },
   {
     "revision": "4a5d4d855d11fae79cc864bdacb2f479",
@@ -94,5 +102,33 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "f3a7d3b5880544a91e9a7e6f8f35d4d2",
     "url": "/static/media/fa-solid-900.f3a7d3b5.woff"
+  },
+  {
+    "revision": "c2d95bf7174b88ef4eacac82ee5cf394",
+    "url": "/static/media/layouts.c2d95bf7.png"
+  },
+  {
+    "revision": "f072eaa7ff7adb3685aa23b1cd02576b",
+    "url": "/static/media/rooms.f072eaa7.png"
+  },
+  {
+    "revision": "ae24dccd6d65bf1c66c9a4d5b341c976",
+    "url": "/static/media/screen-diary.ae24dccd.png"
+  },
+  {
+    "revision": "40c2b859a27c6bd131e831d2d4447dfa",
+    "url": "/static/media/screen-timetable.40c2b859.png"
+  },
+  {
+    "revision": "e0371762965c861c3bc483b538275b09",
+    "url": "/static/media/userProfiles.e0371762.png"
+  },
+  {
+    "revision": "645012b8545510ee07ee2b3132dc6ab0",
+    "url": "/static/media/users.645012b8.png"
+  },
+  {
+    "revision": "fdb1de8a5b6cacd490197975769c35b5",
+    "url": "/static/media/weekSystemHolidays.fdb1de8a.png"
   }
 ]);

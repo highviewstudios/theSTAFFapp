@@ -1,27 +1,36 @@
 {
   "files": {
-    "main.css": "/static/css/main.f9a07486.chunk.css",
-    "main.js": "/static/js/main.50c18f67.chunk.js",
-    "main.js.map": "/static/js/main.50c18f67.chunk.js.map",
+    "main.css": "/static/css/main.12c31064.chunk.css",
+    "main.js": "/static/js/main.d8e08f25.chunk.js",
+    "main.js.map": "/static/js/main.d8e08f25.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.aa7d4d0c.js",
     "runtime-main.js.map": "/static/js/runtime-main.aa7d4d0c.js.map",
     "static/css/2.8a5b80e8.chunk.css": "/static/css/2.8a5b80e8.chunk.css",
-    "static/js/2.81477eb1.chunk.js": "/static/js/2.81477eb1.chunk.js",
-    "static/js/2.81477eb1.chunk.js.map": "/static/js/2.81477eb1.chunk.js.map",
+    "static/js/2.bad698f1.chunk.js": "/static/js/2.bad698f1.chunk.js",
+    "static/js/2.bad698f1.chunk.js.map": "/static/js/2.bad698f1.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.00466eb59dfb06f9d12cf8f53386e7d6.js": "/precache-manifest.00466eb59dfb06f9d12cf8f53386e7d6.js",
+    "precache-manifest.1b5f28f28764411b4491ff30dbea2dbd.js": "/precache-manifest.1b5f28f28764411b4491ff30dbea2dbd.js",
     "service-worker.js": "/service-worker.js",
     "static/css/2.8a5b80e8.chunk.css.map": "/static/css/2.8a5b80e8.chunk.css.map",
-    "static/css/main.f9a07486.chunk.css.map": "/static/css/main.f9a07486.chunk.css.map",
-    "static/js/2.81477eb1.chunk.js.LICENSE.txt": "/static/js/2.81477eb1.chunk.js.LICENSE.txt",
+    "static/css/main.12c31064.chunk.css.map": "/static/css/main.12c31064.chunk.css.map",
+    "static/js/2.bad698f1.chunk.js.LICENSE.txt": "/static/js/2.bad698f1.chunk.js.LICENSE.txt",
+    "static/media/admin.png": "/static/media/admin.53fdf889.png",
     "static/media/mdb.css": "/static/media/arrow_right.8ef6a08c.svg",
-    "static/media/all.min.css": "/static/media/fa-solid-900.f3a7d3b5.woff"
+    "static/media/departments.png": "/static/media/departments.53665c45.png",
+    "static/media/all.min.css": "/static/media/fa-solid-900.f3a7d3b5.woff",
+    "static/media/layouts.png": "/static/media/layouts.c2d95bf7.png",
+    "static/media/rooms.png": "/static/media/rooms.f072eaa7.png",
+    "static/media/screen-diary.png": "/static/media/screen-diary.ae24dccd.png",
+    "static/media/screen-timetable.png": "/static/media/screen-timetable.40c2b859.png",
+    "static/media/userProfiles.png": "/static/media/userProfiles.e0371762.png",
+    "static/media/users.png": "/static/media/users.645012b8.png",
+    "static/media/weekSystemHolidays.png": "/static/media/weekSystemHolidays.fdb1de8a.png"
   },
   "entrypoints": [
     "static/js/runtime-main.aa7d4d0c.js",
     "static/css/2.8a5b80e8.chunk.css",
-    "static/js/2.81477eb1.chunk.js",
-    "static/css/main.f9a07486.chunk.css",
-    "static/js/main.50c18f67.chunk.js"
+    "static/js/2.bad698f1.chunk.js",
+    "static/css/main.12c31064.chunk.css",
+    "static/js/main.d8e08f25.chunk.js"
   ]
 }

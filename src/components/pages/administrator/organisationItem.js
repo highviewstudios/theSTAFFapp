@@ -65,7 +65,7 @@ function OrganisationItem(props) {
         setModalYN({open: false});
 
         const data = {email: email, method: method, orgID: orgID};
-        Axios.post('/organisaation/changeASLoginMethod', data)
+        Axios.post('/organisation/changeASLoginMethod', data)
         .then(res => {
             if(res.data.message == 'Strategy Updated') {
                 setModal({heading: 'Change Login Method', message: "This user's login method has now been changed", open: true})

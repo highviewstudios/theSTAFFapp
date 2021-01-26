@@ -1,16 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Form, Row, Col } from 'react-bootstrap';
-import { SessionsContext } from "../../context/adminTemplatesSessions";
+import { toggleBreakBtns, updateCustomText, updateHoverText } from '../../globalSettings/adminLayoutsSettings';
 
 function SessionSlot(props) {
 
-    const { updateCustomText, updateHoverText, toggleBreakBtns } = useContext(SessionsContext);
+    const AdminLayoutsGlobalSettings = useSelector(state => state.AdminLayoutsGlobalSettings);
+    const dispatch = useDispatch();
 
     function handleChangeCustomText(event) {
 
         const { value } = event.target;
 
-       updateCustomText(props.id, value);
+       updateCustomText(AdminLayoutsGlobalSettings, dispatch, props.id, value);
         
     }
 
@@ -18,11 +20,11 @@ function SessionSlot(props) {
 
         const { value } = event.target;
 
-        updateHoverText(props.id, value);
+        updateHoverText(AdminLayoutsGlobalSettings, dispatch, props.id, value);
     }
 
     function handleBreakBtns() {
-        toggleBreakBtns(0, false);
+        toggleBreakBtns(dispatch, 0, false);
     }
 
     return (

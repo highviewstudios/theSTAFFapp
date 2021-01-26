@@ -15,7 +15,7 @@ function Home() {
 
   const history = useHistory();
     const user = useSelector(state => state.user);
-
+    console.log('viewed...');
     if(!user.auth || user.role != "superAdmin") {
             history.push('/administrator/signIn');
     }

@@ -1,13 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import Axios from 'axios';
 import {useDispatch} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateUserDepartments, userUpdateSARequest, userUpdateUUID} from './store/actions/user'
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateUserDepartments, userUpdateSARequest, userUpdateUUID, userUpdateProfiles} from './store/actions/user'
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
 import 'mdbreact/dist/css/mdb.css';
 import "./public/styles.css";
 import "./public/organisationAdmin.css";
 import './public/organisationHome.css';
+import './public/home.css';
 
 import BetaBanner from "./components/NavBar/betaBanner";
 import Nav from "./components/NavBar/Nav";
@@ -24,7 +25,9 @@ import AdminSignIn from "./pages/administrator/signIn";
 import AdminOrgRegister from "./pages/administrator/registerOrganisation";
 
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import OrganisationRegister from './pages/administrator/registerOrganisation';
 
+import OrganisationNotFound from './pages/organisationNotFound';
 
 function App() {
 
@@ -54,6 +57,7 @@ function App() {
           dispatch(userUpdateOrgID(res.data.user.orgID));
           dispatch(userUpdateUserDepartments(res.data.user.departments));
           dispatch(userUpdateSARequest(res.data.user.SARequest));
+          dispatch(userUpdateProfiles(res.data.user.userProfiles));
         }
       }
       setLoaded(true);
@@ -72,33 +76,34 @@ function App() {
         <Nav />
         <Switch>
         {/* USER */}
-        <Route path="/" exact component={Home} /> {/* DO NOT TOUCH */}
+          <Route path="/" exact component={Home} /> {/* DO NOT TOUCH */}
+        {/* ADMINISTRATION */}
+        <Route path="/administrator" exact component={AdminHome} /> {/* DO NOT TOUCH */}
+        <Route path="/administrator/signIn" component={AdminSignIn} /> {/* DO NOT TOUCH */}
+        <Route path="/administrator/organisationRegister" component={AdminOrgRegister} />
 
         {/* ORGANISATION */}
-        <Route path="/org/:id" exact component={OrganisationRouter} />
-        <Route path="/org/:id/collisionBookings" component={OrganisationRouter} />
-        <Route path="/org/:id/organisationAdmin" component={OrganisationRouter} />
-        <Route path="/org/:id/signIn" component={OrganisationRouter} />    
-        <Route path="/org/:id/forgotPassword" component={OrganisationRouter} />
-        <Route path="/org/:id/changePassword" component={OrganisationRouter} />
-        <Route path="/org/:id/changeOfSeniorRequest" component={OrganisationRouter} /> 
-        <Route path="/org/:id/createPassword" component={OrganisationRouter} />
-        <Route path='/org/:id/wrongOrganisation' component={OrganisationRouter} />
-        <Route path="/org/:id/userDetails" component={OrganisationRouter} />
-        <Route path="/org/:id/profileSettings" component={OrganisationRouter} />
+              <Route path="/org/:id" exact component={OrganisationRouter} />
+              <Route path="/org/:id/collisionBookings" component={OrganisationRouter} />
+              <Route path="/org/:id/organisationAdmin" component={OrganisationRouter} />
+              <Route path="/org/:id/signIn" component={OrganisationRouter} />    
+              <Route path="/org/:id/forgotPassword" component={OrganisationRouter} />
+              <Route path="/org/:id/changePassword" component={OrganisationRouter} />
+              <Route path="/org/:id/changeOfSeniorRequest" component={OrganisationRouter} /> 
+              <Route path="/org/:id/createPassword" component={OrganisationRouter} />
+              <Route path='/org/:id/wrongOrganisation' component={OrganisationRouter} />
+              <Route path="/org/:id/userDetails" component={OrganisationRouter} />
+              <Route path="/org/:id/profileSettings" component={OrganisationRouter} />
+              <Route path="/org/:id/organisationNotFound" component={OrganisationRouter} />
 
-        {/* not moving this until later versions */}
-        <Route path='/org/:id/book' component={Book} />
+              {/* not moving this until later versions */}
+              <Route path='/org/:id/book' component={Book} />
 
         {/* coming direct from passport */}
         <Route path="/org/:id/wrongLogin/" component={WrongLogin} />
 
         <Route path="/notConnected" component={NotConnected} />        
 
-        {/* ADMINISTRATION */}
-        <Route path="/administrator" exact component={AdminHome} /> {/* DO NOT TOUCH */}
-        <Route path="/administrator/signIn" component={AdminSignIn} /> {/* DO NOT TOUCH */}
-        <Route path="/administrator/organisationRegister" component={AdminOrgRegister} />
         </Switch>
       </div>
     </Router>) : <div></div>}

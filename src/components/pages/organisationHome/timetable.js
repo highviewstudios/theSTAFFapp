@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 import { Row, Col, Button, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomTotalSessions, UpdateRoomDayList, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData } from '../../../store/actions/globalVars';
-import { UpdateBookingBookingType, UpdateBookingBookingUntil, UpdateBookingSessionDes, UpdateBookingComments, UpdateBookingDepartment, UpdateBookingEdit, UpdateBookingID, UpdateBookingUser, UpdateBookingSessionLength } from '../../../store/actions/bookings';
+import { UpdateBookingBookingType, UpdateBookingBookingUntil, UpdateBookingSessionDes, UpdateBookingComments, UpdateBookingDepartment, UpdateBookingEdit, UpdateBookingID, UpdateBookingUser, UpdateBookingSessionLength, UpdateBookingCreatedBy } from '../../../store/actions/bookings';
 import moment from 'moment';
 import Axios from 'axios';
 
@@ -58,7 +58,6 @@ function Timetable(props) {
 
     function setup() {
 
-        console.log(props.weekSystem);
         //SETUP NEW LAYOUT FROM REDUX
         const layoutDays = props.layoutData.days.split(',');
         const days = [];
@@ -91,13 +90,10 @@ function Timetable(props) {
                     totalDays++;
                 }
             }
-
-            console.log(totalDays);
             setSettings(prevState => {
                 return {...prevState, slotClass: 'session' + totalDays + '-slot timetable-layout', dayClass: 'session' + totalDays + '-days timetable-layout'}
             });
 
-            console.log(globalVars.weekBeginDate);
             if(globalVars.weekBeginDate == '') {
                 const weekBG = FindWeekBegin(days);
                 BuildDataSlots(weekBG, order, newSessions);
@@ -137,7 +133,7 @@ function Timetable(props) {
         const slot = {user: '', department: '', type: ''};
 
         const weekSlot = formatString(weekBG.week()) + '-' + weekBG.format('YY');
-        console.log(weekSlot);
+
         for(let i = 0; i < 7; i++) {
             
             for(const sess of order) {
@@ -153,7 +149,7 @@ function Timetable(props) {
         Axios.post('/booking/getBookings', mySQLData)
         .then(res => {
             const recievedData = res.data;
-            console.log(recievedData.bookings);
+
             if(recievedData.error === 'null') {
                 setSettings(prevState => {
                     return {...prevState, weekSlot: weekSlot, data: recievedData.bookings}
@@ -268,7 +264,8 @@ function Timetable(props) {
                 dispatch(UpdateBookingBookingUntil(data.booking.repeatUntil));
             }
 
-            dispatch(UpdateBookingComments(data.booking.comments));            
+            dispatch(UpdateBookingComments(data.booking.comments));
+            dispatch(UpdateBookingCreatedBy(data.booking.createdBy));       
             dispatch(UpdateBookingEdit(true));
             dispatch(UpdateBookingID(uuid));
         })

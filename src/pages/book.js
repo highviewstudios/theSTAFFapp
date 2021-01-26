@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Container, Jumbotron, Row, Col, Form, Button, Dropdown, Modal } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -16,6 +16,7 @@ function Book(props) {
     const user = useSelector(state => state.user);
     const organisation = useSelector(state => state.organisation);
     const globalVars = useSelector(state => state.globalVars);
+    const userProfile = useSelector(state => state.userProfile);
 
     const [settings, setSettings] = useState({
         userList: [],
@@ -46,8 +47,20 @@ function Book(props) {
         message: '',
     });
 
+    const [errorMsg, setErrorMsg] = useState({
+        open: false,
+    })
+
     function handleModalClose() {
         setModal(prevState => {
+            return {...prevState,
+            open: false
+        }
+    });
+    }
+
+    function handleErrorMsgClose() {
+        setErrorMsg(prevState => {
             return {...prevState,
             open: false
         }
@@ -64,15 +77,8 @@ function Book(props) {
 
     function onOpen() {
 
-        if(user.role != 'user') {
-            FetchUsersAndDepartments();
-        } else {
-            FetchUserDepartments();
-
-            setSettings(prevState => {
-                return {...prevState, showUserDropdown: false, user: user.name, userID: user.uuid}
-            });
-        }
+        FetchUsersAndDepartments();
+        
         if(globalVars.layoutData.layout == 'Timetable') {
             if(globalVars.sessionID.includes('b')) {
                 
@@ -119,7 +125,7 @@ function Book(props) {
 
     function FetchUsersAndDepartments() {
 
-        const data = {orgID: orgID, users: true, departments: true}
+        const data = {orgID: orgID, users: userProfile.viewAllUsers, departments: userProfile.viewAllDepartments}
 
         Axios.post('/organisation/usersAndDepartments', data)
         .then(res => {
@@ -128,11 +134,17 @@ function Book(props) {
                 setSettings(prevState => {
                     return {...prevState, userList: data.userList};
                 })
+            } else {
+                setSettings(prevState => {
+                    return {...prevState, showUserDropdown: false, user: user.name, userID: user.uuid}
+                });
             }
             if(data.departmentList != 'none') {
                 setSettings(prevState => {
                     return {...prevState, departmentList: data.departmentList}
                 })
+            } else {
+                FetchUserDepartments()
             }
         })
         .catch(err => {
@@ -391,6 +403,7 @@ function Book(props) {
         Axios.post('/booking/createBooking', data)
         .then(res => {
             const data = res.data;
+            console.log(data);
             if(data.error == 'null') {
                 if(data.userError == 'null') {
                     history.push('/org/' + orgID);
@@ -401,9 +414,15 @@ function Book(props) {
                 }
 
             } else {
-                setModal(() => {
-                    return {heading: 'Booking', message: data.message, open: true}
-                });
+                if(data.message == 'MSQL error') {
+                    setErrorMsg(() => {
+                        return{open: true}
+                    })
+                } else {
+                    setModal(() => {
+                        return {heading: 'Booking', message: data.message, open: true}
+                    });
+                }
             }
         })
         .catch(err => {
@@ -506,7 +525,7 @@ function Book(props) {
                                         
                                         </Form.Group>   
                                     <Row>
-                                    {user.role != 'user' ? (<div>
+                                    {userProfile.room_Repeat ? (<div>
                                         <Form.Group>
                                             <Form.Check className="check-side-by-side-b" type="checkbox" label="Repeat" onChange={handleRepeatCheckChanged} />
                                         </Form.Group>
@@ -549,6 +568,22 @@ function Book(props) {
                 <Modal.Body>{modal.message}</Modal.Body>
                 <Modal.Footer>
                 <Button variant="primary" onClick={handleModalClose}>
+                    Close
+                </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={errorMsg.open} onHide={handleErrorMsgClose}>
+                <Modal.Header closeButton>
+                <Modal.Title>Booking Error!</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                I am very sorry but you have run into an error.<br /><br />
+                Please inform the Senior Admin of your organisation's account on My-STAFF.co.uk <br /> <br />
+                <strong>Week System</strong><br /><br />
+                If you have the week system enabled, please make sure that all weeks are assigned to a title.<br /> <br />
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="primary" onClick={handleErrorMsgClose}>
                     Close
                 </Button>
                 </Modal.Footer>

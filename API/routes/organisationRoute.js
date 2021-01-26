@@ -112,7 +112,7 @@ router.post('/administrator/addOrganisation', async (req, res) => {
 
 });
 
-router.post('/organisation/changeSeniorAdmin', async (req, res) => {
+router.post('/changeSeniorAdmin', async (req, res) => {
 
     const orgID = req.body.orgID;
     const newUUID = req.body.newUUID;
@@ -159,7 +159,7 @@ router.post('/organisation/changeSeniorAdmin', async (req, res) => {
     }
 });
 
-router.post('/organisation/getSARData', async (req, res) => {
+router.post('/getSARData', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -172,7 +172,7 @@ router.post('/organisation/getSARData', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisation/SAInvate', async (req, res) => {
+router.post('/SAInvate', async (req, res) => {
 
     const orgID = req.body.orgID;
     const invate = req.body.invate;
@@ -287,77 +287,178 @@ router.post('/organisation/SAInvate', async (req, res) => {
     }
 });
 
-router.get('/organisation/all', async (req, res) => {
+router.get('/all', async (req, res) => {
 
     const organisations = await getAllOrganisations();
 
     res.send(organisations);
 });
 
-router.get('/organisation/:id', async (req, res) => {
+router.post('/getOrganisation', async (req, res) => {
 
-    const id = req.params.id;
+    const id = req.body.orgID;
+    const userProfiles = req.body.userProfiles;
+    const userSettingsKeys = req.body.userSettingsKeys;
 
-    const organisation = await getOneOrganisation(id);
-    const holidays = await GetHolidays(id);
-    const holidayTitles = await GetHolidayTitles(id);
-    
-    //Week System / Holidays
-    for(const holiday of holidays) {
+    const validateID = CheckOrgID(id);
 
-        if(holiday.titleUUID.includes('w')) {
+    if(validateID) {
+        //Organisation Details
+        const organisation = await getOneOrganisation(id);
 
-            let id = '';
-            const num = holiday.titleUUID.replace('w', '');
+        if(organisation != null) {
 
-            if(num[0] == '0') {
-                id = num[1];
-            } else {
-                id = num;
-            }
-            holiday.name = 'Week ' + id;
-        }
-        if(holiday.titleUUID.includes('h')) {
+            //Week System / Holidays
+            const holidays = await GetHolidays(id);
+            const holidayTitles = await GetHolidayTitles(id);
+            
+            for(const holiday of holidays) {
 
-            let id = '';
-            const num = holiday.titleUUID.replace('h', '');
+                if(holiday.titleUUID.includes('w')) {
 
-            if(num[0] == '0') {
-                id = num[1];
-            } else {
-                id = num;
-            }
+                    let id = '';
+                    const num = holiday.titleUUID.replace('w', '');
 
-            for(const title of holidayTitles) {
-                if(id == title.uuid) {
-                    holiday.name = title.name;
+                    if(num[0] == '0') {
+                        id = num[1];
+                    } else {
+                        id = num;
+                    }
+                    holiday.name = 'Week ' + id;
+                }
+                if(holiday.titleUUID.includes('h')) {
+
+                    let id = '';
+                    const num = holiday.titleUUID.replace('h', '');
+
+                    if(num[0] == '0') {
+                        id = num[1];
+                    } else {
+                        id = num;
+                    }
+
+                    for(const title of holidayTitles) {
+                        if(id == title.uuid) {
+                            holiday.name = title.name;
+                        }
+                    }
                 }
             }
-        }
-    }
-    //Week System / Holidays^^^
+            //Week System / Holidays^^^
 
+            //USER PROFILES
 
-    if(organisation != null) {
-        const json = {
-            userError: 'null',
-            message: 'organisation found',
-            organisation: organisation,
-            layouts: await GetLayouts(id),
-            rooms: await getOrganisationRooms(id),
-            holidays: holidays
+            const useProfiles = organisation.useProfiles;
+
+            const PROFILE = {
+                default: false,
+                rooms: []
+            }
+
+            for(const key of userSettingsKeys) {
+                PROFILE[key] = false
+            }
+
+            const profileRooms = [];
+            let roomsDetails = [];
+
+            if(useProfiles == 'false' || userProfiles == '') {
+                PROFILE.default = true;
+                roomsDetails = await getOrganisationRooms(id);
+            } else {
+                PROFILE.default = false;
+                const profilesUUIDs = userProfiles.split(',');
+                const profileDetails = [];
+
+                for(const pro of profilesUUIDs) {
+                    profileDetails.push(await GetUserProfileDetails(pro));
+                }
+
+                for(const profile of profileDetails) {
+                    const rooms = await GetUserProfileRooms(profile[0].uuid);
+
+                    for(room of rooms) {
+
+                        let check = false;
+                        for(pr of profileRooms) {
+                            if(pr.roomUUID == room.roomUUID) {
+                                check = true;
+                                
+                                const currentRoom = pr.priority;
+                                const toBeRoom = profile[0].priority;
+                                if(toBeRoom < currentRoom) {
+
+                                    pr.profile = profile[0].uuid;
+                                    pr.priority = profile[0].priority;
+                                    pr.prop_View = room.prop_View;
+                                    pr.prop_Write = room.prop_Write;
+                                    pr.prop_Edit = room.prop_Edit;
+                                    pr.prop_Delete = room.prop_Delete;
+                                    pr.prop_Repeat = room.prop_Repeat;
+                                }
+                            }
+                        }
+
+                        if(!check) {
+                            const obj = {
+                                roomUUID: room.roomUUID,
+                                profile: profile[0].uuid,
+                                priority: profile[0].priority,
+                                prop_View: room.prop_View, 
+                                prop_Write: room.prop_Write, 
+                                prop_Edit: room.prop_Edit, 
+                                prop_Delete: room.prop_Delete, 
+                                prop_Repeat: room.prop_Repeat
+                            }
+                            profileRooms.push(obj);
+                        }
+                    }
+
+                    //SETTINGS
+                    for(const key of userSettingsKeys) {
+                        if(profile[0][key] != '') {
+                            if(!PROFILE[key]) {
+                                PROFILE[key] = (profile[0][key] == 'true');
+                            }
+                        }
+                    }
+                }
+                PROFILE.rooms = profileRooms;
+                console.log(PROFILE);
+                roomsDetails = await getOrganisationProfileRooms(PROFILE.rooms);
+            }//
+            const json = {
+                userError: 'null',
+                message: 'organisation found',
+                organisation: organisation,
+                layouts: await GetLayouts(id),
+                rooms: roomsDetails, //EDIT INTO PROFILE
+                holidays: holidays,
+                departments: await getOrganisationDepartments(id),
+                userProfile: PROFILE
+            }
+            res.send(json);
+        } else {
+            const json = {
+                error: 'Yes',
+                userError: "Yes",
+                dataError: 'null',
+                message: 'organisation not found'
+            }
+            res.send(json);
         }
-        res.send(json);
     } else {
         const json = {
-            userError: "Yes",
-            message: 'organisation not found'
+            error: 'Yes',
+            userError: 'null',
+            dataError: 'Yes',
+            message: 'Invalid Data'
         }
         res.send(json);
     }
 });
 
-router.post('/organisation/getJustUser', async (req, res) => {
+router.post('/getJustUser', async (req, res) => {
 
     const uuid = req.body.uuid;
 
@@ -378,7 +479,7 @@ router.post('/organisation/getJustUser', async (req, res) => {
     res.send(json);
 })
 
-router.post('/organisation/updateLoginSettings', async (req, res) => {
+router.post('/updateLoginSettings', async (req, res) => {
 
     
     const orgID = req.body.orgID;
@@ -396,7 +497,7 @@ router.post('/organisation/updateLoginSettings', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisation/updateUseDepartments', async (req, res) => {
+router.post('/updateUseDepartments', async (req, res) => {
 
     const orgID = req.body.orgID;
     const useDepartments = req.body.useDepartments;
@@ -411,7 +512,7 @@ router.post('/organisation/updateUseDepartments', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisation/allDepartments', async (req, res) => {
+router.post('/allDepartments', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -424,7 +525,7 @@ router.post('/organisation/allDepartments', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisation/addDepartment', async (req, res) => {
+router.post('/addDepartment', async (req, res) => {
 
     const orgID = req.body.orgID;
     const departmentName = req.body.departmentName;
@@ -447,7 +548,7 @@ router.post('/organisation/addDepartment', async (req, res) => {
     res.json(json);
 });
 
-router.post('/organisatiton/removeDepartment', async (req, res) => {
+router.post('/removeDepartment', async (req, res) => {
 
     const orgID = req.body.orgID;
     const uuid = req.body.uuid;
@@ -467,7 +568,7 @@ router.post('/organisatiton/removeDepartment', async (req, res) => {
 
 })
 
-router.post('/organisation/getUsers', async (req, res) => {
+router.post('/getUsers', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -481,7 +582,7 @@ router.post('/organisation/getUsers', async (req, res) => {
 
 });
 
-router.post('/organisation/addUser', async (req, res) => {
+router.post('/addUser', async (req, res) => {
 
     const orgID = req.body.orgID;
     const name = req.body.name;
@@ -557,7 +658,7 @@ router.post('/organisation/addUser', async (req, res) => {
     }
 });
 
-router.post('/organisation/updateUser', async (req, res) => {
+router.post('/updateUser', async (req, res) => {
 
     const uuid = req.body.uuid;
     const name = req.body.name;
@@ -585,7 +686,7 @@ router.post('/organisation/updateUser', async (req, res) => {
     }
 });
 
-router.post('/organisation/removeUser', async (req, res) => {
+router.post('/removeUser', async (req, res) => {
 
     const uuid = req.body.uuid;
     const orgID = req.body.orgID;
@@ -621,7 +722,7 @@ router.post('/organisation/removeUser', async (req, res) => {
     }
 });
 
-router.post('/organisation/addRoom', async (req, res) => {
+router.post('/addRoom', async (req, res) => {
 
     const orgID = req.body.orgID;
     const name = req.body.name;
@@ -651,7 +752,7 @@ router.post('/organisation/addRoom', async (req, res) => {
 
 });
 
-router.post('/organisation/updateRoom', async (req, res) => {
+router.post('/updateRoom', async (req, res) => {
 
     const orgID = req.body.orgID;
     const uuid = req.body.uuid;
@@ -672,7 +773,7 @@ router.post('/organisation/updateRoom', async (req, res) => {
     
 });
 
-router.post('/organisation/getRooms', async (req, res) => {
+router.post('/getRooms', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -686,7 +787,7 @@ router.post('/organisation/getRooms', async (req, res) => {
 });
 
 //LAYOUTS
-router.post('/organisation/addLayout', async (req, res) => {
+router.post('/addLayout', async (req, res) => {
 
     const orgID = req.body.orgID;
     const name = req.body.name;
@@ -707,7 +808,7 @@ router.post('/organisation/addLayout', async (req, res) => {
 
 })
 
-router.post('/organisation/getLayouts', async (req, res) => {
+router.post('/getLayouts', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -721,7 +822,7 @@ router.post('/organisation/getLayouts', async (req, res) => {
 
 });
 
-router.post('/organisation/getTimetableSessions', async (req, res) => {
+router.post('/getTimetableSessions', async (req, res) => {
 
     const orgID = req.body.orgID;
     const layoutUUID = req.body.layoutUUID;
@@ -735,7 +836,7 @@ router.post('/organisation/getTimetableSessions', async (req, res) => {
     res.send(json);
 })
 
-router.post('/organisation/saveLayout', async (req, res) => {
+router.post('/saveLayout', async (req, res) => {
 
     //Timetable - orgID, layout, sessionTotal, breakTotal, sessionOrder, days, sessions
     //Diary - orgID, layout, days, startTime, finishTime, timeInterval
@@ -798,7 +899,7 @@ router.post('/organisation/saveLayout', async (req, res) => {
     }
 });
 
-router.post('/organisation/usersAndDepartments', async (req, res) => {
+router.post('/usersAndDepartments', async (req, res) => {
 
     const orgID = req.body.orgID;
     const users = req.body.users;
@@ -824,7 +925,7 @@ router.post('/organisation/usersAndDepartments', async (req, res) => {
 })
 
 
-router.get("/admin/test/", async (req, res) => {
+router.get("/admin/test/", async (req, res) => { // TEST ROUTE
 
     //const result = await CreateOrganisationBookingsTable("666");
     const result = await GetNoOfDepartments('0249217480');
@@ -836,7 +937,7 @@ router.get("/admin/test/", async (req, res) => {
 });
 
 //HOLIDAYS
-router.post('/organisation/addHolidayTitle', async (req, res) => {
+router.post('/addHolidayTitle', async (req, res) => {
 
     const orgID = req.body.orgID;
     const title = req.body.title;
@@ -857,7 +958,7 @@ router.post('/organisation/addHolidayTitle', async (req, res) => {
     }
 });
 
-router.post('/organisation/getHolidayData', async (req, res) => {
+router.post('/getHolidayData', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -886,7 +987,7 @@ router.post('/organisation/getHolidayData', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisation/renameHolidayTile', async (req, res) => {
+router.post('/renameHolidayTile', async (req, res) => {
 
     const orgID = req.body.orgID;
     const uuid = req.body.uuid;
@@ -908,7 +1009,7 @@ router.post('/organisation/renameHolidayTile', async (req, res) => {
     }
 });
 
-router.post('/organisation/deleteHolidayTitle', async (req, res) => {
+router.post('/deleteHolidayTitle', async (req, res) => {
 
     const orgID = req.body.orgID;
     const uuid = req.body.uuid;
@@ -929,7 +1030,7 @@ router.post('/organisation/deleteHolidayTitle', async (req, res) => {
     }
 });
 
-router.post('/organisation/saveHolidays', async (req, res) => {
+router.post('/saveHolidays', async (req, res) => {
 
     const orgID = req.body.orgID;
     const startDate = req.body.startDate;
@@ -1111,7 +1212,7 @@ router.post('/organisation/saveHolidays', async (req, res) => {
     }
 });
 
-router.post('/organisation/getMainOrgWeekSystem', async (req, res) => {
+router.post('/getMainOrgWeekSystem', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -1128,7 +1229,7 @@ router.post('/organisation/getMainOrgWeekSystem', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisation/geRoomsWeekSystem', async (req, res) => {
+router.post('/geRoomsWeekSystem', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -1148,7 +1249,7 @@ router.post('/organisation/geRoomsWeekSystem', async (req, res) => {
     res.send(json);
 });
 
-router.get('/booktest', async(req, res) => {
+router.get('/booktest', async(req, res) => { // TEST ROUTE
 
     const rooms = [{uuid: 1}];
 
@@ -1218,7 +1319,7 @@ router.get('/booktest', async(req, res) => {
     }
 });
 
-router.post('/organisation/restore', async (req, res) => {
+router.post('/restore', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -1267,7 +1368,7 @@ router.post('/organisation/restore', async (req, res) => {
     }
 });
 
-router.post('/organisation/collidedbookings', async (req, res) => {
+router.post('/collidedbookings', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -1405,7 +1506,7 @@ router.post('/collide/deleteCollide', async (req, res) => {
     }
 });
 
-router.post('/organisation/unlock', async (req, res) => {
+router.post('/unlock', async (req, res) => {
 
     const orgID = req.body.orgID;
 
@@ -1466,7 +1567,7 @@ router.post('/organisation/unlock', async (req, res) => {
     }
 });
 
-router.post('/organisation/getSALoginMethod', async (req, res) => {
+router.post('/getSALoginMethod', async (req, res) => {
 
     const email = req.body.email;
 
@@ -1479,7 +1580,7 @@ router.post('/organisation/getSALoginMethod', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisaation/changeASLoginMethod', async (req, res) => {
+router.post('/changeASLoginMethod', async (req, res) => {
 
     const orgID = req.body.orgID
     const uEmail = req.body.email;
@@ -1534,7 +1635,7 @@ router.post('/organisaation/changeASLoginMethod', async (req, res) => {
     }
 });
 
-router.post('/organisation/getUserLoginMethod', async (req, res) => {
+router.post('/getUserLoginMethod', async (req, res) => {
 
     const uuid = req.body.uuid;
 
@@ -1548,7 +1649,7 @@ router.post('/organisation/getUserLoginMethod', async (req, res) => {
     res.send(json);
 });
 
-router.post('/organisaation/changeUserLoginMethod', async (req, res) => {
+router.post('/changeUserLoginMethod', async (req, res) => {
 
     const orgID = req.body.orgID
     const uuid = req.body.uuid;
@@ -1610,6 +1711,45 @@ router.post('/organisaation/changeUserLoginMethod', async (req, res) => {
         res.send(json);
     }
 });
+
+//CONTACT FORM ON HOMEPAGE
+router.post('/homepageContact', async (req, res) => {
+
+    const name = req.body.name;
+    const pEmail = req.body.email;
+    const subject = req.body.subject;
+    const message = req.body.message;
+
+    let mailOptions = {
+        from: '"My STAFF" <no-reply@my-staff.co.uk>', // sender address
+        to: 'shaun.evans@high-view-studios.co.uk', // list of receivers
+        subject: "You have got a new message via My-STAFF", // Subject line
+        template: 'contact',
+        context: {
+            name: name,
+            email: pEmail,
+            subject: subject,
+            message: message
+        }
+    };
+    //send mail with defined transport object
+    email.mail.sendMail(mailOptions, (error, info) => {
+        if(error) {
+            return console.log(error);
+        }
+    console.log("Message sent: %s", info.messageId);
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+
+    console.log("Email has been sent");
+    });
+
+    const json = {
+        error: 'null',
+        message: 'Email Sent'
+    }
+
+    res.send(json);
+})
 
 //FUNCTIONS
 
@@ -2119,6 +2259,29 @@ function getOrganisationRooms(id) {
         const data = {orgID: id}
         const query = "SELECT uuid, layout, name, weekSystem FROM rooms where ?";
         mySQLConnection.query(query, data, (err, result) => {
+            if(err) {
+                reject();
+            } else {
+                resolve(result);
+            }
+        });
+    });  
+}
+
+function getOrganisationProfileRooms(rooms) {
+    return new Promise ((resolve, reject) => {
+       
+        let roomList = '';
+        for(const room of rooms) {
+            if(roomList == '') {
+                roomList = " `uuid`='" + room.roomUUID + "'";
+            } else {
+                roomList += " || `uuid`='" + room.roomUUID + "'"; 
+            }
+        }
+
+        const query = "SELECT uuid, layout, name, weekSystem FROM rooms where " + roomList;
+        mySQLConnection.query(query, (err, result) => {
             if(err) {
                 reject();
             } else {
@@ -3285,6 +3448,42 @@ function GetOrgHolidays(orgID) {
 
         resolve(holidays);
     })
+}
+
+//USER PROFILE METHODS
+
+function GetUserProfileDetails(uuid) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {uuid: uuid}
+        const FIND_QUERY = "SELECT * FROM userProfiles WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result)
+            }
+        });
+        })
+}
+
+function GetUserProfileRooms(uuid) {
+    return new Promise ((resolve, reject) => {
+    
+        const data = {userProfileUUID: uuid}
+        const FIND_QUERY = "SELECT * FROM UPRooms WHERE ?";
+
+        mySQLConnection.query(FIND_QUERY, data, (err, result) => {
+            if(err) {
+                console.log(err);
+                reject();
+            } else {
+                resolve(result)
+            }
+        });
+        })
 }
 
 module.exports = router;
