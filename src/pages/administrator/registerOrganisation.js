@@ -51,6 +51,15 @@ function OrganisationRegister() {
 
   }
 
+  function isNumberInput(event) {
+
+    var char = String.fromCharCode(event.which);
+
+    if(!(/[0-9]/.test(char))) {
+        event.preventDefault();
+    }
+  }
+
   return (
     <div className="body">
       <Container className="p-3">
@@ -65,7 +74,7 @@ function OrganisationRegister() {
                 </Form.Group>
                 <Form.Group as={Col}>
                   <Form.Label id="lblAlRooms">Allocated Rooms:</Form.Label><br />
-                  <Form.Control id="txtAlRooms" type="text" required></Form.Control>
+                  <Form.Control id="txtAlRooms" type="text" onKeyPress={isNumberInput} required></Form.Control>
                 </Form.Group>
                   </Form.Row>
                   <Form.Label id="lblAuthTypes">Types of Authencation:</Form.Label><br />
