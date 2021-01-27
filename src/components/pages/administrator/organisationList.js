@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector} from 'react-redux'
 import { useHistory } from 'react-router-dom';
 import Axios from 'axios';
 import OrganisationItem from './organisationItem';
+import { UpdateOrganisationsSettings } from '../../../globalSettings/mainAdminSettings';
 
 //Styles
 import Button  from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import { Row, Col, Dropdown } from 'react-bootstrap';
+import { Row, Col} from 'react-bootstrap';
 
 function OrganisationList() {
 
-    
+    const MainAdminGlobalSettings = useSelector(state => state.MainAdminGlobalSettings);
     const history = useHistory();
+    const dispatch = useDispatch();
     const [loaded, setLoaded] = useState(false);
-    const [organisations, setOrganisations] = useState([]);
 
     useEffect(() => {
         onOpen();
@@ -23,8 +25,8 @@ function OrganisationList() {
 
         Axios.get('/organisation/all')
         .then(res => {
-            console.log(res.data);
-            setOrganisations(res.data);
+            
+            UpdateOrganisationsSettings(dispatch, res.data);
             setLoaded(true);
         })
         .catch(err => {
@@ -59,10 +61,10 @@ function OrganisationList() {
             </Row>
             </Card>
             <br />
-            {organisations.map((organisation, index) => {
+            {MainAdminGlobalSettings.organisations.map((organisation, index) => {
                return (
                    <div key={index}>
-                        <OrganisationItem name={organisation.name} email={organisation.POC_Email} poc={organisation.POC_Name} orgID={organisation.orgID} />
+                        <OrganisationItem name={organisation.name} email={organisation.POC_Email} poc={organisation.POC_Name} orgID={organisation.orgID} allocatedRooms={organisation.allocatedRooms} redeemedRooms={organisation.redeemedRooms} />
                         <br />
                     </div>)
             })}

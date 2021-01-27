@@ -43,7 +43,7 @@ function SignIn() {
                     ):(
                     <div>
                     <br />
-                    <Button variant="dark" href={hostPath + "/auth/github"}><i class="fab fa-github"></i>  Log in with Github</Button><br /><br />
+                    <Button variant="dark" href={hostPath + "/auth/github"}><i className="fab fa-github"></i>  Log in with Github</Button><br /><br />
                     </div> 
                     
                     )}

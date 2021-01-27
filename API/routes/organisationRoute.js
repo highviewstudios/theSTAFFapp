@@ -1712,6 +1712,25 @@ router.post('/changeUserLoginMethod', async (req, res) => {
     }
 });
 
+router.post('/updateAlocatedRooms', async (req, res) => {
+
+    const orgID = req.body.orgID;
+    const newAllocation = req.body.newAllocation;
+
+    const result = await UpdateRoomAllocation(newAllocation, orgID);
+
+    if(result == 'Success') {
+
+        const json = {
+            error: 'null',
+            message: 'Updated room allocation',
+            organisations: await getAllOrganisations()
+        }
+
+        res.send(json);
+    }
+})
+
 //CONTACT FORM ON HOMEPAGE
 router.post('/homepageContact', async (req, res) => {
 
@@ -2231,6 +2250,22 @@ function GetRoomRedeemed(orgID) {
             reject();
         } else {
             resolve(results[0]);
+        }
+    });
+    })
+}
+
+function UpdateRoomAllocation(allocatedRooms, orgID) {
+    return new Promise((resolve, reject) => {
+
+    const UPDATE_QUERY = "UPDATE organisations SET ? WHERE orgID=?";
+    const data = [{allocatedRooms: allocatedRooms}, orgID];
+
+    mySQLConnection.query(UPDATE_QUERY, data, (err, results) => {
+        if(err) {
+            reject();
+        } else {
+            resolve('Success');
         }
     });
     })

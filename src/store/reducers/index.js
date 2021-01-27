@@ -9,6 +9,7 @@ import AdminLayoutsGlobalSettings from './globalSettings/adminLayoutsGlobalSetti
 import UserProfileAdminGlobalSettings from './globalSettings/userProfileAdminGlobalSettings';
 import AdminProfileGlobalSettings from './globalSettings/adminProfileGlobalSettings';
 import AdminUserGlobalSettings from './globalSettings/adminUserGlobalSettings';
+import MainAdminGlobalSettings from './globalSettings/mainAdminGlobalSettings';
 
 import {combineReducers} from 'redux'
 
@@ -24,7 +25,8 @@ const rootReducer = combineReducers({
     AdminLayoutsGlobalSettings: AdminLayoutsGlobalSettings,
     UserProfileAdminGlobalSettings: UserProfileAdminGlobalSettings,
     AdminProfileGlobalSettings: AdminProfileGlobalSettings,
-    AdminUserGlobalSettings: AdminUserGlobalSettings
+    AdminUserGlobalSettings: AdminUserGlobalSettings,
+    MainAdminGlobalSettings: MainAdminGlobalSettings
 });
 
 export default rootReducer;
