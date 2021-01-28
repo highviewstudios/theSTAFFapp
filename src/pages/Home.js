@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { UpdateTab, UpdateFormSettings } from '../globalSettings/homePageSettings';
+import useWindowSize from '../components/pages/windowSize';
+
 
 
 //Styles
@@ -16,10 +18,11 @@ import Contact from './homeComponents/contact';
 
 function Home() {
 
+  const [windowHeight, windowWidth] = useWindowSize();
   const user = useSelector(state => state.user);
   const history = useHistory();
   const dispatch = useDispatch();
-  const HomePageGlobalSettings = useSelector(state => state.HomePageGlobalSettings)
+  const HomePageGlobalSettings = useSelector(state => state.HomePageGlobalSettings);
   
 
   useEffect(() => {
@@ -49,7 +52,7 @@ function Home() {
   return (
     <div className="body">
         <Container fluid className="p-3">
-            <Jumbotron className="back-color">
+            <Jumbotron fluid className="back-color home-jumbotron">
             <Row>
               <Col>
                 <h1 className='blue-heading'><strong>A place to be flexible with your bookings...</strong></h1><br />
@@ -73,9 +76,11 @@ function Home() {
                 {HomePageGlobalSettings.tab == 'features' ? (<Features />) : null}
                 {HomePageGlobalSettings.tab == 'contact' ? (<Contact />) : null}
               </Col>
-              <Col sm={2}>
-                <OrgNumberSignIn />
-              </Col>
+              {windowWidth > 2000 ? (
+                <Col>
+                  <OrgNumberSignIn />
+                </Col>
+              ) : null}
             </Row>        
             </Jumbotron>
         </Container>

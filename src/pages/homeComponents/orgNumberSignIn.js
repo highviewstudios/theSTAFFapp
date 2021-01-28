@@ -25,10 +25,10 @@ function OrgNumberSignIn() {
     return ( <div className='orgNumber-style'>
         If you know your organisation's number, please enter it below, <br /><br />
 
-        <div className='orgNumber-alignLeft'>
+        <div >
             <strong>Organisation Number:</strong> <br />
             <Form.Control type='textbox' id='org-number' onKeyPress={isNumberInput} />
-            <Button variant='primary' onClick={onSubmit}>Submit</Button> <br /><br />
+            <Button variant='primary' onClick={onSubmit}>Go To My Portal</Button> <br /><br />
             <strong>Don't know the organisation's number?</strong><br />
             Locate the Senior admin of your organisation or find your registration email to locate the direct URL 
         </div>

@@ -1,13 +1,17 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { UpdateTab } from '../../globalSettings/homePageSettings';
+import useWindowSize from '../../components/pages/windowSize';
 
 import {Row, Col, Image, Card, Button} from 'react-bootstrap';
 
 import screenTimetable from '../../public/images/screen-timetable.png'
 import screenDiary from '../../public/images/screen-diary.png'
+import OrgNumberSignIn from './orgNumberSignIn';
 
 function HomePage() {
+
+    const [windowHeight, windowWidth] = useWindowSize();
 
     const dispatch = useDispatch();
 
@@ -18,10 +22,10 @@ function HomePage() {
     return (<div>
 
         <Row>
-            <Col>
+            <Col className='img-padding'>
                 <Image className='home-img' src={screenTimetable}/>
             </Col>
-            <Col>
+            <Col className='img-padding'>
                 <Image className='home-img' src={screenDiary}/>
             </Col>
             </Row>
@@ -35,9 +39,17 @@ function HomePage() {
             </Col>
         </Row>
         <br /> <br/>
+        {windowWidth < 2000 ? (<div>
+            <Row>
+                <Col>
+                    <OrgNumberSignIn />
+                </Col>
+            </Row>
+            <br /> <br />
+        </div>) : null}
         <Row>
-            <Col>
-                <Card className='home-card'>
+            <Col className='cards-padding'>
+                <Card className='mx-auto home-card'>
                     <Card.Title className='home-cardTitle'>1 - 5 Rooms</Card.Title>
                     <Card.Body>
                         2.99 per room <br /> per month
@@ -46,8 +58,8 @@ function HomePage() {
                     </Card.Body>
                 </Card>
             </Col>
-            <Col>
-                <Card className='home-card'>
+            <Col className='cards-padding'>
+                <Card className='mx-auto home-card'>
                     <Card.Title className='home-cardTitle'>6 - 10 Rooms</Card.Title>
                     <Card.Body>
                         £2.50 per room <br /> per month
@@ -56,8 +68,8 @@ function HomePage() {
                     </Card.Body>
                 </Card>
             </Col>
-            <Col>
-                <Card className='home-card'>
+            <Col className='cards-padding'>
+                <Card className='mx-auto home-card'>
                     <Card.Title className='home-cardTitle'>11 - 20 Rooms</Card.Title>
                     <Card.Body>
                         £1.99 per room <br /> per month
@@ -66,8 +78,8 @@ function HomePage() {
                     </Card.Body>
                 </Card>
             </Col>
-            <Col>
-                <Card className='home-card'>
+            <Col className='cards-padding'>
+                <Card className='mx-auto home-card'>
                     <Card.Title className='home-cardTitle'>21 Rooms +</Card.Title>
                     <Card.Body>
                         £0.99 per room <br /> per month
