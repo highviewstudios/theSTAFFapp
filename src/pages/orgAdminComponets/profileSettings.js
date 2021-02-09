@@ -405,11 +405,11 @@ function ProfileSettings(props) {
                                 <ListGroup>
                                     {settings.defaultPro ? (<div>
                                         {settings.profileUsers.map((user, index) => {
-                                        return <ListGroup.Item key={index}>{user.displayName}</ListGroup.Item>
+                                        return <ListGroup.Item href={'#' + index} key={index}>{user.displayName}</ListGroup.Item>
                                     })}
                                     </div>) : (<div>
                                         {settings.profileUsers.map((user, index) => {
-                                        return <ListGroup.Item key={index} action onClick={() => handleUserClicked(user.uuid)}>{user.displayName}</ListGroup.Item>
+                                        return <ListGroup.Item href={'#' + index} key={index} action onClick={() => handleUserClicked(user.uuid)}>{user.displayName}</ListGroup.Item>
                                     })}
                                     </div>) }
                                     
