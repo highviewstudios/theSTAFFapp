@@ -827,7 +827,7 @@ function WeekSystemHolidays(props) {
                                     <div className={help.weeks ? 'help-weeks-bordered scrollable-300' : 'scrollable-300'}>
                                         <ListGroup>
                                             {settings.weeks.map((week, index) => {
-                                                return <ListGroupItem key={index} action onClick={() => handleWeek(index)}>{week.date} - {findHoliday(week.holiday)}</ListGroupItem>
+                                                return <ListGroupItem href={'#' + index} key={index} action onClick={() => handleWeek(index)}>{week.date} - {findHoliday(week.holiday)}</ListGroupItem>
                                             })}
                                         </ListGroup>
                                     </div>

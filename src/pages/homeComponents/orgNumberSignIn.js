@@ -1,16 +1,34 @@
-import React from 'react';
-import { Form, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Form, Button, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
 
 function OrgNumberSignIn() {
 
     const history = useHistory();
 
+    const [modal, setModal] = useState({
+        open: false,
+        heading: '',
+        message: ''
+    });
+
+    function handleModalClose() {
+        setModal(prevState => {
+            return {...prevState,
+            open: false
+        }
+    });
+    }
+
     function onSubmit() {
 
         const number = document.getElementById('org-number').value;
 
-        history.push('/org/' + number + '/');
+        if(number == '') {
+            setModal({heading: 'Error!', message: 'Please enter an organisation number', open: true});
+        } else {
+            history.push('/org/' + number + '/');
+        }
     }
 
     function isNumberInput(event) {
@@ -32,6 +50,18 @@ function OrgNumberSignIn() {
             <strong>Don't know the organisation's number?</strong><br />
             Locate the Senior admin of your organisation or find your registration email to locate the direct URL 
         </div>
+
+        <Modal show={modal.open} onHide={handleModalClose}>
+                <Modal.Header closeButton>
+                <Modal.Title>{modal.heading}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>{modal.message}</Modal.Body>
+                <Modal.Footer>
+                <Button variant="primary" onClick={handleModalClose}>
+                    Close
+                </Button>
+                </Modal.Footer>
+            </Modal>
     </div>)
 }
 

@@ -150,7 +150,7 @@ function OrganisationItem(props) {
 
                 UpdateOrganisationsSettings(dispatch, res.data.organisations);
                 setRoomModal(prevState => {
-                    return {...prevState, open: false}
+                    return {...prevState, open: false, updateBtn: false}
                 });
                 setModal({heading: 'Rooms', message: 'Updated room allocation!', open: true});
             }

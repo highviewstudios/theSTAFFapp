@@ -393,7 +393,7 @@ function Users(props) {
                                             <div className='scrollable-250'>
                                             <ListGroup>
                                                 {organisation.departments.map((department, index) => {
-                                                   return <ListGroup.Item key={index} action onClick={() => { handleClickedItem_Deparment(department.name) }}>{department.name}</ListGroup.Item>
+                                                   return <ListGroup.Item href={'#' + index} key={index} action onClick={() => { handleClickedItem_Deparment(department.name) }}>{department.name}</ListGroup.Item>
                                                 })}
                                             </ListGroup>
                                             </div>
@@ -418,7 +418,7 @@ function Users(props) {
                                                     } else {
                                                         name = user.displayName;
                                                     }
-                                                    return <ListGroup.Item key={index} action onDoubleClick={() => {goToUserDetails(user.uuid)}} onClick={() => { handleClickedItem_User(user.uuid, user.displayName, user.email, user.role, user.departments) }}>{name}</ListGroup.Item>
+                                                    return <ListGroup.Item href={'#' + index} key={index} action onDoubleClick={() => {goToUserDetails(user.uuid)}} onClick={() => { handleClickedItem_User(user.uuid, user.displayName, user.email, user.role, user.departments) }}>{name}</ListGroup.Item>
                                                 })}
                                             </ListGroup>
                                             </div>

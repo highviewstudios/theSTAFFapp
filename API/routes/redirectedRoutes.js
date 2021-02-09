@@ -25,6 +25,10 @@ router.get("/org/:id/wrongOrganisation", (req, res) => {
     res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });
 
+router.get("/org/:id/userDetails", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
 router.get("/org/:id/wrongLogin", (req, res) => {
     res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });

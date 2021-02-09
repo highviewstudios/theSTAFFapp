@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import moment from 'moment';
 import Axios from 'axios';
 import { UpdateRoomName, UpdateRoomID, UpdateRoomSessionID, UpdateRoomSessionLabel, UpdateRoomDate, UpdateRoomWeekBegin, UpdateRoomDayList, UpdateRoomLayout, UpdateRoomWeekSystem, UpdateRoomWeekUUID, UpdateRoomLayoutData, UpdateDiaryStartTime, UpdateDiaryFinishTime, UpdateDiaryTimeInterval } from '../../../store/actions/globalVars';
-import { UpdateBookingEdit, UpdateBookingID } from '../../../store/actions/bookings';
+import { UpdateBookingBookingType, UpdateBookingBookingUntil, UpdateBookingSessionDes, UpdateBookingComments, UpdateBookingDepartment, UpdateBookingEdit, UpdateBookingID, UpdateBookingUser, UpdateBookingSessionLength, UpdateBookingCreatedBy } from '../../../store/actions/bookings';
 
 function Dairy(props) {
 
@@ -316,9 +316,34 @@ function Dairy(props) {
     }
 
     function handleEditBooking(uuid) {
-        console.log('booking');
-        dispatch(UpdateBookingEdit(true));
-        dispatch(UpdateBookingID(uuid))
+        
+        const data = {orgID: orgID, uuid: uuid};
+        Axios.post('/booking/getBookingData', data)
+        .then(res => {
+
+            const data = res.data;
+            dispatch(UpdateBookingUser(data.booking.user));
+            dispatch(UpdateBookingDepartment(GetDepartment(data.booking.departmentID)));
+            dispatch(UpdateBookingSessionDes(data.booking.sessionDes));
+            dispatch(UpdateBookingSessionLength(data.booking.sessionTotal));
+
+            //SINGLE / REPEAT
+            const type = data.booking.bookingType;
+            if(type == 'single') {
+                dispatch(UpdateBookingBookingType('Single'));
+            } else {
+                dispatch(UpdateBookingBookingType('Repeat - ' + data.booking.repeatType));
+                dispatch(UpdateBookingBookingUntil(data.booking.repeatUntil));
+            }
+
+            dispatch(UpdateBookingComments(data.booking.comments));
+            dispatch(UpdateBookingCreatedBy(data.booking.createdBy));       
+            dispatch(UpdateBookingEdit(true));
+            dispatch(UpdateBookingID(uuid));
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
     return (

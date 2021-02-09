@@ -88,7 +88,7 @@ function Layouts(props) {
             setSettings(prevState => {
                 return {...prevState, open: false}
             });
-            resetSessions();
+            resetSessions(dispatch);
 
         }
     }

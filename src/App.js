@@ -5,6 +5,7 @@ import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdat
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
 import 'mdbreact/dist/css/mdb.css';
+
 import "./public/styles.css";
 import "./public/organisationAdmin.css";
 import './public/organisationHome.css';

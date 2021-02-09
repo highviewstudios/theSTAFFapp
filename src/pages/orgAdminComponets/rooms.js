@@ -363,7 +363,7 @@ function Rooms(props) {
                                             <div className="scrollable-300">
                                             <ListGroup>
                                                 {settings.rooms.map((room, index) => {
-                                                   return <ListGroup.Item variant={settings.roomUUID == room.uuid ? 'primary' : null} key={index} action onClick={() => { handleItemOnClick(room.uuid, getLayoutName(room.layout), room.layout, room.weekSystem) }}>{room.name} ({getLayoutName(room.layout)})</ListGroup.Item>
+                                                   return <ListGroup.Item href={'#' + index} variant={settings.roomUUID == room.uuid ? 'primary' : null} key={index} action onClick={() => { handleItemOnClick(room.uuid, getLayoutName(room.layout), room.layout, room.weekSystem) }}>{room.name} ({getLayoutName(room.layout)})</ListGroup.Item>
                                                 })}
                                             </ListGroup>
                                             </div>

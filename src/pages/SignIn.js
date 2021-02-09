@@ -25,7 +25,7 @@ function SignIn(props) {
   useEffect(() => {
     document.title = "STAFF - Sign In";
     ServerPath();
-    //onOpen();
+    onOpen();
   },[])
 
   function onOpen() {
@@ -100,10 +100,6 @@ function SignIn(props) {
     .catch(err => {
         console.log(err);
     });
-  }
-
-  function register() {
-    history.push("/register");
   }
 }
 

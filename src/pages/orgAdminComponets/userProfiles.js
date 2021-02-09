@@ -263,7 +263,7 @@ function UserProfiles(props) {
                                             </Row>
                                         </ListGroup.Item> : null}
                                         {settings.profiles.map((profile, index) => {
-                                            return <ListGroup.Item key={index} action onClick={() => openSubMenu(profile.uuid)} onDoubleClick={() => goToSettings(profile.uuid, profile.name)}>
+                                            return <ListGroup.Item href={'#' + index} key={index} action onClick={() => openSubMenu(profile.uuid)} onDoubleClick={() => goToSettings(profile.uuid, profile.name)}>
                                             <Row>
                                                 <Col>
                                                     {profile.name}

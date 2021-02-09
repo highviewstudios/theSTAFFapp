@@ -17,7 +17,6 @@ function ProfileSettings(props) {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        console.log('profile settings...');
         if(AdminProfileGlobalSettings.uuid == '') {
             console.log(AdminProfileGlobalSettings.uuid);
             history.push('/org/' + orgID + '/organisationAdmin');
@@ -33,6 +32,28 @@ function ProfileSettings(props) {
         }
     }, []);
 
+    useEffect(() => {
+        
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        }
+    }, []);
+
+    function handleResize() {
+
+        let viewBtnSize = document.getElementById('viewBtn').offsetWidth; //50
+        let writeBtnSize = document.getElementById('writeBtn').offsetWidth; //60
+        let editBtnSize = document.getElementById('editBtn').offsetWidth; //50
+        let deleteBtnSize = document.getElementById('deleteBtn').offsetWidth; //70
+        let repeatBtnSize = document.getElementById('repeatBtn').offsetWidth; //70
+
+        setSettings(prevState => {
+            return {...prevState, viewBtnSize: viewBtnSize, writeBtnSize: writeBtnSize, editBtnSize: editBtnSize, deleteBtnSize: deleteBtnSize, repeatBtnSize: repeatBtnSize}
+        });
+
+    }
+
     const [settings, setSettings] = useState({
         users: [],
         userUUID: '',
@@ -40,6 +61,12 @@ function ProfileSettings(props) {
         profileUsers: [],
         rooms: [],
         defaultPro: false,
+
+        viewBtnSize: 0,
+        writeBtnSize: 0,
+        editBtnSize: 0,
+        deleteBtnSize: 0,
+        repeatBtnSize: 0
     });
 
     const [userHistory, setHistory] = useState({
@@ -138,6 +165,8 @@ function ProfileSettings(props) {
                     return {...prevState, rooms: rooms};
                 });
             }
+
+            handleResize();
         })
         .catch(err => {
             console.log(err)
@@ -455,20 +484,26 @@ function ProfileSettings(props) {
                                                     {settings.defaultPro ? (<div>
                                                         <Row>
                                                         <Col>{room.name}</Col>
-                                                        <Col><Button variant={room.view ? 'primary' : 'outline-primary'} disabled onClick={() => handleRoomSelectProperty(room.uuid, 'view')}>View</Button></Col>
-                                                        <Col>{room.view ? <Button variant={room.write ? 'primary' : 'outline-primary'} disabled onClick={() => handleRoomSelectProperty(room.uuid, 'write')}>Write</Button> : null}</Col>
-                                                        <Col>{room.view ? <Button variant={room.edit ? 'primary' : 'outline-primary'} disabled onClick={() => handleRoomSelectProperty(room.uuid, 'edit')}>Edit</Button> : null}</Col>
-                                                        <Col>{room.view ? <Button variant={room.delete ? 'primary' : 'outline-primary'} disabled onClick={() => handleRoomSelectProperty(room.uuid, 'delete')}>Delete</Button>: null}</Col>
-                                                        <Col>{room.view ? <Button variant={room.repeat ? 'primary' : 'outline-primary'} disabled onClick={() => handleRoomSelectProperty(room.uuid, 'repeat')}>Repeat</Button> : null}</Col>
+                                                        <Col><Button variant={room.view ? 'primary' : 'outline-primary'} disabled>View</Button></Col>
+                                                        <Col>{room.view ? <Button variant={room.write ? 'primary' : 'outline-primary'} disabled>Write</Button> : null}</Col>
+                                                        <Col>{room.view ? <Button variant={room.edit ? 'primary' : 'outline-primary'} disabled>Edit</Button> : null}</Col>
+                                                        <Col>{room.view ? <Button variant={room.delete ? 'primary' : 'outline-primary'} disabled>Delete</Button>: null}</Col>
+                                                        <Col>{room.view ? <Button variant={room.repeat ? 'primary' : 'outline-primary'} disabled>Repeat</Button> : null}</Col>
                                                         </Row>
                                                     </div>) : (<div>
                                                         <Row>
-                                                        <Col>{room.name}</Col>
-                                                        <Col><Button variant={room.view ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'view')}>View</Button></Col>
-                                                        <Col>{room.view ? <Button variant={room.write ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'write')}>Write</Button> : null}</Col>
-                                                        <Col>{room.view ? <Button variant={room.edit ? 'primary' : 'outline-primary'}  onClick={() => handleRoomSelectProperty(room.uuid, 'edit')}>Edit</Button> : null}</Col>
-                                                        <Col>{room.view ? <Button variant={room.delete ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'delete')}>Delete</Button>: null}</Col>
-                                                        <Col>{room.view ? <Button variant={room.repeat ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'repeat')}>Repeat</Button> : null}</Col>
+                                                        <Col className='col-lg-2 button-width'>{room.name}</Col>
+                                                        <Col className='col-lg-10'>
+                                                            <Row>
+                                                            <Col className='col-lg-2'></Col>
+                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'viewBtn' : null} className='button-width' variant={room.view ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'view')}>{settings.viewBtnSize <= 50 ? <i class="fas fa-eye"></i> : 'View'}</Button></Col>
+                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'writeBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.write ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'write')}>{settings.writeBtnSize <= 60 ? <i class="fas fa-pencil-alt"></i> : 'Write'}</Button></Col>
+                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'editBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.edit ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'edit')}>{settings.editBtnSize <= 50 ? <i class="fas fa-edit"></i> : 'Edit'}</Button></Col>
+                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'deleteBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.delete ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'delete')}>{settings.deleteBtnSize <= 70 ? <i class="fas fa-trash-alt"></i> : 'Delete'}</Button></Col>
+                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'repeatBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.repeat ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'repeat')}>{settings.repeatBtnSize <= 70 ? <i class="fas fa-redo-alt"></i> : 'Repeat'}</Button></Col>
+                                                        
+                                                            </Row>
+                                                        </Col>
                                                         </Row>
                                                     </div>)}
                                                 </ListGroup.Item>

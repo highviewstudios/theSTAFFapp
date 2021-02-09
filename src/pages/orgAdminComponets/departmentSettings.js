@@ -216,7 +216,7 @@ function DepartmentSettings(props) {
                                             <div className="scrollable-300">
                                             <ListGroup>
                                                 {departments.names.map((department, index) => {
-                                                   return <ListGroup.Item key={index} action onClick={() => { handleItemOnClick(department.uuid) }}>{department.name}</ListGroup.Item>
+                                                   return <ListGroup.Item href={'#' + index} key={index} action onClick={() => { handleItemOnClick(department.uuid) }}>{department.name}</ListGroup.Item>
                                                 })}
                                             </ListGroup>
                                             </div>
