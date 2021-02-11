@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
+import { UpdateDataErrorSetting } from '../../globalSettings/homePageSettings';
+import {useSelector, useDispatch} from 'react-redux';
+import axios from 'axios';
 
 function OrgNumberSignIn() {
 
     const history = useHistory();
+    const dispatch = useDispatch();
+    const globalVars = useSelector(state => state.globalVars);
 
     const [modal, setModal] = useState({
         open: false,
@@ -27,7 +32,28 @@ function OrgNumberSignIn() {
         if(number == '') {
             setModal({heading: 'Error!', message: 'Please enter an organisation number', open: true});
         } else {
-            history.push('/org/' + number + '/');
+            
+            const data = {orgID: number};
+            axios.post('/organisation/goToPortal', data)
+            .then(res => {
+                const data = res.data;
+
+                if(data.error == 'No') {
+                    history.push('/org/' + number);
+                } else {
+                    if(data.dataError == 'Yes') {
+                        UpdateDataErrorSetting(dispatch, true);
+                    } else {
+                        UpdateDataErrorSetting(dispatch, false);
+                    }
+                    history.push('/organisationNotFound');
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+            
+
         }
     }
 

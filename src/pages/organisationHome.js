@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { updateRoomProfileSettings } from '../globalSettings/userProfileSettings';
+import { useHistory } from 'react-router-dom';
 
 import Timetable from '../components/pages/organisationHome/timetable';
 import Diary from '../components/pages/organisationHome/diary';
@@ -23,6 +24,7 @@ function OrganisationHome(props) {
   const user = useSelector(state => state.user);
   const userProfile = useSelector(state => state.userProfile);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [settings, setSettings] = useState({
     orgTitle: '',
@@ -70,6 +72,9 @@ function OrganisationHome(props) {
 
   useEffect(() => {
     document.title = "STAFF";
+    if(!user.auth) {
+      history.replace('/');
+    }
     CheckPreviousState();
   },[]);
 

@@ -37,6 +37,10 @@ router.get("/org/:id/organisationAdmin", (req, res) => {
     res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });
 
+router.get("/org/:id/profileSettings", (req, res) => {
+    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+});
+
 router.get("/org/:id/book", (req, res) => {
     res.sendFile(path.join(__dirname, '../../build', 'index.html'));
 });

@@ -26,7 +26,6 @@ import AdminSignIn from "./pages/administrator/signIn";
 import AdminOrgRegister from "./pages/administrator/registerOrganisation";
 
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-import OrganisationRegister from './pages/administrator/registerOrganisation';
 
 import OrganisationNotFound from './pages/organisationNotFound';
 
@@ -37,12 +36,14 @@ function App() {
 
   useEffect(() => {
     onOpen();
-  },[])
+  },[]);
+
+  //another useEffect with the force sign in const
 
   function onOpen() {
     Axios.get("/auth", {withCredentials: true })
   .then(res => {
-      console.log(res.data);
+      console.log(res.data);//-------------
       const isAuth = res.data.auth;
       dispatch(userUpdateAuth(isAuth));
       if(isAuth) {
@@ -59,6 +60,8 @@ function App() {
           dispatch(userUpdateUserDepartments(res.data.user.departments));
           dispatch(userUpdateSARequest(res.data.user.SARequest));
           dispatch(userUpdateProfiles(res.data.user.userProfiles));
+
+          //get organisation
         }
       }
       setLoaded(true);
@@ -76,14 +79,14 @@ function App() {
       <BetaBanner />
         <Nav />
         <Switch>
-        {/* USER */}
+        {/* MAIN WEBSITE HOME */}
           <Route path="/" exact component={Home} /> {/* DO NOT TOUCH */}
         {/* ADMINISTRATION */}
         <Route path="/administrator" exact component={AdminHome} /> {/* DO NOT TOUCH */}
         <Route path="/administrator/signIn" component={AdminSignIn} /> {/* DO NOT TOUCH */}
         <Route path="/administrator/organisationRegister" component={AdminOrgRegister} />
 
-        {/* ORGANISATION */}
+        {/* ORGANISATION/USER */}
               <Route path="/org/:id" exact component={OrganisationRouter} />
               <Route path="/org/:id/collisionBookings" component={OrganisationRouter} />
               <Route path="/org/:id/organisationAdmin" component={OrganisationRouter} />
@@ -95,7 +98,8 @@ function App() {
               <Route path='/org/:id/wrongOrganisation' component={OrganisationRouter} />
               <Route path="/org/:id/userDetails" component={OrganisationRouter} />
               <Route path="/org/:id/profileSettings" component={OrganisationRouter} />
-              <Route path="/org/:id/organisationNotFound" component={OrganisationRouter} />
+
+              <Route path="/organisationNotFound" component={OrganisationNotFound} />
 
               {/* not moving this until later versions */}
               <Route path='/org/:id/book' component={Book} />

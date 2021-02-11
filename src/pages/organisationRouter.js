@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import { orgUpdateName, orgUpdateSignInLocal, orgUpdateSignInGoogle, orgUpdateMessage, orgUpdateUseDepartments, orgUpdateNoOfDepartments, orgUpdateDepartments, orgUpdateAllocatedRooms, orgUpdateRedeemedRooms, orgUpdateRooms, orgUpdateHolidays, orgUpdateLayouts, orgUpdateLocked } from "../store/actions/organistion";
 import { setDefaultAccessLevelSettings, setUserProfileSettings } from '../globalSettings/userProfileSettings';
-import { UpdateDataErrorSetting } from '../globalSettings/homePageSettings';
 
 import OrganisationHome from "../pages/organisationHome";
 import CollisionBookings from '../pages/orgAdminComponets/collisionBookings';
@@ -12,7 +11,6 @@ import ForgotPassword from "../pages/forgotPassword";
 import ChangePassword from '../pages/changePassword';
 import CreatePassword from "../pages/createPassword";
 import WrongOrganisation from '../pages/wrongOrganisation';
-import OrganisationNotFound from '../pages/organisationNotFound';
 
 import OrganisationAdmin from "../pages/organisationAdmin";
 import ProfileSettings from '../pages/orgAdminComponets/profileSettings';
@@ -34,14 +32,15 @@ function OrganisationRouter(props) {
     useEffect(() => {
         document.title = "STAFF";
         getOrgisation();
+        console.log('hi');
       },[globalVars.forceSignIn]);
 
     function getOrgisation() {
-
+        console.log('get org');
         const data = {orgID: orgID, userProfiles: user.profiles, userSettingsKeys: Object.keys(UserProfileAdminGlobalSettings.settings)}
         Axios.post('/organisation/getOrganisation', data)
         .then(res => {
-          console.log(res.data);
+          //console.log(res.data);
           if(res.data.error != "Yes") {
             dispatch(orgUpdateName(res.data.organisation.name));
             dispatch(orgUpdateSignInLocal((res.data.organisation.auth_Local == 'true')));
@@ -66,35 +65,29 @@ function OrganisationRouter(props) {
             }
 
             if(user.auth == false) {
-              history.push('/org/' + orgID + '/signIn');
+              history.replace('/org/' + orgID + '/signIn');
             } else {
                 if(user.orgID != orgID) {
-                  history.push('/org/'+ user.orgID +'/wrongOrganisation');
+                  history.replace('/org/'+ user.orgID +'/wrongOrganisation');
 
                 } else if (user.requestedPassword == 'true') {
-                  history.push('/org/'+ orgID +'/changePassword');
+                  history.replace('/org/'+ orgID +'/changePassword');
                   
                 } else if(user.new == 'true') {
-                  history.push('/org/' + orgID +'/createPassword');
+                  history.replace('/org/' + orgID +'/createPassword');
 
                 } else if(user.SARequest == 'true') {
-                  history.push('/org/' + orgID + '/changeOfSeniorRequest');
+                  history.replace('/org/' + orgID + '/changeOfSeniorRequest');
                 } 
                 else {
                   if(globalVars.fromSignIn) {
-                    history.push('/org/' + orgID);
+                    history.replace('/org/' + orgID);
                   }
                 }
             }
             setLoaded(true);
           } else {
-            if(res.data.dataError == 'Yes') {
-                UpdateDataErrorSetting(dispatch, true);
-            } else {
-                UpdateDataErrorSetting(dispatch, false);
-            }
-            history.push('/org/' + orgID + '/organisationNotFound');
-            setLoaded(true);
+            history.replace('/');
           }
         })
         .catch(err => {
@@ -119,7 +112,6 @@ function OrganisationRouter(props) {
                 <Route path='/org/:id/changeOfSeniorRequest' component={ChangeofSeniorRequest} />
                 <Route path="/org/:id/createPassword" component={CreatePassword} />
                 <Route path='/org/:id/wrongOrganisation' component={WrongOrganisation} />
-                <Route path='/org/:id/organisationNotFound' component={OrganisationNotFound} />
 
             </div>) : null}
         </div>

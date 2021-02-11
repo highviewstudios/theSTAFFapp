@@ -432,7 +432,7 @@ function ProfileSettings(props) {
                                 <div className='align-left, scrollable-300'>
                                     <ListGroup>
                                         {settings.nonProfileUsers.map((user, index) => {
-                                            return <ListGroup.Item key={index} action onClick={() => handleUserClicked(user.uuid)}>{user.displayName}</ListGroup.Item>
+                                            return <ListGroup.Item href={'#' + index} key={index} action onClick={() => handleUserClicked(user.uuid)}>{user.displayName}</ListGroup.Item>
                                         })}
                                     </ListGroup>
                                 </div>

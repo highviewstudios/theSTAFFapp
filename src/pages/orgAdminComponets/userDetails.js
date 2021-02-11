@@ -436,7 +436,7 @@ function UserDetails(props) {
                                     <div className='scrollable-250 normal-text'>
                                         <ListGroup>
                                             {organisation.departments.map((department, index) => {
-                                                return <ListGroup.Item key={index} action onClick={() => { handleClickedItem_Deparment(department.name) }}>{department.name}</ListGroup.Item>
+                                                return <ListGroup.Item href={'#' + index} key={index} action onClick={() => { handleClickedItem_Deparment(department.name) }}>{department.name}</ListGroup.Item>
                                             })}
                                         </ListGroup>
                                     </div>

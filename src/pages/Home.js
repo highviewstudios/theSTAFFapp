@@ -32,7 +32,6 @@ function Home() {
   },[]);
 
   function onOpen() {
-    console.log(user);
     if(user.auth == true) {
       if(user.role == "superAdmin") {
         history.push("/administrator");

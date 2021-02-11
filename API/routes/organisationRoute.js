@@ -428,6 +428,7 @@ router.post('/getOrganisation', async (req, res) => {
                 roomsDetails = await getOrganisationProfileRooms(PROFILE.rooms);
             }//
             const json = {
+                error: 'null',
                 userError: 'null',
                 message: 'organisation found',
                 organisation: organisation,
@@ -457,6 +458,40 @@ router.post('/getOrganisation', async (req, res) => {
         res.send(json);
     }
 });
+
+router.post('/goToPortal', async (req, res) => {
+
+    const orgID = req.body.orgID;
+
+    const validateID = CheckOrgID(orgID);
+
+    if(validateID) {
+        const organisation = await getOneOrganisation(orgID);
+
+        if(organisation == null) {
+
+            const json = {
+                error: 'Yes',
+                dataError: 'null',
+            }
+            console.log('No');
+            res.send(json);
+        } else {
+            const json = {
+                error: 'No',
+                dataError: 'null',
+            }
+            res.send(json);
+        }
+    }
+    else {
+        const json = {
+            error: 'Yes',
+            dataError: 'Yes',
+        }
+        res.send(json);
+    }
+})
 
 router.post('/getJustUser', async (req, res) => {
 
