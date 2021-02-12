@@ -57,6 +57,7 @@ export function setDefaultAccessLevelSettings(userStore, dispatch) {
         dispatch(UPUpdateRoom_View(true));
         dispatch(UPUpdateRoom_Write(true));
         dispatch(UPUpdateRoom_Repeat(true));
+        dispatch(UPUpdateRoom_Delete(true));
 
         dispatch(UPUpdateViewAllUsers(true));
         dispatch(UPUpdateViewAllDepartments(true));
@@ -66,6 +67,7 @@ export function setDefaultAccessLevelSettings(userStore, dispatch) {
         dispatch(UPUpdateRoom_View(true));
         dispatch(UPUpdateRoom_Write(true));
         dispatch(UPUpdateRoom_Repeat(true));
+        dispatch(UPUpdateRoom_Delete(true));
 
         dispatch(UPUpdateViewAllUsers(true));
         dispatch(UPUpdateViewAllDepartments(true));
@@ -101,7 +103,7 @@ export function updateRoomProfileSettings(dispatch, roomUUID, profile) {
             dispatch(UPUpdateRoom_Write((profile.rooms[room].prop_Write == 'true')));
             dispatch(UPUpdateRoom_Edit((profile.rooms[room].prop_Edit == 'true')));
             dispatch(UPUpdateRoom_Delete((profile.rooms[room].prop_Delete == 'true')));
-             dispatch(UPUpdateRoom_Repeat((profile.rooms[room].prop_Repeat == 'true')));
+            dispatch(UPUpdateRoom_Repeat((profile.rooms[room].prop_Repeat == 'true')));
         }
     }
 }
