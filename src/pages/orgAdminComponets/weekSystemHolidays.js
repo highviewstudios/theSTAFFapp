@@ -510,6 +510,8 @@ function WeekSystemHolidays(props) {
                 }
 
                 setModalLg({heading: 'Week System', message1: locked, message2: instructions, message3: message, boldMessage: bold, open: true});
+            } else {
+                setModal({heading: 'Week System / Holidays', message: 'Your settings have been saved!', open: true});
             }
         })
         .catch(err => {
