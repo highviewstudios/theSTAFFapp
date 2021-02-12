@@ -4,6 +4,7 @@ import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
 import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateUserDepartments} from "../../store/actions/user";
+import { ResetUserProfileSettingsToDefault } from '../../globalSettings/userProfileSettings'
 import { UpdateBookingEdit } from '../../store/actions/bookings';
 
 import Dropdown from "react-bootstrap/Dropdown";
@@ -75,6 +76,7 @@ function User() {
                 dispatch(userUpdateUserDepartments([]));
                 dispatch(userUpdateOrgID(''));
                 dispatch(UpdateBookingEdit(false));
+                ResetUserProfileSettingsToDefault(dispatch);
                 history.push(page);
             }
         })

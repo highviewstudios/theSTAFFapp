@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { userUpdateRequestedPassword } from '../store/actions/user';
-import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -16,6 +15,7 @@ function ChangePassword(props) {
   const [passwordHelp, setPasswordHelp] = useState(false);
   const dispatch = useDispatch();
   const globalVars = useSelector(state => state.globalVars);
+  const history = useHistory();
 
   useEffect(() => {
     document.title = "STAFF";
@@ -45,13 +45,8 @@ function ChangePassword(props) {
         } else {
           if(res.data.message == 'Updated user password') {
             dispatch(userUpdateRequestedPassword(res.data.user.requestedPassword));
-            if(globalVars.forceSignIn) {
-              dispatch(UpdateFromSignIn(true));
-              dispatch(UpdateForceSignIn(false));
-            } else {
-              dispatch(UpdateFromSignIn(true));
-              dispatch(UpdateForceSignIn(true));
-            }
+
+            history.replace('/');
           }
         }
       })

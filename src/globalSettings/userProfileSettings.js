@@ -21,6 +21,28 @@ import { ModifySettings } from '../store/actions/globalSettings/userProfileAdmin
 
 */
 
+export function ResetUserProfileSettingsToDefault(dispatch) {
+
+    dispatch(UPUpdateDefault(false));
+    dispatch(UPUpdateRooms([]));
+    dispatch(UPUpdateRoom_View(false));
+    dispatch(UPUpdateRoom_Write(false));
+    dispatch(UPUpdateRoom_Edit(false));
+    dispatch(UPUpdateRoom_Delete(false));
+    dispatch(UPUpdateRoom_Repeat(false));
+    dispatch(UPUpdateViewAllUsers(false));
+    dispatch(UPUpdateViewAllDepartments(false));
+    dispatch(UPUpdateOrgAdminAccess(false));
+    dispatch(UPUpdateOrgAdmin_loginSettings(false));
+    dispatch(UPUpdateOrgAdmin_departments(false));
+    dispatch(UPUpdateOrgAdmin_users(false));
+    dispatch(UPUpdateOrgAdmin_rooms(false));
+    dispatch(UPUpdateOrgAdmin_layouts(false));
+    dispatch(UPUpdateOrgAdmin_weekSystemHoldays(false));
+    dispatch(UPUpdateOrgAdmin_userProfiles(false));
+
+}
+
 export function setDefaultAccessLevelSettings(userStore, dispatch) {
     dispatch(UPUpdateDefault(true)); 
 

@@ -32,15 +32,15 @@ function OrganisationRouter(props) {
     useEffect(() => {
         document.title = "STAFF";
         getOrgisation();
-        console.log('hi');
-      },[globalVars.forceSignIn]);
+      },[]);
 
     function getOrgisation() {
         console.log('get org');
         const data = {orgID: orgID, userProfiles: user.profiles, userSettingsKeys: Object.keys(UserProfileAdminGlobalSettings.settings)}
+        console.log(data);
         Axios.post('/organisation/getOrganisation', data)
         .then(res => {
-          //console.log(res.data);
+          console.log(res.data);
           if(res.data.error != "Yes") {
             dispatch(orgUpdateName(res.data.organisation.name));
             dispatch(orgUpdateSignInLocal((res.data.organisation.auth_Local == 'true')));

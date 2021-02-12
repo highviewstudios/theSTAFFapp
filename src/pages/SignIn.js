@@ -3,8 +3,7 @@ import Axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import ServerPath, { hostPath } from "../ServerPath";
 import {useDispatch, useSelector} from 'react-redux';
-import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateSARequest, userUpdateUUID, userUpdateUserDepartments} from '../store/actions/user';
-import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
+import {userUpdateAuth, userUpdateName, userUpdateRole, userUpdateNew, userUpdateRequestedPassword, userUpdateOrgID, userUpdateSARequest, userUpdateUUID, userUpdateUserDepartments, userUpdateProfiles} from '../store/actions/user';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -17,7 +16,6 @@ function SignIn(props) {
 
   const user = useSelector(state => state.user);
   const organisation = useSelector(state => state.organisation);
-  const globalVars = useSelector(state => state.globalVars);
   const history = useHistory();
   const dispatch = useDispatch();
   const [message, setmessage] = useState('');
@@ -85,14 +83,9 @@ function SignIn(props) {
             dispatch(userUpdateRequestedPassword(res.data.requestedPassword));
             dispatch(userUpdateOrgID(res.data.orgID));
             dispatch(userUpdateSARequest(res.data.SARequest));
+            dispatch(userUpdateProfiles(res.data.userProfiles));
 
-            if(globalVars.forceSignIn) {
-              dispatch(UpdateFromSignIn(true));
-              dispatch(UpdateForceSignIn(false));
-            } else {
-              dispatch(UpdateFromSignIn(true));
-              dispatch(UpdateForceSignIn(true));
-            }
+            history.replace('/');
         } else {
             setmessage(res.data.info);
         }

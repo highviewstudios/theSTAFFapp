@@ -1,7 +1,5 @@
-import React, { useState, useEffect} from 'react';
+import React, { useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { UpdateForceSignIn, UpdateFromSignIn } from '../store/actions/globalVars';
 
 //Styles
 import Button from "react-bootstrap/Button"
@@ -10,26 +8,15 @@ import Jumbotron from "react-bootstrap/Jumbotron";
 
 function WrongOrganisation(props) {
 
-  const organisationID = props.match.params.id;
-
-  const globalVars = useSelector(state => state.globalVars);
-  const user = useSelector(state => state.user);
   const history = useHistory();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     document.title = "STAFF - Not Connected";
   },[])
 
   function toOrgSignIn() {
-    
-    if(globalVars.forceSignIn) {
-      dispatch(UpdateFromSignIn(true));
-      dispatch(UpdateForceSignIn(false));
-    } else {
-      dispatch(UpdateFromSignIn(true));
-      dispatch(UpdateForceSignIn(true));
-    }
+    console.log('click clock')
+    history.replace('/');
   }
 
   return (

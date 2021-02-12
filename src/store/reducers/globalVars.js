@@ -1,5 +1,5 @@
 const globalVars = (state = {roomName: '', roomID: '', sessionID: '', sessionLabel: '', date: '', weekBeginDate: '', totalSessions: 0, dayList: [], layoutData: {}, weekSystem: false,
-                            weekUUID: '', collideBookingsUpdate: false, startTime: '', finishTime: '', timeInterval: '', forceSignIn: false, fromSignIn: false}, action) => {
+                            weekUUID: '', collideBookingsUpdate: false, startTime: '', finishTime: '', timeInterval: '', fromSignIn: false}, action) => {
     switch(action.type){
         case 'UPDATE_ROOM_NAME':
             return {...state, roomName: action.value};
@@ -31,8 +31,6 @@ const globalVars = (state = {roomName: '', roomID: '', sessionID: '', sessionLab
             return {...state, finishTime: action.value};
         case 'UPDATE_DIARY_TIME_INTERVAL':
             return {...state, timeInterval: action.value};
-        case 'UPDATE_FORCE_SIGNIN':
-            return {...state, forceSignIn: action.value};
         case 'UPDATE_FROM_SIGNIN':
             return {...state, fromSignIn: action.value};
         default:

@@ -4,6 +4,7 @@ import { Button, Col, Container, Jumbotron, Row, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { userUpdateRole, userUpdateSARequest} from '../../store/actions/user';
 import { UpdateForceSignIn, UpdateFromSignIn } from '../../store/actions/globalVars';
+import { useHistory } from 'react-router-dom';
 
 function ChangeOfSeniorRequest(props) {
 
@@ -11,6 +12,7 @@ function ChangeOfSeniorRequest(props) {
     const user = useSelector(state => state.user);
     const globalVars = useSelector(state => state.globalVars);
     const dispatch = useDispatch();
+    const history = useHistory();
 
     const [settings, setSettings] = useState({
         organisation: {}
@@ -24,13 +26,14 @@ function ChangeOfSeniorRequest(props) {
 
     function handleModalClose() {
         
-        if(globalVars.forceSignIn) {
-            dispatch(UpdateFromSignIn(true));
-            dispatch(UpdateForceSignIn(false));
-        } else {
-            dispatch(UpdateFromSignIn(true));
-            dispatch(UpdateForceSignIn(true));
-        }
+        history.replace('/');
+        // if(globalVars.forceSignIn) {
+        //     dispatch(UpdateFromSignIn(true));
+        //     dispatch(UpdateForceSignIn(false));
+        // } else {
+        //     dispatch(UpdateFromSignIn(true));
+        //     dispatch(UpdateForceSignIn(true));
+        // }
         
         setModal(prevState => {
             return {...prevState,
@@ -83,13 +86,7 @@ function ChangeOfSeniorRequest(props) {
             if(res.data.message =='Senior Admin Request Declined') {
                 dispatch(userUpdateSARequest(''));
 
-                if(globalVars.forceSignIn) {
-                    dispatch(UpdateFromSignIn(true));
-                    dispatch(UpdateForceSignIn(false));
-                } else {
-                    dispatch(UpdateFromSignIn(true));
-                    dispatch(UpdateForceSignIn(true));
-                }
+                history.replace('/');
             }
         })
         .catch(err => {

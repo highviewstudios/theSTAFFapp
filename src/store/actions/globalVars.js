@@ -102,17 +102,3 @@ export const UpdateDiaryTimeInterval = (val) => {
         value: val
     };
 }
-
-export const UpdateForceSignIn = (val) => {
-    return {
-        type: 'UPDATE_FORCE_SIGNIN',
-        value: val
-    };
-}
-
-export const UpdateFromSignIn = (val) => {
-    return {
-        type: 'UPDATE_FROM_SIGNIN',
-        value: val
-    };
-}
