@@ -16,6 +16,7 @@ import OrganisationAdmin from "../pages/organisationAdmin";
 import ProfileSettings from '../pages/orgAdminComponets/profileSettings';
 
 import SignIn from "../pages/signIn";
+import { UpdateBookingEdit } from '../store/actions/bookings';
 import Axios from 'axios';
 import {useSelector, useDispatch} from 'react-redux';
 
@@ -35,7 +36,8 @@ function OrganisationRouter(props) {
       },[]);
 
     function getOrgisation() {
-        console.log('get org');
+        
+        dispatch(UpdateBookingEdit(false));
         const data = {orgID: orgID, userProfiles: user.profiles, userSettingsKeys: Object.keys(UserProfileAdminGlobalSettings.settings)}
         console.log(data);
         Axios.post('/organisation/getOrganisation', data)

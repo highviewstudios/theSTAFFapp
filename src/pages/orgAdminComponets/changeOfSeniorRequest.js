@@ -3,14 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { Button, Col, Container, Jumbotron, Row, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { userUpdateRole, userUpdateSARequest} from '../../store/actions/user';
-import { UpdateForceSignIn, UpdateFromSignIn } from '../../store/actions/globalVars';
 import { useHistory } from 'react-router-dom';
 
 function ChangeOfSeniorRequest(props) {
 
     const orgID = props.match.params.id;
     const user = useSelector(state => state.user);
-    const globalVars = useSelector(state => state.globalVars);
     const dispatch = useDispatch();
     const history = useHistory();
 
@@ -27,13 +25,6 @@ function ChangeOfSeniorRequest(props) {
     function handleModalClose() {
         
         history.replace('/');
-        // if(globalVars.forceSignIn) {
-        //     dispatch(UpdateFromSignIn(true));
-        //     dispatch(UpdateForceSignIn(false));
-        // } else {
-        //     dispatch(UpdateFromSignIn(true));
-        //     dispatch(UpdateForceSignIn(true));
-        // }
         
         setModal(prevState => {
             return {...prevState,
