@@ -925,7 +925,7 @@ function WeekSystemHolidays(props) {
             </Button>
             </Modal.Footer>
         </Modal>
-
+        <br />
     </div>)
 }
 

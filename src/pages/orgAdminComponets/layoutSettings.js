@@ -748,6 +748,7 @@ function Layouts(props) {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <br />
         </div>
     )
 }

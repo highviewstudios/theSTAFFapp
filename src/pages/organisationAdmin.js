@@ -30,12 +30,12 @@ function OrganisationAdmin(props) {
     <div className="body">
         <Container fluid className="p-3">
             <Jumbotron className="back-color">
-            {userProfile.admin_loginSettings || user.role == 'seniorAdmin' ? (<LoginSettings orgID={orgID}/>) : null}<br />
-            {userProfile.admin_departments || user.role == 'seniorAdmin' ? (<DepartmentSettings orgID={orgID}/>) : null}<br />
-            {userProfile.admin_users || user.role == 'seniorAdmin' ? (<Users orgID={orgID} />) : null } <br />
-            {userProfile.admin_rooms || user.role == 'seniorAdmin' ? (<Rooms orgID={orgID} />) : null } <br />
-            {userProfile.admin_layouts || user.role == 'seniorAdmin' ? (<Layouts orgID={orgID} />) : null}<br />
-            {userProfile.admin_weekSystemHolidays || user.role == 'seniorAdmin' ? (<WeekSystemHolidays orgID={orgID} />) : null }<br />
+            {userProfile.admin_loginSettings || user.role == 'seniorAdmin' ? (<LoginSettings orgID={orgID}/>) : null}
+            {userProfile.admin_departments || user.role == 'seniorAdmin' ? (<DepartmentSettings orgID={orgID}/>) : null}
+            {userProfile.admin_users || user.role == 'seniorAdmin' ? (<Users orgID={orgID} />) : null }
+            {userProfile.admin_rooms || user.role == 'seniorAdmin' ? (<Rooms orgID={orgID} />) : null }
+            {userProfile.admin_layouts || user.role == 'seniorAdmin' ? (<Layouts orgID={orgID} />) : null}
+            {userProfile.admin_weekSystemHolidays || user.role == 'seniorAdmin' ? (<WeekSystemHolidays orgID={orgID} />) : null }
             {userProfile.admin_userProfiles || user.role == 'seniorAdmin' ? (<UserProfiles orgID={orgID} />) : null }
             </Jumbotron>
         </Container>

@@ -443,6 +443,7 @@ function Users(props) {
                 </Button>
                 </Modal.Footer>
             </Modal>
+            <br />
         </div>
     )
 }

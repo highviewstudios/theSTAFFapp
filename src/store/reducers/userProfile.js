@@ -32,7 +32,7 @@ const userProfile = (state = {default: false, rooms: [], room_View: false, room_
         case 'UPUPDATE_ADMIN_ROOMS':
             return {...state, admin_rooms: action.value}
         case 'UPUPDATE_ADMIN_LAYOUTS':
-            return {...state, admin_layouta: action.value}
+            return {...state, admin_layouts: action.value}
         case 'UPUPDATE_ADMIN_WEEKSYSTEMHOLIDAYS':
             return {...state, admin_weekSystemHolidays: action.value}
         case 'UPUPDATE_ADMIN_USERPROFILES':

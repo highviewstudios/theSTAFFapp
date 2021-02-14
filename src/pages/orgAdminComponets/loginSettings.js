@@ -170,6 +170,7 @@ function LoginSettings(props) {
                   </tr>
                 </thead>
               </table>
+              <br />
         </div>
     )
 }

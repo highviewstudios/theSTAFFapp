@@ -242,6 +242,7 @@ function DepartmentSettings(props) {
                 </Button>
                 </Modal.Footer>
             </Modal>
+            <br />
         </div>
     )
 }
