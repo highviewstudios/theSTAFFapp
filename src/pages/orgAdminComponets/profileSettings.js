@@ -457,7 +457,8 @@ function ProfileSettings(props) {
                     </Row>
                     <Row>
                         <Col className='align-left profileSettings_warning'>
-                            <strong>Rooms are affected by the priority system, see 'help' for more information.</strong>
+                            <strong>Rooms are affected by the priority system, see 'help' for more information.</strong> <br />
+                            <strong>The edit feature is not built yet.</strong>
                         </Col>
                         <Col>
 
@@ -498,7 +499,7 @@ function ProfileSettings(props) {
                                                             <Col className='col-lg-2'></Col>
                                                             <Col className='col-lg-2'><Button id={index == 0 ? 'viewBtn' : null} className='button-width' variant={room.view ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'view')}>{settings.viewBtnSize <= 50 ? <i class="fas fa-eye"></i> : 'View'}</Button></Col>
                                                             <Col className='col-lg-2'><Button id={index == 0 ? 'writeBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.write ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'write')}>{settings.writeBtnSize <= 60 ? <i class="fas fa-pencil-alt"></i> : 'Write'}</Button></Col>
-                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'editBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.edit ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'edit')}>{settings.editBtnSize <= 50 ? <i class="fas fa-edit"></i> : 'Edit'}</Button></Col>
+                                                            <Col className='col-lg-2'><Button id={index == 0 ? 'editBtn' : null} disabled className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.edit ? 'primary' : 'outline-light'} onClick={() => handleRoomSelectProperty(room.uuid, 'edit')}>{settings.editBtnSize <= 50 ? <i class="fas fa-edit"></i> : 'Edit'}</Button></Col>
                                                             <Col className='col-lg-2'><Button id={index == 0 ? 'deleteBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.delete ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'delete')}>{settings.deleteBtnSize <= 70 ? <i class="fas fa-trash-alt"></i> : 'Delete'}</Button></Col>
                                                             <Col className='col-lg-2'><Button id={index == 0 ? 'repeatBtn' : null} className={room.view ? 'button-width' : 'button-width btn-hidden'} variant={room.repeat ? 'primary' : 'outline-primary'} onClick={() => handleRoomSelectProperty(room.uuid, 'repeat')}>{settings.repeatBtnSize <= 70 ? <i class="fas fa-redo-alt"></i> : 'Repeat'}</Button></Col>
                                                         

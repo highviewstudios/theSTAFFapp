@@ -368,7 +368,7 @@ function Rooms(props) {
                                             </ListGroup>
                                             </div>
                                             <div className={settings.editRoom ? "remove-button-show" : "remove-button-hidden"}>
-                                                    <Button onClick={handleRemoveRoom}>Remove</Button>
+                                                    <Button hidden onClick={handleRemoveRoom}>Remove</Button>
                                             </div>
                                         </Col>
                                     </Row>

@@ -88,11 +88,13 @@
 
 .singleSlot {
     background-color: orange;
+    cursor: pointer;
 }
 
 .repeatSlot {
     background-color: blue;
     color: white;
+    cursor: pointer;
 }
 
 /* BOOKINGS */

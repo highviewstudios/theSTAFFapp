@@ -158,7 +158,7 @@ function DepartmentSettings(props) {
 
             const data = {orgID: orgID, uuid: remove.uuid}
 
-            Axios.post('/organisatiton/removeDepartment', data)
+            Axios.post('/organisation/removeDepartment', data)
             .then(res => {
 
                 console.log(res.data);
@@ -175,7 +175,6 @@ function DepartmentSettings(props) {
             .catch(err => {
                 console.log(err);
             });
-
         }
     }
 

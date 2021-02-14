@@ -238,7 +238,7 @@ function UserProfiles(props) {
                                             </div>
                                             <div className='UP_priorities_Right'>
                                                 {settings.subMenu ? (<div>
-                                                    <Button onClick={() => levelPriority('increase')}>Increase Priority</Button> <Button onClick={() => levelPriority('decrease')}>Decrease Priority</Button>  <Button onClick={removeProfile}>Remove</Button>
+                                                    <Button onClick={() => levelPriority('increase')}>Increase Priority</Button> <Button onClick={() => levelPriority('decrease')}>Decrease Priority</Button>  <Button hidden onClick={removeProfile}>Remove</Button>
                                                     <Image className='help-image' src={helpImg} onClick={showHelp}></Image>
                                                 </div>) : null}
                                             </div>

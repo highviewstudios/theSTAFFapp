@@ -372,7 +372,7 @@ function Users(props) {
                                                     <Form.Row>
                                                     <div className="submit-button-show">
                                                         {!settings.edit ? (<div>
-                                                            <Button variant="primary" onClick={handleMultipleAdd}>Add Multiple</Button>
+                                                            <Button variant="primary" hidden onClick={handleMultipleAdd}>Add Multiple</Button>
                                                             <Button variant="primary" onClick={handleSingleAdd}>Add</Button>
                                                         </div>) : (
                                                             <div>

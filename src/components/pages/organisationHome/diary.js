@@ -12,6 +12,7 @@ function Dairy(props) {
     const orgID = props.orgID;
     const organisation = useSelector(state => state.organisation);
     const globalVars = useSelector(state => state.globalVars);
+    const userProfile = useSelector(state => state.userProfile);
 
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const dispatch = useDispatch();
@@ -396,10 +397,10 @@ function Dairy(props) {
                                                 {settings.data[name].user} <br/> {GetDepartment(settings.data[name].department)}
                                             </td>
                                         } else {
-                                            return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td> 
+                                            return <td className={organisation.locked || !userProfile.room_Write ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td> 
                                         }
                                     } else {
-                                        return <td className={organisation.locked ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td>
+                                        return <td className={organisation.locked || !userProfile.room_Write ? 'timetable-layout emptySlotDisabled' : 'timetable-layout emptySlot'} key={index} id={index + '-' + time} onClick={handleBookClick}>Book</td>
                                     }
                                 }
                             })
